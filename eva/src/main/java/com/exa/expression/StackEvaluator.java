@@ -31,7 +31,7 @@ public class StackEvaluator<T extends XPItem<T>> {
 		this.managers = managers;
 		
 		this.subExpressionFactory = subExpressionFactory;
-		openSubExpression(null);
+		subExpProperties.push(new SubExpProperty(null, opStack.size()));
 		
 		if(subExpressionFactory == null) return;
 		
@@ -70,24 +70,18 @@ public class StackEvaluator<T extends XPItem<T>> {
 		}
 	}
 	
-	public void push(String word) throws XPressionException {
-		//if(subExpEvaluator != null) { subExpEvaluator.push(word); return; }
-		
+	public void push(String word) throws XPressionException {		
 		for(ItemMan<T> man : managers) {
 			if(man.process(word)) break;
 		}
 	}
 	
 	public void pushOperand(T item) { 
-		//if(subExpEvaluator != null) { subExpEvaluator.pushOperand(item); return; }
-		
 		Operator<T> oprt = item.asOperator();
 		stack.push(oprt == null ? new ComputedItem<>(item, order++) : new ComputedOperator<>(oprt, order++, oprt.nbOperand()));	
 	}
 	
 	public void pushOperator(Operator<T> item) { 
-		//if(subExpEvaluator != null) { subExpEvaluator.pushOperator(item); return; }
-		
 		if(item.isPostUnary()) {
 			opStack.push(new ComputedOperator<>(item, order++, 1));
 			return;
@@ -137,11 +131,7 @@ public class StackEvaluator<T extends XPItem<T>> {
 		return null;
 	}
 	
-	public boolean rollTopOperatorInOperand() {
-		//if(opStack.size() <= subExpProperties.peek().firstOfStack) return false;
-		
-		//ComputedOperator<T> cop = opStack.pop();
-		
+	public boolean rollTopOperatorInOperand() {		
 		ComputedOperator<T> cop = popOperator();
 		if(cop == null) return false;
 		
@@ -154,6 +144,19 @@ public class StackEvaluator<T extends XPItem<T>> {
 	}
 	
 	public void openSubExpression(String resolutionSymbol) {
+		ComputedOperator<T> cop = peekOperator();
+		if(cop != null && !cop.expectOperand()) rollTopOperatorInOperand();
+		
+		while((cop = peekOperator()) != null) {
+			
+			if(cop.expectOperand()) {
+				cop.incOperandNumber();
+				break;
+			}
+			
+			rollTopOperatorInOperand();
+		}
+		
 		subExpProperties.push(new SubExpProperty(resolutionSymbol, opStack.size()));
 	}
 	

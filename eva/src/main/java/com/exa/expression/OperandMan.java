@@ -28,7 +28,7 @@ public abstract class OperandMan<T extends XPItem<T>> extends ItemMan<T> {
 			if(cop.expectOperand()) {
 				cop.incOperandNumber();
 				if(cop.expectOperand()) {
-					cop.incOperandNumber();
+					//cop.incOperandNumber();
 					break;
 				}
 			}
