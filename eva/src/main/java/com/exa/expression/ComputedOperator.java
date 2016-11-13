@@ -21,5 +21,9 @@ public class ComputedOperator<T extends XPItem<T>> extends ComputedItem<T> {
 	
 	public boolean expectOperand() { return nbOperand < expectedNbOperand;}
 	
+	public boolean canManageNextOperand(Operand<T> oprd) {
+		return item.asOperator().canManage(oprd, nbOperand+1);
+	}
+	
 	
 }

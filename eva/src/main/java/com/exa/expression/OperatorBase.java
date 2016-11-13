@@ -38,5 +38,10 @@ public abstract class OperatorBase<T extends XPItem<T>> implements Operator<T> {
 
 	@Override
 	public Operand<T> asOperand() { return null; }
+
+	@Override
+	public boolean canManage(Operand<T> oprd, int order) {	return true; }
+	
+	
 	
 }

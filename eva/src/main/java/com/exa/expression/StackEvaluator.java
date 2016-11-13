@@ -47,6 +47,10 @@ public class StackEvaluator<T extends XPItem<T>> {
 		while(opStack.size() > 0) {
 			cop = opStack.pop();
 			cop.item().asOperator().resolve(this, cop.order(), cop.nbOperand());
+			if(opStack.size()>0) {
+				cop = opStack.peek();
+				if(cop.expectOperand()) cop.incOperandNumber();
+			}
 		}
 		
 		ComputedItem<T> coprd = stack.peek();
@@ -134,10 +138,17 @@ public class StackEvaluator<T extends XPItem<T>> {
 	}
 	
 	public boolean rollTopOperatorInOperand() {
-		if(opStack.size() <= subExpProperties.peek().firstOfStack) return false;
+		//if(opStack.size() <= subExpProperties.peek().firstOfStack) return false;
 		
-		ComputedOperator<T> cop = opStack.pop();
+		//ComputedOperator<T> cop = opStack.pop();
+		
+		ComputedOperator<T> cop = popOperator();
+		if(cop == null) return false;
+		
 		stack.push(cop);
+		
+		if((cop = peekOperator()) == null) return true;
+		if(cop.expectOperand()) cop.incOperandNumber();
 		
 		return true;
 	}
@@ -151,9 +162,15 @@ public class StackEvaluator<T extends XPItem<T>> {
 		SubExpProperty sep = subExpProperties.peek();
 		
 		if(checkSymbol.equals(sep.resolutionSymbol)) {
-			subExpProperties.pop();
+			
 			while(rollTopOperatorInOperand());
+			subExpProperties.pop();
+			
+			ComputedOperator<T> cop = peekOperator();
+			if(cop == null) return;
+			if(cop.expectOperand()) cop.incOperandNumber();
 			return;
+			
 		}
 		
 		throw new XPressionException("Error in expression near '"+checkSymbol+"'");

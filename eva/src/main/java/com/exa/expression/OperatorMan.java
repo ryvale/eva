@@ -36,7 +36,14 @@ public abstract class OperatorMan<T extends XPItem<T>> extends ItemMan<T> {
 			return DO_NOTHING;
 		}
 		
-		return top.priority()<= op.priority() ? ROLL + PUSH : PUSH;
+		if(top.priority() < op.priority()) return ROLL + PUSH;
+		
+		if(top.priority() == op.priority()) {
+			if(cop.expectOperand()) return PUSH;
+			return ROLL + PUSH;
+		}
+		
+		return  PUSH;
 	}
 	
 }
