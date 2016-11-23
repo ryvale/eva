@@ -180,4 +180,6 @@ public class StackEvaluator<T extends XPItem<T>> {
 	}
 	
 	public int stackLength() { return stack.size(); }
+	
+	public Operand<T> operandReinterpreted(Operand<T> oprd) throws XPressionException { return oprd; }
 }
