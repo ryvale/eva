@@ -7,14 +7,24 @@ import java.util.Stack;
 
 public class StackEvaluator<T extends XPItem<T>> {
 	
-	class SubExpProperty {
+	public class SubExpProperty {
 		String resolutionSymbol;
-		int firstOfStack;
+		int firstOperatorOfStack;
+		int solvedStackSize;
+		
 
-		public SubExpProperty(String resolutionSymbol, int firstOfStack) {
+		public SubExpProperty(String resolutionSymbol, int firstOfStack, int solvedStackSize) {
 			this.resolutionSymbol = resolutionSymbol;
-			this.firstOfStack = firstOfStack;
+			this.firstOperatorOfStack = firstOfStack;
+			this.solvedStackSize = solvedStackSize;
 		}
+
+		public int getFirstOfStack() { return firstOperatorOfStack;	}
+
+		public int getSolvedStackSize() { return solvedStackSize; }
+		
+		
+		
 	}
 	
 	protected Stack<ComputedItem<T>> stack = new Stack<>();
@@ -31,7 +41,7 @@ public class StackEvaluator<T extends XPItem<T>> {
 		this.managers = managers;
 		
 		this.subExpressionFactory = subExpressionFactory;
-		subExpProperties.push(new SubExpProperty(null, opStack.size()));
+		subExpProperties.push(new SubExpProperty(null, opStack.size(), stack.size()));
 		
 		if(subExpressionFactory == null) return;
 		
@@ -120,13 +130,13 @@ public class StackEvaluator<T extends XPItem<T>> {
 	}
 	
 	public ComputedOperator<T> peekOperator() {
-		if(opStack.size()>subExpProperties.peek().firstOfStack) return opStack.peek();
+		if(opStack.size()>subExpProperties.peek().firstOperatorOfStack) return opStack.peek();
 		
 		return null;
 	}
 	
 	public ComputedOperator<T> popOperator() {
-		if(opStack.size()>subExpProperties.peek().firstOfStack) return opStack.pop();
+		if(opStack.size()>subExpProperties.peek().firstOperatorOfStack) return opStack.pop();
 		
 		return null;
 	}
@@ -157,7 +167,7 @@ public class StackEvaluator<T extends XPItem<T>> {
 			rollTopOperatorInOperand();
 		}
 		
-		subExpProperties.push(new SubExpProperty(resolutionSymbol, opStack.size()));
+		subExpProperties.push(new SubExpProperty(resolutionSymbol, opStack.size(), stack.size()));
 	}
 	
 	public void closeSubExpression(String checkSymbol) throws XPressionException {
