@@ -1,9 +1,9 @@
 package com.exa.expression;
 
 public abstract class OperatorMan<T extends XPItem<T>> extends ItemMan<T> {
-	static final int DO_NOTHING = 0;
-	static final int PUSH = 1;
-	static final int ROLL = 2;
+	public static final int DO_NOTHING = 0;
+	public static final int PUSH = 1;
+	public static final int ROLL = 2;
 	
 	protected StackEvaluator<T> evaluator;
 	
@@ -19,7 +19,7 @@ public abstract class OperatorMan<T extends XPItem<T>> extends ItemMan<T> {
 		
 		int resolutionStatus = resolutionStatus(op);
 		
-		if((resolutionStatus & ROLL) == ROLL) evaluator.rollTopOperatorInOperand();
+		if((resolutionStatus & ROLL) == ROLL) resolutionStatus = evaluator.rollTopOperatorInOperand(op, resolutionStatus);
 		
 		if((resolutionStatus & PUSH) == PUSH) evaluator.pushOperator(op);
 		

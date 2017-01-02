@@ -148,9 +148,33 @@ public class StackEvaluator<T extends XPItem<T>> {
 		stack.push(cop);
 		
 		if((cop = peekOperator()) == null) return true;
+		
+		
 		if(cop.expectOperand()) cop.incOperandNumber();
 		
 		return true;
+	}
+	
+	public int rollTopOperatorInOperand(Operator<T> oprt, int resolutionStatus) {		
+		ComputedOperator<T> cop = popOperator();
+		if(cop == null) return resolutionStatus;
+		
+		stack.push(cop);
+		
+		if((cop = peekOperator()) == null) return resolutionStatus;
+		
+		if(oprt == cop.item.asOperator()) {
+			if(oprt.operandsAreCumulable()) {
+				//cop.incOperandNumber();
+				cop.incExpectedOperandNumber();
+				
+				return resolutionStatus - OperatorMan.PUSH;
+			}
+		}
+		
+		if(cop.expectOperand()) cop.incOperandNumber();
+		
+		return resolutionStatus;
 	}
 	
 	public void openSubExpression(String resolutionSymbol) {
