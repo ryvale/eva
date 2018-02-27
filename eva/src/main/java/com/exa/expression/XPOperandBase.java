@@ -27,7 +27,11 @@ public abstract class XPOperandBase<T> extends OperandBase<XPression<?>, XPEvalu
 	@Override
 	public XPOperand<Integer> asOPInteger() {	return null; }
 	
+	@Override
 	public XPOperand<Boolean> asOPBoolean() { return null; }
+	
+	@Override
+	public XPOperand<Double> asOPDouble() { return null; }
 }
 
 

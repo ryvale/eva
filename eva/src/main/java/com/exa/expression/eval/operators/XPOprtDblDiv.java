@@ -2,7 +2,6 @@ package com.exa.expression.eval.operators;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 import java.util.Vector;
 
 import com.exa.expression.TypeMan;
@@ -15,62 +14,51 @@ import com.exa.expression.eval.XPComputedOperator;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
-public class XPOprtSubstract extends XPOprtCummulableBinary<Integer> {
-	
-	class OprtResult extends XPOperandBase<Integer> {
+public class XPOprtDblDiv  extends XPOprtCummulableBinary<Double> {
+	class ResultOperand extends XPOperandBase<Double> {
 		
-		List<XPOperand<Integer>> oprds = new ArrayList<>();
+		List<XPOperand<Double>> oprds = new ArrayList<>();
 
 		@Override
-		public Integer value() throws ManagedException {
-			Integer res = oprds.get(0).value();
+		public Double value() throws ManagedException {
+			Double res = oprds.get(0).value();
 			
 			if(res == null) throw new ManagedException(String.format("The oprator %s could not accept null operand", symbol));
 			
 			for(int i=1; i<oprds.size(); i++) {
-				Integer v = oprds.get(i).value();
+				Double v = oprds.get(i).value();
 				if(v == null) throw new ManagedException(String.format("The oprator %s could not accept null operand", symbol));
 				
-				res -= v;
+				res /= v;
 			}
 
 			return res;
 		}
 
 		@Override
-		public TypeMan<?> type() {
-			return TypeMan.INTEGER;
+		public TypeMan<?> type() { return TypeMan.DOUBLE; }
+
+		
+		public void addOperand(XPOperand<Double> oprd) {
+			oprds.add(oprd);
 		}
 
 		@Override
-		public XPOperand<Integer> asOPInteger() {
+		public XPOperand<Double> asOPDouble() {
 			return this;
 		}
-		
-		
-		public void addOperand(XPOperand<Integer> oprd) {
-			oprds.add(oprd);
-		}
-		
-		
 	}
 
-	public XPOprtSubstract(String symbol, int priority) {
+
+	public XPOprtDblDiv(String symbol, int priority) {
 		super(symbol, priority);
 	}
 
-	/*@Override
-	public TypeMan<?> getType(XPEvaluator eval, int order, int nbOperands) throws ManagedException {
-		return TypeMan.INTEGER;
-	}*/
-	
 	@Override
 	public TypeMan<?> type() {
-		return TypeMan.INTEGER;
+		return TypeMan.DOUBLE;
 	}
-
 	
-
 	@Override
 	public boolean canManage(XPEvaluator eval, int order, int nbOperands) throws ManagedException {
 		if(!super.canManage(eval, order, nbOperands)) return false;
@@ -82,15 +70,14 @@ public class XPOprtSubstract extends XPOprtCummulableBinary<Integer> {
 			XPOperator<?> oprt = xp.asOperator();
 			
 			if(oprt == null) {
-				if(xp.asOperand().type() != TypeMan.INTEGER) return false;
+				if(xp.asOperand().type() != TypeMan.INTEGER && xp.asOperand().type() != TypeMan.DOUBLE) return false;
 				operandIndex++;
 				continue;
 			}
 			
 			XPComputedOperator coprt = coprd.asComputedOperator();
-			//TypeMan<?> type = oprt.getType(eval, coprd.order(), coprt.nbOperands());
-			TypeMan<?> type = oprt.type();
-			if(type != TypeMan.INTEGER) return false;
+			
+			if(xp.asOperand().type() != TypeMan.INTEGER && xp.asOperand().type() != TypeMan.DOUBLE) return false;
 			operandIndex += coprt.nbOperands()+1;
 			
 		}
@@ -99,18 +86,22 @@ public class XPOprtSubstract extends XPOprtCummulableBinary<Integer> {
 	}
 
 	@Override
-	public XPOperand<Integer> createResultOperand(Vector<XPOperand<?>> params) throws ManagedException {
-		OprtResult res = new OprtResult();
+	public XPOperand<Double> createResultOperand(Vector<XPOperand<?>> params) throws ManagedException {
+		ResultOperand res = new ResultOperand();
 		
 		int nb = params.size();
 		for(int i=0; i<nb; i++) {
 			XPOperand<?> oprd = params.get(i);
-			XPOperand<Integer> opSpecific = oprd.asOPInteger();
-			if(opSpecific == null) throw new ManagedException(String.format("The % should operate only on integer.", symbol));
+			XPOperand<Double> opSpecific = oprd.asOPDouble();
+			if(opSpecific == null) {
+				XPOperand<Integer> opInt = oprd.asOPInteger();
+				if(opInt == null) throw new ManagedException(String.format("The % should operate only on integer or double.", symbol));
+				opSpecific = new XPConvertToDouble(opInt);
+			}
 			res.addOperand(opSpecific);
 		}
 		
 		return res;
 	}
-
+	
 }

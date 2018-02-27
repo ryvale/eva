@@ -176,5 +176,10 @@ public class AppTest extends TestCase {
 		System.out.println(intRes);
 		assertTrue(new Integer(4).equals(intRes));
 		
+		xp = parser.parseString("str.substr(0, 4).length - 1");
+		intRes = xp.asOPInteger().value();
+		System.out.println(intRes);
+		assertTrue(new Integer(3).equals(intRes));
+		
 	}
 }

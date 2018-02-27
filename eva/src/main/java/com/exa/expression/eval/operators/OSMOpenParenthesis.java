@@ -25,7 +25,7 @@ public class OSMOpenParenthesis extends OperatorSymbMan {
 
 	@Override
 	public Integer priority() {
-		return 2;
+		return 100;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class OSMOpenParenthesis extends OperatorSymbMan {
 
 	@Override
 	public OSMAssociativity associativity() {
-		return null;
+		return OSMAssociativity.LEFT_TO_RIGHT;
 	}
 
 	@Override

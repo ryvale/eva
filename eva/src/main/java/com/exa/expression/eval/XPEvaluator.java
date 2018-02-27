@@ -222,9 +222,10 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 				while(opStack.size() > 0) {
 					XPComputedOSM cop = opStack.peek();
 					OperatorSymbMan osm2 = cop.item();
+					boolean ltr = osm.associativity().equals(OSMAssociativity.LEFT_TO_RIGHT) && (osm.priority() >= osm2.priority());
+					boolean rtl =osm.associativity().equals(OSMAssociativity.RIGHT_TO_LEFT) && (osm.priority() < osm2.priority());
 					
-					if(!(osm.associativity().equals(OSMAssociativity.LEFT_TO_RIGHT) && (osm.priority() < osm2.priority())) &&
-						!(osm.associativity().equals(OSMAssociativity.RIGHT_TO_LEFT) && (osm.priority() <= osm2.priority()))) break;
+					if(!ltr && !rtl) break;
 					
 					popOperatorToOutput();
 				} 

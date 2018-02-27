@@ -2,7 +2,6 @@ package com.exa.expression.parsing;
 
 import com.exa.buffer.CharReader;
 import com.exa.chars.EscapeCharMan;
-import com.exa.expression.VariableIdentifier;
 import com.exa.expression.Identifier;
 import com.exa.expression.Identifier.IDType;
 import com.exa.expression.TypeMan;
@@ -10,17 +9,22 @@ import com.exa.expression.XPConstant;
 import com.exa.expression.XPIdentifier;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperator;
-import com.exa.expression.XPression;
 import com.exa.expression.eval.OperatorSymbMan;
-import com.exa.expression.eval.XPComputedItem;
 import com.exa.expression.eval.XPComputedOSM;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.expression.eval.functions.XPFunctSubstr;
 import com.exa.expression.eval.operators.OSMBinary;
 import com.exa.expression.eval.operators.OSMFunction;
 import com.exa.expression.eval.operators.XPOprtConcatenation;
+import com.exa.expression.eval.operators.XPOprtDblAdd;
+import com.exa.expression.eval.operators.XPOprtDblDiv;
+import com.exa.expression.eval.operators.XPOprtDblMultiply;
+import com.exa.expression.eval.operators.XPOprtDblSubstract;
+import com.exa.expression.eval.operators.XPOprtIntAdd;
+import com.exa.expression.eval.operators.XPOprtIntDiv;
+import com.exa.expression.eval.operators.XPOprtIntMultiply;
 import com.exa.expression.eval.operators.XPOprtMemberAccess;
-import com.exa.expression.eval.operators.XPOprtSubstract;
+import com.exa.expression.eval.operators.XPOprtIntSubstract;
 import com.exa.lexing.ParsingException;
 import com.exa.utils.ManagedException;
 
@@ -37,10 +41,23 @@ public class Parser {
 	public Parser() {
 		OSMBinary osmm = new OSMBinary("+", 6);
 		osmm.addOperator(new XPOprtConcatenation(6));
+		osmm.addOperator(new XPOprtIntAdd("+", 6));
+		osmm.addOperator(new XPOprtDblAdd("+", 6));
 		evaluator.addBinaryOp(osmm);
 		
 		osmm = new OSMBinary("-", 6);
-		osmm.addOperator(new XPOprtSubstract("-", 6));
+		osmm.addOperator(new XPOprtIntSubstract("-", 6));
+		osmm.addOperator(new XPOprtDblSubstract("-", 6));
+		evaluator.addBinaryOp(osmm);
+		
+		osmm = new OSMBinary("*", 6);
+		osmm.addOperator(new XPOprtIntMultiply("*", 5));
+		osmm.addOperator(new XPOprtDblMultiply("*", 5));
+		evaluator.addBinaryOp(osmm);
+		
+		osmm = new OSMBinary("/", 6);
+		osmm.addOperator(new XPOprtIntDiv("/", 5));
+		osmm.addOperator(new XPOprtDblDiv("/", 5));
 		evaluator.addBinaryOp(osmm);
 		
 		osmm = new OSMBinary(".", 2);
@@ -218,26 +235,6 @@ public class Parser {
 					return READ_OK;
 				}
 				
-				/*XPComputedItem<XPression<?>> cxp = evaluator.stackOperand(0);
-				if(cxp == null) {
-					identifier = evaluator.getIdentifier(str);
-					if(identifier == null) throw new ManagedException(String.format("%s . Unknown identifier.", str));
-					
-					evaluator.push(new XPIdentifier<>(identifier));
-					return READ_OK;
-				}
-			
-				
-				if(cxp.item().asOperand() == null);
-				
-				if(cxp.item().asOperand().asOPIdentifier() == null) {
-					identifier = evaluator.getIdentifier(str);
-					if(identifier == null) throw new ManagedException(String.format("%s . Unknown identifier.", str));
-					
-					evaluator.push(new XPIdentifier<>(identifier));
-					return READ_OK;
-				}*/
-				
 				identifier = new Identifier(str, IDType.PROPERTY);
 			
 				evaluator.push(new XPIdentifier<>(identifier));
@@ -278,7 +275,17 @@ public class Parser {
 				return READ_OK;
 			}
 			
-			VariableIdentifier identifier = evaluator.getIdentifier(str);
+			Identifier identifier = null;
+			XPComputedOSM cosm = evaluator.topOSM();
+			if(cosm == null || !cosm.item().symbol().equals(".")) {
+				identifier = evaluator.getIdentifier(str);
+				if(identifier == null) throw new ManagedException(String.format("%s . Unknown identifier.", str));
+				
+				evaluator.push(new XPIdentifier<>(identifier));
+				return READ_OK;
+			}
+			
+			identifier = new Identifier(str, IDType.PROPERTY);
 			
 			evaluator.push(new XPIdentifier<>(identifier));
 			return READ_OK;

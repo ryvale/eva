@@ -23,6 +23,8 @@ public interface XPOperand<T> extends Operand<XPression<?>, XPEvaluator>, XPress
 	
 	XPOperand<Boolean> asOPBoolean();
 	
+	XPOperand<Double> asOPDouble() ;
+	
 	TypeMan<?> type();
 	
 }
