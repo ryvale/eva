@@ -11,13 +11,11 @@ public class XPComputedOSM extends XPComputedItem<OperatorSymbMan> {
 		expectedNbOperand = osm.nbOperand();
 	}
 	
-	public int incOperandNumber() { return ++nbOperand; }
 	public int incExpectedOperandNumber() { return ++expectedNbOperand; }
 	public int decExpectedOperandNumber() { return --expectedNbOperand; }
 	
 	public int nbOperands() { return nbOperand;	}
-
-	public boolean expectOperand() { return nbOperand < expectedNbOperand;}
+	public int nbExpectedNbOperand() { return expectedNbOperand; }
 
 	@Override
 	public XPComputedOSM asComputedOSM() {

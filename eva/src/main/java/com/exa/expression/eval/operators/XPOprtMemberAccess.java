@@ -3,7 +3,6 @@ package com.exa.expression.eval.operators;
 import java.util.List;
 import java.util.Vector;
 
-import com.exa.eva.Operand;
 import com.exa.expression.TypeMan;
 import com.exa.expression.XPDynamicTypeOperand;
 import com.exa.expression.XPIdentifier;

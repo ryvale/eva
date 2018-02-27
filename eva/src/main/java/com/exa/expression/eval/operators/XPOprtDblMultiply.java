@@ -12,7 +12,6 @@ import com.exa.expression.XPression;
 import com.exa.expression.eval.XPComputedItem;
 import com.exa.expression.eval.XPComputedOperator;
 import com.exa.expression.eval.XPEvaluator;
-import com.exa.expression.eval.operators.XPOprtDblDiv.ResultOperand;
 import com.exa.utils.ManagedException;
 
 public class XPOprtDblMultiply extends XPOprtCummulableBinary<Double> {
@@ -77,8 +76,9 @@ public class XPOprtDblMultiply extends XPOprtCummulableBinary<Double> {
 			}
 			
 			XPComputedOperator coprt = coprd.asComputedOperator();
+			TypeMan<?> type = coprt.item().type();
 			
-			if(xp.asOperand().type() != TypeMan.INTEGER && xp.asOperand().type() != TypeMan.DOUBLE) return false;
+			if(type != TypeMan.INTEGER && type != TypeMan.DOUBLE) return false;
 			operandIndex += coprt.nbOperands()+1;
 			
 		}

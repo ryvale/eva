@@ -24,5 +24,13 @@ public abstract class XPDynamicTypeOperand<T> extends XPOperandBase<T> {
 		return TypeMan.BOOLEAN.valueOrNull(this);
 	}
 
+	@Override
+	public XPOperand<Double> asOPDouble() {
+		return TypeMan.DOUBLE.valueOrNull(this);
+	}
+	
+	
+	
+
 	
 }

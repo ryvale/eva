@@ -78,8 +78,9 @@ public class XPOprtDblAdd extends XPOprtCummulableBinary<Double> {
 			}
 			
 			XPComputedOperator coprt = coprd.asComputedOperator();
+			TypeMan<?> type = coprt.item().type();
 			
-			if(xp.asOperand().type() != TypeMan.INTEGER && xp.asOperand().type() != TypeMan.DOUBLE) return false;
+			if(type != TypeMan.INTEGER && type != TypeMan.DOUBLE) return false;
 			operandIndex += coprt.nbOperands()+1;
 			
 		}

@@ -49,6 +49,21 @@ public class AppTest extends TestCase {
 		strRes = xp.asOPString().value();
 		System.out.println(strRes);
 		assertTrue("O".equals(strRes));
+		
+		xp = parser.parseString("7.0");
+		Double dblRes = xp.asOPDouble().value();
+		System.out.println(dblRes);
+		assertTrue(new Double(7).equals(dblRes));
+		
+		xp = parser.parseString("7d");
+		dblRes = xp.asOPDouble().value();
+		System.out.println(dblRes);
+		assertTrue(new Double(7).equals(dblRes));
+		
+		xp = parser.parseString("(1+2)");
+		intRes = xp.asOPInteger().value();
+		System.out.println(intRes);
+		assertTrue(new Integer(3).equals(intRes));
 	}
 	
 	public void testNiveau1() throws ManagedException {
@@ -145,6 +160,11 @@ public class AppTest extends TestCase {
 		strRes = xp.asOPString().value();
 		System.out.println(strRes);
 		assertTrue("OK".equals(strRes));
+		
+		xp = parser.parseString("(3+4)*5");
+		Integer intRes = xp.asOPInteger().value();
+		System.out.println(intRes);
+		assertTrue(new Integer(35).equals(intRes));
 	}
 	
 	public void testNiveau2() throws ManagedException {
@@ -181,5 +201,42 @@ public class AppTest extends TestCase {
 		System.out.println(intRes);
 		assertTrue(new Integer(3).equals(intRes));
 		
+		xp = parser.parseString("2*3+1");
+		intRes = xp.asOPInteger().value();
+		System.out.println(intRes);
+		assertTrue(new Integer(7).equals(intRes));
+		
+		xp = parser.parseString("7.0 + 5.0");
+		Double dblRes = xp.asOPDouble().value();
+		System.out.println(dblRes);
+		assertTrue(new Double(12).equals(dblRes));
+		
+		xp = parser.parseString("7.0 + 5");
+		dblRes = xp.asOPDouble().value();
+		System.out.println(dblRes);
+		assertTrue(new Double(12).equals(dblRes));
+		
+		
+		xp = parser.parseString("8 + 7.0");
+		dblRes = xp.asOPDouble().value();
+		System.out.println(dblRes);
+		assertTrue(new Double(15).equals(dblRes));
+		
+		xp = parser.parseString("8 + 7.0 -1");
+		dblRes = xp.asOPDouble().value();
+		System.out.println(dblRes);
+		assertTrue(new Double(14).equals(dblRes));
+		
+		xp = parser.parseString("3 + 7.0 * 2");
+		dblRes = xp.asOPDouble().value();
+		System.out.println(dblRes);
+		assertTrue(new Double(17).equals(dblRes));
+		
+		xp = parser.parseString("(1 + 2 * (1+2) )*5");
+		intRes = xp.asOPInteger().value();
+		System.out.println(intRes);
+		assertTrue(new Integer(35).equals(intRes));
 	}
+	
+	
 }

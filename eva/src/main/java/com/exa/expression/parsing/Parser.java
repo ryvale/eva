@@ -50,12 +50,12 @@ public class Parser {
 		osmm.addOperator(new XPOprtDblSubstract("-", 6));
 		evaluator.addBinaryOp(osmm);
 		
-		osmm = new OSMBinary("*", 6);
+		osmm = new OSMBinary("*", 5);
 		osmm.addOperator(new XPOprtIntMultiply("*", 5));
 		osmm.addOperator(new XPOprtDblMultiply("*", 5));
 		evaluator.addBinaryOp(osmm);
 		
-		osmm = new OSMBinary("/", 6);
+		osmm = new OSMBinary("/", 5);
 		osmm.addOperator(new XPOprtIntDiv("/", 5));
 		osmm.addOperator(new XPOprtDblDiv("/", 5));
 		evaluator.addBinaryOp(osmm);
@@ -103,8 +103,39 @@ public class Parser {
 			if(readResult != READ_OK) throw new ManagedException(String.format("Not unary operator expected"));
 			
 		} while(readPreUnaryOPerator(cr) != READ_EOF);
+	
 		
 		return evaluator.compute();
+	}
+	
+	private void readExpressionInBracket(CharReader cr, Character closeBracket) throws ManagedException {
+		if(readPreUnaryOPerator(cr) == READ_EOF) throw new ManagedException(String.format("No string to parse"));
+		
+		do { 
+			int readResult = readOperand(cr);
+			if(readResult != READ_OK) throw new ManagedException(String.format("Operand expected"));
+			
+			readResult = readPostUnaryOperator(cr);
+			if(readResult == READ_EOF) break;
+			
+			readResult = readNotUnaryOperator(cr);
+			if(readResult == READ_EOF) break;
+			
+			if(readResult != READ_OK) {
+				Character ch = lexingRules.nextNonBlankChar(cr);
+				
+				if(ch == closeBracket)	{
+					evaluator.push(XPEvaluator.OP_CLOSED_PARENTHESIS);
+					return;
+				}
+				throw new ManagedException(String.format("Bad parenthesis experssion termination. %s expected instead of %s", closeBracket.toString(), ch));
+			}
+			
+		} while(readPreUnaryOPerator(cr) != READ_EOF);
+		
+	
+		throw new ManagedException(String.format("Bad parenthesis experssion termination. %s expected.", closeBracket.toString()));
+		
 	}
 	
 	private void readFunctionParams(CharReader cr) throws ManagedException {
@@ -116,10 +147,10 @@ public class Parser {
 			if(readResult != READ_OK) throw new ManagedException(String.format("Operand expected"));
 			
 			readResult = readPostUnaryOperator(cr);
-			if(readResult == READ_EOF) throw new ManagedException(String.format("Unexpected end of file. ',' expected in function params."));
+			if(readResult == READ_EOF) break;
 			
 			readResult = readNotUnaryOperator(cr);
-			if(readResult == READ_EOF) throw new ManagedException(String.format("Unexpected end of file. ',' expected in function params."));
+			if(readResult == READ_EOF) break;
 			
 			if(readResult != READ_OK) {
 				Character ch = lexingRules.nextNonBlankChar(cr);
@@ -135,6 +166,8 @@ public class Parser {
 			}
 			
 		} while(readPreUnaryOPerator(cr) != READ_EOF);
+		
+		throw new ManagedException(String.format("Unexpected end of file. ')' expected in function params."));
 		
 	}
 	
@@ -289,6 +322,14 @@ public class Parser {
 			
 			evaluator.push(new XPIdentifier<>(identifier));
 			return READ_OK;
+		}
+		
+		if('(' == ch) {
+			lexingRules.nextNonBlankChar(cr);
+			evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
+			readExpressionInBracket(cr, ')');
+			
+			return READ_OK;			
 		}
 		
 		

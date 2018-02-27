@@ -46,6 +46,8 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 	
 	private VariableContext variableContext;
 	
+	private int nbFreeOperand = 0;
+	
 	public XPEvaluator(VariableContext variableContext) {
 		super();
 		this.variableContext = variableContext;
@@ -148,17 +150,18 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 				if(coprt.item() == OP_OPEN_PARENTHESIS) {
 					XPComputedOSM coprt2 = opStack.get(opStack.size()-2);
 					if(coprt2.item().type().equals(OSMType.FUNCTION)) {
-						if(coprt2.expectOperand()) coprt2.incOperandNumber();
+						//if(coprt2.expectOperand()) coprt2.incOperandNumber();
 					}
 					outputStack.push(new XPComputedItem<>(item, order++));
+					++nbFreeOperand;
 					return;
 				}
 			}
 			
-			if(coprt.expectOperand()) coprt.incOperandNumber();
+			//if(coprt.expectOperand()) coprt.incOperandNumber();
 			
 		}
-			
+		++nbFreeOperand;
 		outputStack.push(new XPComputedItem<>(item, order++));
 	}
 	
@@ -186,9 +189,13 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 		XPComputedOSM cop = opStack.pop();
 		if(cop == null) return false;
 		
-		XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbOperands());
+		nbFreeOperand -= cop.nbExpectedNbOperand();
 		
-		outputStack.push(new XPComputedOperator(op, cop.order(), cop.nbOperands()));
+		XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbExpectedNbOperand());
+		
+		outputStack.push(new XPComputedOperator(op, cop.order(), cop.nbExpectedNbOperand()));
+		
+		nbFreeOperand += 1;
 		
 		if(opStack.size() == 0) return true;
 		
@@ -201,7 +208,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 			
 			if(!cop.item().type().equals(OSMType.FUNCTION)) return true;
 		}
-		cop.incOperandNumber();
+		//cop.incOperandNumber();
 		
 		return true;
 	}
@@ -268,14 +275,19 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 				
 			}
 			
-			XPComputedOSM cop = opStack.peek();
+			XPComputedOSM cop = topOSM();
+			
+			if(cop == null) return;
+			
 			OperatorSymbMan osm2 = cop.item();
 			if(osm2.type().equals(OSMType.FUNCTION)) {
 				popOperatorToOutput();
 				return;
 			}
 			
+			//if(cop.expectOperand()) cop.incOperandNumber();
 			if(osm2.symbol().equals(".")) popOperatorToOutput();
+			 
 			
 			return;
 		}
@@ -300,11 +312,13 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 		
 		while(opStack.size() > 0) {
 			cop = opStack.pop();
-			XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbOperands());
-			op.resolve(this, cop.order(), cop.nbOperands());
+			//XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbOperands());
+			nbFreeOperand -= cop.nbExpectedNbOperand();
+			XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbExpectedNbOperand());
+			op.resolve(this, cop.order(), cop.nbExpectedNbOperand());
 			if(opStack.size()>0) {
 				cop = opStack.peek();
-				if(cop.expectOperand()) cop.incOperandNumber();
+				//if(cop.expectOperand()) cop.incOperandNumber();
 			}
 		}
 		
@@ -322,6 +336,8 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 	public void clear() {
 		outputStack.clear();
 		opStack.clear();
+		order = 0;
+		nbFreeOperand = 0;
 	}
 
 	public boolean popOperator() {
