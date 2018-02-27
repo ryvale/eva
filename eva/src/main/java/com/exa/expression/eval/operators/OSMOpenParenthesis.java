@@ -25,7 +25,7 @@ public class OSMOpenParenthesis extends OperatorSymbMan {
 
 	@Override
 	public Integer priority() {
-		return null;
+		return 2;
 	}
 
 	@Override

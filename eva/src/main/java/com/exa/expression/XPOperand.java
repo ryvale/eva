@@ -2,14 +2,14 @@ package com.exa.expression;
 
 import java.util.Date;
 
-import com.exa.eva.EvaException;
 import com.exa.eva.Operand;
 import com.exa.expression.eval.XPEvaluator;
+import com.exa.utils.ManagedException;
 
 
 public interface XPOperand<T> extends Operand<XPression<?>, XPEvaluator>, XPression<T> {
 	
-	T value() throws EvaException;
+	T value() throws ManagedException;
 
 	XPOperand<T> asSpecificItem();
 
@@ -17,7 +17,7 @@ public interface XPOperand<T> extends Operand<XPression<?>, XPEvaluator>, XPress
 
 	XPOperand<Date> asOPDate() ;
 	
-	XPOperand<String> asOPIdentifier();
+	XPIdentifier<?> asOPIdentifier();
 	
 	XPOperand<Integer> asOPInteger();
 	

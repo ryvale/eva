@@ -1,9 +1,9 @@
 package com.exa.expression.eval.operators;
 
-import com.exa.eva.EvaException;
 import com.exa.expression.TypeMan;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperandBase;
+import com.exa.utils.ManagedException;
 
 public class XPConvertToString extends XPOperandBase<String> {
 	private XPOperand<?> oprd;
@@ -14,7 +14,7 @@ public class XPConvertToString extends XPOperandBase<String> {
 	}
 
 	@Override
-	public String value() throws EvaException {
+	public String value() throws ManagedException {
 		
 		return oprd.value().toString();
 	}

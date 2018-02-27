@@ -5,9 +5,9 @@ import com.exa.expression.TypeMan;
 import com.exa.expression.XPression;
 import com.exa.expression.eval.XPEvaluator;
 
-public class XPDblUnaryMinus extends XPUnary<Double> {
+public class XPOprtDblUnaryMinus extends XPOprtUnary<Double> {
 
-	public XPDblUnaryMinus(int priority) {
+	public XPOprtDblUnaryMinus(int priority) {
 		super("-", priority);
 	}
 
@@ -21,8 +21,13 @@ public class XPDblUnaryMinus extends XPUnary<Double> {
 		return true;
 	}*/
 
-	@Override
+	/*@Override
 	public TypeMan<?> getType(XPEvaluator eval, int order, int nbOperands) {
+		return TypeMan.DOUBLE;
+	}*/
+	
+	@Override
+	public TypeMan<?> type() {
 		return TypeMan.DOUBLE;
 	}
 

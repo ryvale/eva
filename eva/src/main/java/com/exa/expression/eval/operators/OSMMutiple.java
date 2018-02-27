@@ -6,6 +6,7 @@ import java.util.List;
 import com.exa.expression.XPOperator;
 import com.exa.expression.eval.OperatorSymbMan;
 import com.exa.expression.eval.XPEvaluator;
+import com.exa.utils.ManagedException;
 
 public abstract class OSMMutiple<T extends XPOperator<?>> extends OperatorSymbMan {
 	private String symbol;
@@ -32,7 +33,7 @@ public abstract class OSMMutiple<T extends XPOperator<?>> extends OperatorSymbMa
 	}
 	
 	@Override
-	public T operatorOf(XPEvaluator eval, int order, int nbOperands) {
+	public T operatorOf(XPEvaluator eval, int order, int nbOperands) throws ManagedException {
 		for(T oprt : operators) {
 			if(oprt.canManage(eval, order, nbOperands)) return oprt;
 		}

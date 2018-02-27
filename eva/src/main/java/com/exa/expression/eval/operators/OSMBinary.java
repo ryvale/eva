@@ -1,6 +1,6 @@
 package com.exa.expression.eval.operators;
 
-public class OSMBinary extends OSMMutiple<XPCummulableBinaryOp<?>> {
+public class OSMBinary extends OSMMutiple<XPOprtCummulableBinary<?>> {
 
 	public OSMBinary(String symbol, int priority) {
 		super(symbol, priority, 2);

@@ -2,17 +2,25 @@ package com.exa.expression.parsing;
 
 import com.exa.buffer.CharReader;
 import com.exa.chars.EscapeCharMan;
+import com.exa.expression.VariableIdentifier;
+import com.exa.expression.Identifier;
+import com.exa.expression.Identifier.IDType;
 import com.exa.expression.TypeMan;
 import com.exa.expression.XPConstant;
+import com.exa.expression.XPIdentifier;
 import com.exa.expression.XPOperand;
+import com.exa.expression.XPOperator;
+import com.exa.expression.XPression;
+import com.exa.expression.eval.OperatorSymbMan;
+import com.exa.expression.eval.XPComputedItem;
+import com.exa.expression.eval.XPComputedOSM;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.expression.eval.functions.XPFunctSubstr;
 import com.exa.expression.eval.operators.OSMBinary;
-import com.exa.expression.eval.operators.OSMClosedParenthesis;
 import com.exa.expression.eval.operators.OSMFunction;
-import com.exa.expression.eval.operators.OSMOpenParenthesis;
-import com.exa.expression.eval.operators.OSMParamSeparator;
-import com.exa.expression.eval.operators.XPConcatenation;
+import com.exa.expression.eval.operators.XPOprtConcatenation;
+import com.exa.expression.eval.operators.XPOprtMemberAccess;
+import com.exa.expression.eval.operators.XPOprtSubstract;
 import com.exa.lexing.ParsingException;
 import com.exa.utils.ManagedException;
 
@@ -28,15 +36,35 @@ public class Parser {
 	
 	public Parser() {
 		OSMBinary osmm = new OSMBinary("+", 6);
-		osmm.addOperator(new XPConcatenation(6));
+		osmm.addOperator(new XPOprtConcatenation(6));
+		evaluator.addBinaryOp(osmm);
+		
+		osmm = new OSMBinary("-", 6);
+		osmm.addOperator(new XPOprtSubstract("-", 6));
+		evaluator.addBinaryOp(osmm);
+		
+		osmm = new OSMBinary(".", 2);
+		osmm.addOperator(new XPOprtMemberAccess<>(".", 2, TypeMan.STRING));
+		osmm.addOperator(new XPOprtMemberAccess<>(".", 2, TypeMan.INTEGER));
+		osmm.addOperator(new XPOprtMemberAccess<>(".", 2, TypeMan.BOOLEAN));
+		osmm.addOperator(new XPOprtMemberAccess<>(".", 2, TypeMan.DOUBLE));
+		osmm.addOperator(new XPOprtMemberAccess<>(".", 2, TypeMan.DATE));
+		osmm.addOperator(new XPOprtMemberAccess<>(".", 2, TypeMan.OBJECT));
 		
 		evaluator.addBinaryOp(osmm);
 		
-		OSMFunction osmf = new OSMFunction("substr", 3);
+		OSMFunction<XPOperator<String>> osmf = new OSMFunction<>("substr", 3);
 		
 		osmf.addOperator(new XPFunctSubstr("substr", 3));
 		
 		evaluator.addFunction(osmf);
+		
+		/*OSMUnique osmu = new OSMUnique(new XPOprtMemberAccess<>(".", 2, TypeMan.STRING), 2, 2, OSMType.REGULAR, OSMOperandType.POST_OPERAND, OSMAssociativity.LEFT_TO_RIGHT);
+		evaluator.addBinaryOp(osmu);*/
+	}
+	
+	public XPEvaluator evaluator() {
+		return evaluator;
 	}
 	
 	
@@ -177,19 +205,83 @@ public class Parser {
 			
 			ch = lexingRules.nextForwardNonBlankChar(cr);
 			
+			if(ch == null) {
+				
+				XPComputedOSM cosm = evaluator.topOSM();
+				
+				Identifier identifier = null;
+				if(cosm == null || !cosm.item().symbol().equals(".")) {
+					identifier = evaluator.getIdentifier(str);
+					if(identifier == null) throw new ManagedException(String.format("%s . Unknown identifier.", str));
+					
+					evaluator.push(new XPIdentifier<>(identifier));
+					return READ_OK;
+				}
+				
+				/*XPComputedItem<XPression<?>> cxp = evaluator.stackOperand(0);
+				if(cxp == null) {
+					identifier = evaluator.getIdentifier(str);
+					if(identifier == null) throw new ManagedException(String.format("%s . Unknown identifier.", str));
+					
+					evaluator.push(new XPIdentifier<>(identifier));
+					return READ_OK;
+				}
+			
+				
+				if(cxp.item().asOperand() == null);
+				
+				if(cxp.item().asOperand().asOPIdentifier() == null) {
+					identifier = evaluator.getIdentifier(str);
+					if(identifier == null) throw new ManagedException(String.format("%s . Unknown identifier.", str));
+					
+					evaluator.push(new XPIdentifier<>(identifier));
+					return READ_OK;
+				}*/
+				
+				identifier = new Identifier(str, IDType.PROPERTY);
+			
+				evaluator.push(new XPIdentifier<>(identifier));
+				return READ_OK;
+			}
+			
 			if('(' == ch) {
 				lexingRules.nextNonBlankChar(cr);
 				
-				OSMFunction osmf = evaluator.getFunction(str);
-				if(osmf == null) throw new ParsingException(String.format("The function %S is not defined.", str));
+				XPComputedOSM cosm = evaluator.topOSM();
+				if(cosm == null || !cosm.item().symbol().equals(".")) {
+					OSMFunction<?> osmf = evaluator.getFunction(str);
+					if(osmf == null) throw new ParsingException(String.format("The function %S is not defined.", str));
+					
+					evaluator.push(osmf);
+					evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
+					readFunctionParams(cr);
+					
+					return READ_OK;
+				}
 				
+				OperatorSymbMan osm = cosm.item();
+				
+				XPOperator<?> oprt =  osm.operatorOf(evaluator, cosm.order(), cosm.nbOperands());
+				if(oprt == null) throw new ManagedException(String.format("Unexpected error near %s", str));
+				
+				OSMFunction<?> osmf = oprt.type().methodOSM(str);
+				if(osmf == null) throw new ManagedException(String.format("The method % is not defined.", str));
+				
+				if(cosm.nbOperands() < 2) 
+					evaluator.popOperator();
+				else
+					evaluator.popOperatorToOutput();
+					
 				evaluator.push(osmf);
 				evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
-				
 				readFunctionParams(cr);
 				return READ_OK;
 			}
 			
+			VariableIdentifier identifier = evaluator.getIdentifier(str);
+			
+			evaluator.push(new XPIdentifier<>(identifier));
+			return READ_OK;
 		}
 		
 		
@@ -231,6 +323,14 @@ public class Parser {
 				}
 			} 
 			
+			return READ_NOT_EOF;
+		}
+		
+		if('.' == firstChar) {
+			cr.nextChar();
+			evaluator.push(evaluator.getBinaryOp(firstChar.toString()));
+			
+			return READ_OK;
 		}
 		
 		

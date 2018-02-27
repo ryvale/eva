@@ -1,6 +1,7 @@
 package com.exa.expression.eval;
 
 import com.exa.expression.XPOperator;
+import com.exa.utils.ManagedException;
 
 public abstract class OperatorSymbMan {
 	public static enum OSMType { REGULAR, OPEN_PARENTHESIS, CLOSED_PARENTHESIS, FUNCTION, PARAMS_SEPARATOR}
@@ -11,7 +12,7 @@ public abstract class OperatorSymbMan {
 	
 	public abstract String symbol();
 	
-	public abstract XPOperator<?> operatorOf(XPEvaluator eval, int order, int nbOperands);
+	public abstract XPOperator<?> operatorOf(XPEvaluator eval, int order, int nbOperands) throws ManagedException;
 	
 	public abstract Integer priority();
 	

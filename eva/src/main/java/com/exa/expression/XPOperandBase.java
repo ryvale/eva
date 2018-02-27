@@ -22,7 +22,7 @@ public abstract class XPOperandBase<T> extends OperandBase<XPression<?>, XPEvalu
 	public XPOperand<Date> asOPDate() { return null; }
 	
 	@Override
-	public XPOperand<String> asOPIdentifier() { return null; }
+	public XPIdentifier<?> asOPIdentifier() { return null; }
 
 	@Override
 	public XPOperand<Integer> asOPInteger() {	return null; }

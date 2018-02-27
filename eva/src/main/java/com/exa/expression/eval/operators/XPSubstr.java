@@ -1,8 +1,8 @@
 package com.exa.expression.eval.operators;
 
-import com.exa.eva.EvaException;
 import com.exa.expression.XPOperand;
 import com.exa.expression.eval.XPOprdString;
+import com.exa.utils.ManagedException;
 
 public class XPSubstr extends XPOprdString {
 	
@@ -18,7 +18,7 @@ public class XPSubstr extends XPOprdString {
 	}
 
 	@Override
-	public String value() throws EvaException {
+	public String value() throws ManagedException {
 		String str = oprdStr.value();
 		Integer start = oprdStart.value();
 		

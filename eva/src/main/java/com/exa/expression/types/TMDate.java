@@ -6,4 +6,10 @@ import com.exa.expression.TypeMan;
 
 public class TMDate extends TypeMan<Date> {
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public TypeMan<Date> specificType() {
+		return this;
+	}
+	
 }

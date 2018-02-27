@@ -6,8 +6,10 @@ import java.util.Stack;
 
 import com.exa.eva.ComputedItem;
 import com.exa.eva.ComputedOperator;
-import com.exa.eva.EvaException;
 import com.exa.eva.StackEvaluator;
+import com.exa.expression.VariableIdentifier;
+import com.exa.expression.Variable;
+import com.exa.expression.VariableContext;
 import com.exa.expression.XPConstant;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperator;
@@ -16,6 +18,7 @@ import com.exa.expression.eval.operators.OSMClosedParenthesis;
 import com.exa.expression.eval.operators.OSMFunction;
 import com.exa.expression.eval.operators.OSMOpenParenthesis;
 import com.exa.expression.eval.operators.OSMParamSeparator;
+import com.exa.utils.ManagedException;
 
 import static com.exa.expression.eval.OperatorSymbMan.OSMType;
 import static com.exa.expression.eval.OperatorSymbMan.OSMAssociativity;
@@ -26,11 +29,8 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 	public static final OSMClosedParenthesis OP_CLOSED_PARENTHESIS = new OSMClosedParenthesis(")");
 	public static final OSMParamSeparator OP_PARAMS_SEPARATOR = new OSMParamSeparator(",");
 	
-	
 	public final static XPConstant<Boolean> TRUE = new XPConstant<>(Boolean.TRUE);
 	public final static XPConstant<Boolean> FALSE = new XPConstant<>(Boolean.FALSE);
-	
-	
 	
 	protected Stack<XPComputedItem<XPression<?>>> outputStack = new Stack<>();
 	protected Stack<XPComputedOSM> opStack = new Stack<>();
@@ -42,10 +42,17 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 	
 	protected Map<String, OperatorSymbMan> osmsBinary = new HashMap<>();
 	
-	protected Map<String, OSMFunction> osmsFunctions = new HashMap<>();
+	protected Map<String, OSMFunction<?>> osmsFunctions = new HashMap<>();
+	
+	private VariableContext variableContext;
+	
+	public XPEvaluator(VariableContext variableContext) {
+		super();
+		this.variableContext = variableContext;
+	}
 	
 	public XPEvaluator() {
-		super();
+		this(new MapVariableContext());
 	}
 	
 	public void addPreUnaryOp(OperatorSymbMan osm) {
@@ -60,7 +67,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 		osmsBinary.put(osm.symbol(), osm);
 	}
 	
-	public void addFunction(OSMFunction osm) {
+	public void addFunction(OSMFunction<?> osm) {
 		osmsFunctions.put(osm.symbol(), osm);
 	}
 	
@@ -76,14 +83,31 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 		return osmsBinary.get(symbol);
 	}
 	
-	public OSMFunction getFunction(String symbol) {
+	public OSMFunction<?> getFunction(String symbol) {
 		return osmsFunctions.get(symbol);
+	}
+	
+	public void addVariable(String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
+		variableContext.addVariable(name, valueClass, defaultValue);
+	}
+	
+	public VariableIdentifier getIdentifier(String name) {
+		Variable<?> var = variableContext.getVariable(name);
+		
+		if(var == null) return null;
+		
+		return new VariableIdentifier(name, var.valueClass(), var.variableContext());
 	}
 	
 	@Override
 	public ComputedOperator<XPression<?>, ? extends XPEvaluator> topOperator() {
 		
 		return null;
+	}
+	
+	public XPComputedOSM topOSM() {
+		if(opStack.size() == 0) return null;
+		return opStack.peek();
 	}
 
 	@Override
@@ -125,8 +149,8 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 					XPComputedOSM coprt2 = opStack.get(opStack.size()-2);
 					if(coprt2.item().type().equals(OSMType.FUNCTION)) {
 						if(coprt2.expectOperand()) coprt2.incOperandNumber();
-						outputStack.push(new XPComputedItem<>(item, order++));
 					}
+					outputStack.push(new XPComputedItem<>(item, order++));
 					return;
 				}
 			}
@@ -158,23 +182,31 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 		opStack.push(new XPComputedOSM(osm, order++, 1));
 	}
 	
-	public boolean popOperatorToOutput() {
+	public boolean popOperatorToOutput() throws ManagedException {
 		XPComputedOSM cop = opStack.pop();
 		if(cop == null) return false;
 		
-		XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbOperand());
+		XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbOperands());
 		
-		outputStack.push(new XPComputedOperator(op, cop.order(), cop.nbOperand()));
+		outputStack.push(new XPComputedOperator(op, cop.order(), cop.nbOperands()));
 		
 		if(opStack.size() == 0) return true;
 		
 		cop = opStack.peek();
+		
+		if(cop.item() == OP_OPEN_PARENTHESIS) {
+			if(opStack.size() == 1) return true;
+			
+			cop = opStack.get(opStack.size() - 2);
+			
+			if(!cop.item().type().equals(OSMType.FUNCTION)) return true;
+		}
 		cop.incOperandNumber();
 		
 		return true;
 	}
 	
-	public void push(OperatorSymbMan osm) {
+	public void push(OperatorSymbMan osm) throws ManagedException {
 
 		if(osm.type().equals(OSMType.REGULAR)) {
 			if(opStack.size() > 0) {
@@ -191,8 +223,8 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 					XPComputedOSM cop = opStack.peek();
 					OperatorSymbMan osm2 = cop.item();
 					
-					if(!osm.associativity().equals(OSMAssociativity.LEFT_TO_RIGHT) && (osm.priority() < osm2.priority()) &&
-						!osm.associativity().equals(OSMAssociativity.RIGHT_TO_LEFT) && (osm.priority() <= osm2.priority())) break;
+					if(!(osm.associativity().equals(OSMAssociativity.LEFT_TO_RIGHT) && (osm.priority() < osm2.priority())) &&
+						!(osm.associativity().equals(OSMAssociativity.RIGHT_TO_LEFT) && (osm.priority() <= osm2.priority()))) break;
 					
 					popOperatorToOutput();
 				} 
@@ -236,7 +268,14 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 			}
 			
 			XPComputedOSM cop = opStack.peek();
-			if(cop.item().type().equals(OSMType.FUNCTION)) popOperatorToOutput();
+			OperatorSymbMan osm2 = cop.item();
+			if(osm2.type().equals(OSMType.FUNCTION)) {
+				popOperatorToOutput();
+				return;
+			}
+			
+			if(osm2.symbol().equals(".")) popOperatorToOutput();
+			
 			return;
 		}
 		
@@ -250,17 +289,18 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 	}
 	
 	public XPComputedItem<XPression<?>> stackOperand(int indexFormTop) {
+		if(outputStack.size() == 0) return null;
 		return outputStack.get(outputStack.size() - 1 - indexFormTop);
 	}
 	
 	
-	public XPOperand<?> compute() throws EvaException {
+	public XPOperand<?> compute() throws ManagedException {
 		XPComputedOSM cop;
 		
 		while(opStack.size() > 0) {
 			cop = opStack.pop();
-			XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbOperand());
-			op.resolve(this, cop.order(), cop.nbOperand());
+			XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbOperands());
+			op.resolve(this, cop.order(), cop.nbOperands());
 			if(opStack.size()>0) {
 				cop = opStack.peek();
 				if(cop.expectOperand()) cop.incOperandNumber();
@@ -281,6 +321,13 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 	public void clear() {
 		outputStack.clear();
 		opStack.clear();
+	}
+
+	public boolean popOperator() {
+		if(opStack.size() == 0) return false;
+		opStack.pop();
+		
+		return true;
 	}
 	
 }

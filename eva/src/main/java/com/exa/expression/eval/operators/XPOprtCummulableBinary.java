@@ -1,24 +1,27 @@
 package com.exa.expression.eval.operators;
 
-import java.util.Stack;
+import java.util.Vector;
+
 import com.exa.eva.EvaException;
+import com.exa.eva.Operand;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperatorBase;
 import com.exa.expression.XPression;
 import com.exa.expression.eval.XPComputedItem;
 import com.exa.expression.eval.XPEvaluator;
+import com.exa.utils.ManagedException;
 
-public abstract class XPCummulableBinaryOp<T> extends XPOperatorBase<T> {
+public abstract class XPOprtCummulableBinary<T> extends XPOperatorBase<T> {
 
-	public XPCummulableBinaryOp(String symbol, int priority) {
+	public XPOprtCummulableBinary(String symbol, int priority) {
 		super(symbol, priority, 2);
 	}
 
 	@Override
-	public void resolve(XPEvaluator eval, int order, int nbOperands) throws EvaException {
+	public void resolve(XPEvaluator eval, int order, int nbOperands) throws ManagedException {
 		if(eval.numberOfOperands() < nbOperands) throw new EvaException(String.format("Error in the expression near %s . The number of argument expected %s is is lower than the availabe %s", symbol, nbOperands, eval.numberOfOperands()));
 		
-		Stack<XPOperand<?>> params = new Stack<>();
+		Vector<XPOperand<?>> params = new Vector<>();
 		
 		for(int i=0; i < nbOperands; i++) {
 			XPComputedItem<XPression<?>> ci = eval.popOutput();
@@ -29,34 +32,29 @@ public abstract class XPCummulableBinaryOp<T> extends XPOperatorBase<T> {
 				oprd = eval.popOutput().item().asOperand();
 			}
 			
-			params.push(oprd);
+			params.insertElementAt(oprd, 0);
 		}
 		
 				
-		XPOperand<T> res = compute(params);
+		XPOperand<T> res = createResultOperand(params);
 		
 		eval.push(res);
 	}
 	
-	public abstract XPOperand<T> compute(Stack<XPOperand<?>> params) throws EvaException;
+	public abstract XPOperand<T> createResultOperand(Vector<XPOperand<?>> params) throws ManagedException;
 	
 	
 
 	@Override
-	public boolean canManage(XPEvaluator eval, int order, int nbOperands) {
+	public boolean canManage(XPEvaluator eval, int order, int nbOperands) throws ManagedException {
 		if(eval.numberOfOperands() < nbOperands) return false;
 		
 		return true;
 	}
 
-	/*@Override
-	public boolean isPostUnary() {
-		return false;
+	public boolean canManage(Operand<XPression<?>, XPEvaluator> oprd, int order) {
+		
+		return true;
 	}
-
-	@Override
-	public boolean isPreUnary() {
-		return false;
-	}*/
 
 }

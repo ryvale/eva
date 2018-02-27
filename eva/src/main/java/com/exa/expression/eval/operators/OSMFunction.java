@@ -2,7 +2,7 @@ package com.exa.expression.eval.operators;
 
 import com.exa.expression.XPOperator;
 
-public class OSMFunction extends OSMMutiple<XPOperator<?>> {
+public class OSMFunction<T extends XPOperator<?>> extends OSMMutiple<T> {
 
 	public OSMFunction(String symbol, int nbOperand) {
 		super(symbol, null, nbOperand);
