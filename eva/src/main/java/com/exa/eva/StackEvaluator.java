@@ -1,18 +1,25 @@
 package com.exa.eva;
 
-public interface StackEvaluator<T extends Item<T, ? extends StackEvaluator<T>>> {
+import com.exa.utils.ManagedException;
 
-	ComputedOperator<T, ? extends StackEvaluator<T>> topOperator();
+public interface StackEvaluator<
+	_T extends Item<_T, _OPRD, _OPRT, _E, _OM>,
+	_OPRD extends Operand<_T, _OPRD, _OPRT, _E, _OM>,
+	_OPRT extends Operator<_T, _OPRD, _OPRT, _E, _OM>,
+	_E extends StackEvaluator<_T, _OPRD, _OPRT, _E, _OM>,
+	_OM extends OperatorManager<_T, _OPRD, _OPRT, _E, _OM>> {
+
+	ComputedOperatorManager<_OM, _T> topOperatorManager();
 	
-	void pushOperator(T oprd);
+	void push(_OM om) throws ManagedException;
 	
-	void pushOperand(T item);
-	
-	void push(T oprt);
+	void push(_OPRD oprd);
 	
 	int numberOfOperands();
 	
-	ComputedItem<T, ? extends StackEvaluator<T>> getStackOperand(int indexFormTop);
+	ComputedItem<_T, _T, _OM> stackOperand(int indexFormTop);
 	
-	ComputedItem<T, ? extends StackEvaluator<T>> popOperand();
+	ComputedItem<_T, _T, _OM> popOperand();
+	
+	boolean popOperatorInOperandStack() throws ManagedException;
 }

@@ -6,43 +6,45 @@ import java.util.Stack;
 
 import com.exa.eva.ComputedItem;
 import com.exa.eva.ComputedOperator;
+import com.exa.eva.ComputedOperatorManager;
+import com.exa.eva.OperatorManager.OMAssociativity;
+import com.exa.eva.OperatorManager.OMOperandType;
+import com.exa.eva.OperatorManager.OMType;
 import com.exa.eva.StackEvaluator;
 import com.exa.expression.VariableIdentifier;
+import com.exa.expression.OM;
+import com.exa.expression.OMClosedParenthesis;
+import com.exa.expression.OMFunction;
+import com.exa.expression.OMOpenParenthesis;
+import com.exa.expression.OMParamSeparator;
 import com.exa.expression.Variable;
 import com.exa.expression.VariableContext;
 import com.exa.expression.XPConstant;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
-import com.exa.expression.eval.operators.OSMClosedParenthesis;
-import com.exa.expression.eval.operators.OSMFunction;
-import com.exa.expression.eval.operators.OSMOpenParenthesis;
-import com.exa.expression.eval.operators.OSMParamSeparator;
 import com.exa.utils.ManagedException;
 
-import static com.exa.expression.eval.OperatorSymbMan.OSMType;
-import static com.exa.expression.eval.OperatorSymbMan.OSMAssociativity;
-import static com.exa.expression.eval.OperatorSymbMan.OSMOperandType;
 
-public class XPEvaluator implements StackEvaluator<XPression<?>> {
-	public static final OSMOpenParenthesis OP_OPEN_PARENTHESIS = new OSMOpenParenthesis("(");
-	public static final OSMClosedParenthesis OP_CLOSED_PARENTHESIS = new OSMClosedParenthesis(")");
-	public static final OSMParamSeparator OP_PARAMS_SEPARATOR = new OSMParamSeparator(",");
+public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, XPOperator<?>, XPEvaluator, OM> {
+	public static final OMOpenParenthesis OP_OPEN_PARENTHESIS = new OMOpenParenthesis("(", 100);
+	public static final OMClosedParenthesis OP_CLOSED_PARENTHESIS = new OMClosedParenthesis(")");
+	public static final OMParamSeparator OP_PARAMS_SEPARATOR = new OMParamSeparator(",");
 	
 	public final static XPConstant<Boolean> TRUE = new XPConstant<>(Boolean.TRUE);
 	public final static XPConstant<Boolean> FALSE = new XPConstant<>(Boolean.FALSE);
 	
-	protected Stack<XPComputedItem<XPression<?>>> outputStack = new Stack<>();
-	protected Stack<XPComputedOSM> opStack = new Stack<>();
+	protected Stack<ComputedItem<XPression<?>, XPression<?>, OM>> outputStack = new Stack<>();
+	protected Stack<ComputedOperatorManager<OM, XPression<?>>> opStack = new Stack<>();
 	
 	private int order = 0;
 	
-	protected Map<String, OperatorSymbMan> osmsPreUnary = new HashMap<>();
-	protected Map<String, OperatorSymbMan> osmsPostUnary = new HashMap<>();
+	protected Map<String, OM> osmsPreUnary = new HashMap<>();
+	protected Map<String, OM> osmsPostUnary = new HashMap<>();
 	
-	protected Map<String, OperatorSymbMan> osmsBinary = new HashMap<>();
+	protected Map<String, OM> osmsBinary = new HashMap<>();
 	
-	protected Map<String, OSMFunction<?>> osmsFunctions = new HashMap<>();
+	protected Map<String, OMFunction<?>> osmsFunctions = new HashMap<>();
 	
 	private VariableContext variableContext;
 	
@@ -57,35 +59,35 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 		this(new MapVariableContext());
 	}
 	
-	public void addPreUnaryOp(OperatorSymbMan osm) {
+	public void addPreUnaryOp(OM osm) {
 		osmsPreUnary.put(osm.symbol(), osm);
 	}
 	
-	public void addPostUnaryOp(OperatorSymbMan osm) {
+	public void addPostUnaryOp(OM osm) {
 		osmsPostUnary.put(osm.symbol(), osm);
 	}
 	
-	public void addBinaryOp(OperatorSymbMan osm) {
+	public void addBinaryOp(OM osm) {
 		osmsBinary.put(osm.symbol(), osm);
 	}
 	
-	public void addFunction(OSMFunction<?> osm) {
+	public void addFunction(OMFunction<?> osm) {
 		osmsFunctions.put(osm.symbol(), osm);
 	}
 	
-	public OperatorSymbMan getPreUnaryOp(String symbol) {
+	public OM getPreUnaryOp(String symbol) {
 		return osmsPreUnary.get(symbol);
 	}
 	
-	public OperatorSymbMan getPostUnaryOp(String symbol) {
+	public OM getPostUnaryOp(String symbol) {
 		return osmsPostUnary.get(symbol);
 	}
 	
-	public OperatorSymbMan getBinaryOp(String symbol) {
+	public OM getBinaryOp(String symbol) {
 		return osmsBinary.get(symbol);
 	}
 	
-	public OSMFunction<?> getFunction(String symbol) {
+	public OMFunction<?> getFunction(String symbol) {
 		return osmsFunctions.get(symbol);
 	}
 	
@@ -100,59 +102,24 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 		
 		return new VariableIdentifier(name, var.valueClass(), var.variableContext());
 	}
-	
-	@Override
-	public ComputedOperator<XPression<?>, ? extends XPEvaluator> topOperator() {
-		
-		return null;
-	}
-	
-	public XPComputedOSM topOSM() {
-		if(opStack.size() == 0) return null;
-		return opStack.peek();
-	}
-
-	@Override
-	public void pushOperator(XPression<?> oprd) {
-		
-	}
-
-	@Override
-	public void push(XPression<?> oprt) {
-		
-	}
 
 	@Override
 	public int numberOfOperands() {
 		return outputStack.size();
 	}
-
-	@Override
-	public ComputedItem<XPression<?>, XPEvaluator> popOperand() {
-		return null;
-	}
 	
-	public XPComputedItem<XPression<?>> popOutput() {
-		return outputStack.pop();
-	}
-
 	@Override
-	public void pushOperand(XPression<?> item) {
-		/*XPOperator<?> oprt = item.asOperator();
-		outputStack.push(oprt == null ? new XPComputedItem<>(item, order++) : new XPComputedOperator(oprt, order++, oprt.nbOperand()));*/
-	}
-	
 	public void push(XPOperand<?> item) {
 		if(opStack.size() > 0) {
-			XPComputedOSM coprt = opStack.peek();
+			ComputedOperatorManager<OM, XPression<?>> coprt = opStack.peek();
 			
 			if(opStack.size() > 1) {
 				if(coprt.item() == OP_OPEN_PARENTHESIS) {
-					XPComputedOSM coprt2 = opStack.get(opStack.size()-2);
-					if(coprt2.item().type().equals(OSMType.FUNCTION)) {
+					ComputedOperatorManager<OM, XPression<?>> coprt2 = opStack.get(opStack.size()-2);
+					if(coprt2.item().type().equals(OMType.FUNCTION)) {
 						//if(coprt2.expectOperand()) coprt2.incOperandNumber();
 					}
-					outputStack.push(new XPComputedItem<>(item, order++));
+					outputStack.push(new ComputedItem<>(item, order++));
 					++nbFreeOperand;
 					return;
 				}
@@ -162,38 +129,38 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 			
 		}
 		++nbFreeOperand;
-		outputStack.push(new XPComputedItem<>(item, order++));
+		outputStack.push(new ComputedItem<>(item, order++));
 	}
 	
-	private void _push(OperatorSymbMan osm) {
-		OSMOperandType otype = osm.operandType();
+	private void _push(OM osm) {
+		OMOperandType otype = osm.operandType();
 		if(otype == null) {
-			opStack.push(new XPComputedOSM(osm, order++, 1));
+			opStack.push(new ComputedOperatorManager<>(osm, order++, 1));
 			return;
 		}
 		
-		if(otype.equals(OSMOperandType.POST_OPERAND)) {
-			opStack.push(new XPComputedOSM(osm, order++, 1));
+		if(otype.equals(OMOperandType.POST_OPERAND)) {
+			opStack.push(new ComputedOperatorManager<>(osm, order++, 1));
 			return;
 		}
 	
-		if(otype.equals(OSMOperandType.PRE_OPERAND)) {
-			opStack.push(new XPComputedOSM(osm, order++, 0));
+		if(otype.equals(OMOperandType.PRE_OPERAND)) {
+			opStack.push(new ComputedOperatorManager<>(osm, order++, 0));
 			return;
 		}
 		
-		opStack.push(new XPComputedOSM(osm, order++, 1));
+		opStack.push(new ComputedOperatorManager<>(osm, order++, 1));
 	}
 	
-	public boolean popOperatorToOutput() throws ManagedException {
+	/*public boolean popOperatorToOutput() throws ManagedException {
 		XPComputedOSM cop = opStack.pop();
 		if(cop == null) return false;
 		
-		nbFreeOperand -= cop.nbExpectedNbOperand();
+		nbFreeOperand -= cop.nbExpectedNbOperands();
 		
-		XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbExpectedNbOperand());
+		XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbExpectedNbOperands());
 		
-		outputStack.push(new XPComputedOperator(op, cop.order(), cop.nbExpectedNbOperand()));
+		outputStack.push(new XPComputedOperator(op, cop.order(), cop.nbExpectedNbOperands()));
 		
 		nbFreeOperand += 1;
 		
@@ -212,8 +179,9 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 		
 		return true;
 	}
+	*/
 	
-	public void push(OperatorSymbMan osm) throws ManagedException {
+	/*public void push(OperatorSymbMan osm) throws ManagedException {
 
 		if(osm.type().equals(OSMType.REGULAR)) {
 			if(opStack.size() > 0) {
@@ -293,36 +261,40 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 		}
 		
 	}
+	*/
 
+	/*
 	@Override
 	public ComputedItem<XPression<?>, XPEvaluator> getStackOperand(int indexFormTop) {
 		//return outputStack.get(outputStack.size() - 1 - indexFormTop);
 		
 		return null;
 	}
+	*/
 	
-	public XPComputedItem<XPression<?>> stackOperand(int indexFormTop) {
+	/*public XPComputedItem<XPression<?>> stackOperand(int indexFormTop) {
 		if(outputStack.size() == 0) return null;
 		return outputStack.get(outputStack.size() - 1 - indexFormTop);
 	}
+	*/
 	
 	
 	public XPOperand<?> compute() throws ManagedException {
-		XPComputedOSM cop;
+		ComputedOperatorManager<OM, XPression<?>> cop;
 		
 		while(opStack.size() > 0) {
 			cop = opStack.pop();
-			//XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbOperands());
-			nbFreeOperand -= cop.nbExpectedNbOperand();
-			XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbExpectedNbOperand());
-			op.resolve(this, cop.order(), cop.nbExpectedNbOperand());
+			
+			nbFreeOperand -= cop.nbExpectedNbOperands();
+			XPOperator<?> op = cop.item().operatorOf(this, cop.order(), cop.nbExpectedNbOperands());
+			op.resolve(this, cop.order(), cop.nbExpectedNbOperands());
 			if(opStack.size()>0) {
 				cop = opStack.peek();
-				//if(cop.expectOperand()) cop.incOperandNumber();
+				
 			}
 		}
 		
-		XPComputedItem<XPression<?>> coprd = outputStack.peek();
+		ComputedItem<XPression<?>, XPression<?>, OM> coprd = outputStack.peek();
 		
 		XPression<?> item = coprd.item();
 		if(item.asOperand() == null) {
@@ -343,6 +315,136 @@ public class XPEvaluator implements StackEvaluator<XPression<?>> {
 	public boolean popOperator() {
 		if(opStack.size() == 0) return false;
 		opStack.pop();
+		
+		return true;
+	}
+
+
+	@Override
+	public ComputedItem<XPression<?>, XPression<?>, OM> stackOperand(int indexFormTop) {
+		if(outputStack.size() == 0) return null;
+		return outputStack.get(outputStack.size() - 1 - indexFormTop);
+	}
+
+	@Override
+	public ComputedOperatorManager<OM, XPression<?>> topOperatorManager() {
+		if(opStack.size() == 0) return null;
+
+		return opStack.peek();
+	}
+
+	@Override
+	public void push(OM om) throws ManagedException {
+		if(om.type().equals(OMType.REGULAR)) {
+			if(opStack.size() > 0) {
+				ComputedOperatorManager<OM, XPression<?>> coprt = opStack.peek();
+				
+				OM topOm = coprt.item();
+				
+				if(topOm == om && om.canCumulateOperands()) {
+					coprt.incExpectedOperandNumber();
+					return;
+				}
+				
+				while(opStack.size() > 0) {
+					ComputedOperatorManager<OM, XPression<?>> cop = opStack.peek();
+					OM osm2 = cop.item();
+					boolean ltr = om.associativity().equals(OMAssociativity.LEFT_TO_RIGHT) && (om.priority() >= osm2.priority());
+					boolean rtl =om.associativity().equals(OMAssociativity.RIGHT_TO_LEFT) && (om.priority() < osm2.priority());
+					
+					if(!ltr && !rtl) break;
+					
+					popOperatorInOperandStack();
+				} 
+			}
+			_push(om);
+			return;
+		}
+		
+		if(om.type().equals(OMType.FUNCTION)) {
+			_push(om);
+			return;
+		}
+		
+		if(om.type().equals(OMType.PARAMS_SEPARATOR)) {
+			
+			while(opStack.size() > 0) {
+				ComputedOperatorManager<OM, XPression<?>> cop = opStack.peek();
+				if(cop.item().type().equals(OMType.OPEN_PARENTHESIS)) break;
+				
+				popOperatorInOperandStack();
+			}
+			
+			return;
+		}
+		
+		if(om.type().equals(OMType.OPEN_PARENTHESIS)) {
+			_push(om);
+			return;
+		}
+		
+		if(om.type().equals(OMType.CLOSED_PARENTHESIS)) {
+			while(opStack.size() > 0) {
+				ComputedOperatorManager<OM, XPression<?>> cop = opStack.peek();
+				if(cop.item().type().equals(OMType.OPEN_PARENTHESIS)) {
+					opStack.pop();
+					break;
+				}
+				
+				popOperatorInOperandStack();
+				
+			}
+			
+			ComputedOperatorManager<OM, XPression<?>> cop = topOperatorManager();
+			
+			if(cop == null) return;
+			
+			OM osm2 = cop.item();
+			if(osm2.type().equals(OMType.FUNCTION)) {
+				popOperatorInOperandStack();
+				return;
+			}
+			
+			//if(cop.expectOperand()) cop.incOperandNumber();
+			if(osm2.symbol().equals(".")) popOperatorInOperandStack();
+			 
+			
+			return;
+		}
+		
+	}
+
+	@Override
+	public ComputedItem<XPression<?>, XPression<?>, OM> popOperand() {
+		if(outputStack.size() == 0) return null;
+		return outputStack.pop();
+	}
+
+	@Override
+	public boolean popOperatorInOperandStack() throws ManagedException {
+		ComputedOperatorManager<OM, XPression<?>> cop = opStack.pop();
+		if(cop == null) return false;
+		
+		nbFreeOperand -= cop.nbExpectedNbOperands();
+		
+		XPOperator<?> op = cop.item().operatorOf(this, cop.order(), cop.nbExpectedNbOperands());
+		
+		outputStack.push(new ComputedOperator<XPression<?>, OM>(op, cop.order(), cop.nbExpectedNbOperands()));
+		
+		nbFreeOperand += 1;
+		
+		if(opStack.size() == 0) return true;
+		
+		cop = opStack.peek();
+		
+		if(cop.item() == OP_OPEN_PARENTHESIS) {
+			if(opStack.size() == 1) return true;
+			
+			cop = opStack.get(opStack.size() - 2);
+			
+			if(!cop.item().type().equals(OMType.FUNCTION)) return true;
+		}
+		//cop.incOperandNumber();
 		
 		return true;
 	}

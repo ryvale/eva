@@ -4,16 +4,14 @@ import java.util.List;
 import java.util.Vector;
 
 import com.exa.eva.EvaException;
-import com.exa.eva.Operand;
 import com.exa.expression.eval.XPEvaluator;
-import com.exa.expression.eval.operators.OSMFunction;
 import com.exa.utils.ManagedException;
 
-public class OSMMethod<T> extends OSMFunction<OSMMethod.XPOrtMethod<T>> {
+public class OMMethod<T> extends OMFunction<OMMethod.XPOrtMethod<T>> {
 	
 	public abstract static class XPOrtMethod<T> extends XPOperatorBase<T> {
 		
-		public abstract class XPMethodResult<T> extends XPDynamicTypeOperand<T> {
+		public abstract class XPMethodResult extends XPDynamicTypeOperand<T> {
 			protected XPOperand<T> object;
 			protected List<XPOperand<?>> params;
 			
@@ -31,7 +29,7 @@ public class OSMMethod<T> extends OSMFunction<OSMMethod.XPOrtMethod<T>> {
 		}
 		
 		public XPOrtMethod(String symbol, int nbOperands) {
-			super(symbol, null, nbOperands);
+			super(symbol, nbOperands);
 		}
 
 		@Override
@@ -55,30 +53,30 @@ public class OSMMethod<T> extends OSMFunction<OSMMethod.XPOrtMethod<T>> {
 				
 			TypeMan<T> tmSpecific = type.specificType();
 			
-			XPMethodResult<T> res = createResultOperand(tmSpecific.valueOrNull(oprd),  params);
+			XPMethodResult res = createResultOperand(tmSpecific.valueOrNull(oprd),  params);
 			
 			eval.push(res);
 
 		}
 		
-		@Override
+		/*@Override
 		public boolean canManage(Operand<XPression<?>, XPEvaluator> oprd, int order) {
 			
 			return true;
-		}
+		}*/
 
-		protected abstract XPMethodResult<T> createResultOperand(XPOperand<T> object, Vector<XPOperand<?>> params);
+		protected abstract XPMethodResult createResultOperand(XPOperand<T> object, Vector<XPOperand<?>> params);
 
 		
 	}
 
-	public OSMMethod(String symbol, int nbOperand) {
+	public OMMethod(String symbol, int nbOperand) {
 		super(symbol, nbOperand);
 	}
 
 	@Override
-	public OSMOperandType operandType() {
-		return OSMOperandType.POST_OPERAND;
+	public OMOperandType operandType() {
+		return OMOperandType.POST_OPERAND;
 	}
 	
 	

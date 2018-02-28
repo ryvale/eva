@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import com.exa.eva.ComputedItem;
+import com.exa.eva.ComputedOperator;
+import com.exa.expression.OM;
 import com.exa.expression.TypeMan;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperandBase;
 import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
-import com.exa.expression.eval.XPComputedItem;
-import com.exa.expression.eval.XPComputedOperator;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
@@ -54,8 +55,8 @@ public class XPOprtIntSubstract extends XPOprtCummulableBinary<Integer> {
 		
 	}
 
-	public XPOprtIntSubstract(String symbol, int priority) {
-		super(symbol, priority);
+	public XPOprtIntSubstract(String symbol) {
+		super(symbol);
 	}
 
 	/*@Override
@@ -76,7 +77,7 @@ public class XPOprtIntSubstract extends XPOprtCummulableBinary<Integer> {
 		
 		int operandIndex = 0;
 		for(int i = 0; i<nbOperands; i++) {
-			XPComputedItem<XPression<?>> coprd = eval.stackOperand(operandIndex);
+			ComputedItem<XPression<?>, XPression<?>, OM> coprd = eval.stackOperand(operandIndex);
 			XPression<?> xp = coprd.item();
 			XPOperator<?> oprt = xp.asOperator();
 			
@@ -86,7 +87,7 @@ public class XPOprtIntSubstract extends XPOprtCummulableBinary<Integer> {
 				continue;
 			}
 			
-			XPComputedOperator coprt = coprd.asComputedOperator();
+			ComputedOperator<XPression<?>, OM> coprt = coprd.asComputedOperator();
 			
 			TypeMan<?> type = oprt.type();
 			if(type != TypeMan.INTEGER) return false;

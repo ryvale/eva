@@ -3,12 +3,13 @@ package com.exa.expression.eval.operators;
 import java.util.List;
 import java.util.Vector;
 
+import com.exa.eva.ComputedItem;
+import com.exa.expression.OM;
 import com.exa.expression.TypeMan;
 import com.exa.expression.XPDynamicTypeOperand;
 import com.exa.expression.XPIdentifier;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPression;
-import com.exa.expression.eval.XPComputedItem;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
@@ -37,8 +38,8 @@ public class XPOprtMemberAccess<T> extends XPOprtCummulableBinary<T> {
 	
 	private TypeMan<T> type;
 	
-	public XPOprtMemberAccess(String symbol, int priority, TypeMan<T> type) {
-		super(symbol, priority);
+	public XPOprtMemberAccess(String symbol, TypeMan<T> type) {
+		super(symbol);
 		this.type = type;
 	}
 	
@@ -50,7 +51,7 @@ public class XPOprtMemberAccess<T> extends XPOprtCummulableBinary<T> {
 		if(!super.canManage(eval, order, nbOperands)) return false;
 		
 		
-		XPComputedItem<XPression<?>> coprd = eval.stackOperand(nbOperands-1);
+		ComputedItem<XPression<?>, XPression<?>, OM> coprd = eval.stackOperand(nbOperands-1);
 		XPression<?> xp = coprd.item();
 		
 		TypeMan<?> typeMan = xp.type();

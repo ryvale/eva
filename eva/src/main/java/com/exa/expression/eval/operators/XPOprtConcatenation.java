@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import com.exa.eva.ComputedItem;
+import com.exa.eva.ComputedOperator;
 import com.exa.eva.EvaException;
-import com.exa.eva.Operand;
+import com.exa.expression.OM;
 import com.exa.expression.TypeMan;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
-import com.exa.expression.eval.XPComputedItem;
-import com.exa.expression.eval.XPComputedOperator;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.expression.eval.XPOprdString;
 import com.exa.utils.ManagedException;
@@ -26,11 +26,6 @@ public class XPOprtConcatenation extends XPOprtCummulableBinary<String> {
 			oprds.add(oprd);
 		}
 
-		/*
-		public void setOprds(List<XPOperand<String>> oprds) {
-			this.oprds = oprds;
-		}*/
-
 		@Override
 		public String value() throws ManagedException {
 			StringBuilder res = new StringBuilder();
@@ -44,8 +39,8 @@ public class XPOprtConcatenation extends XPOprtCummulableBinary<String> {
 		
 	}
 
-	public XPOprtConcatenation(int priority) {
-		super("+", priority);
+	public XPOprtConcatenation(String symbol) {
+		super(symbol);
 	}
 
 	@Override
@@ -69,7 +64,7 @@ public class XPOprtConcatenation extends XPOprtCummulableBinary<String> {
 		
 		int operandIndex = 0;
 		for(int i = 0; i<nbOperands; i++) {
-			XPComputedItem<XPression<?>> coprd = eval.stackOperand(operandIndex);
+			ComputedItem<XPression<?>, XPression<?>, OM> coprd = eval.stackOperand(operandIndex);
 			XPression<?> xp = coprd.item();
 			XPOperator<?> oprt = xp.asOperator();
 			
@@ -79,7 +74,7 @@ public class XPOprtConcatenation extends XPOprtCummulableBinary<String> {
 				continue;
 			}
 			
-			XPComputedOperator coprt = coprd.asComputedOperator();
+			ComputedOperator<XPression<?>, OM> coprt = coprd.asComputedOperator();
 			//TypeMan<?> type = oprt.getType(eval, coprd.order(), coprt.nbOperands());
 			TypeMan<?> type = oprt.type();
 			if(type == TypeMan.STRING) return true;
@@ -87,36 +82,12 @@ public class XPOprtConcatenation extends XPOprtCummulableBinary<String> {
 			
 		}
 		
-		/*XPComputedItem<XPression<?>> coprd = eval.stackOperand(0);
-		
-		XPression<?> xp = coprd.item();
-		
-		XPOperator<?> oprt = xp.asOperator();
-		
-		if(oprt == null) {
-			if(xp.asOperand().type() == TypeMan.STRING) return true;
-			return false;
-		}
-		
-		TypeMan<?> type = oprt.getType(eval, coprd.order(), coprd.asComputedOperator().nbOperand());*/
-		
 		return false;
 	}
-
-	/*@Override
-	public TypeMan<?> getType(XPEvaluator eval, int order, int nbOperands) {
-		return TypeMan.STRING;
-	}*/
 	
 	@Override
 	public TypeMan<?> type() {
 		return TypeMan.STRING;
-	}
-
-	@Override
-	public boolean canManage(Operand<XPression<?>, XPEvaluator> oprd, int order) {
-		
-		return true;
 	}
 
 }

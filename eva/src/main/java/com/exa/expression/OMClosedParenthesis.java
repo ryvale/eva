@@ -1,14 +1,12 @@
-package com.exa.expression.eval.operators;
+package com.exa.expression;
 
-import com.exa.expression.XPOperator;
-import com.exa.expression.eval.OperatorSymbMan;
 import com.exa.expression.eval.XPEvaluator;
 
-public class OSMClosedParenthesis extends OperatorSymbMan {
+public class OMClosedParenthesis extends OM {
 
 	private String symbol;
 	
-	public OSMClosedParenthesis(String symbol) {
+	public OMClosedParenthesis(String symbol) {
 		super();
 		this.symbol = symbol;
 	}
@@ -30,23 +28,23 @@ public class OSMClosedParenthesis extends OperatorSymbMan {
 	}
 
 	@Override
-	public int nbOperand() {
+	public int nbOperands() {
 		return 0;
 	}
 
 	@Override
-	public OSMOperandType operandType() {
+	public OMOperandType operandType() {
 		return null;
 	}
 
 	@Override
-	public OSMAssociativity associativity() {
-		return OSMAssociativity.LEFT_TO_RIGHT;
+	public OMAssociativity associativity() {
+		return OMAssociativity.LEFT_TO_RIGHT;
 	}
 
 	@Override
-	public OSMType type() {
-		return OSMType.CLOSED_PARENTHESIS;
+	public OMType type() {
+		return OMType.CLOSED_PARENTHESIS;
 	}
 
 }

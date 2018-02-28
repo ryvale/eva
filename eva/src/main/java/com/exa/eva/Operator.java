@@ -2,25 +2,24 @@ package com.exa.eva;
 
 import com.exa.utils.ManagedException;
 
-public interface Operator<T extends Item<T, _E>, _E extends StackEvaluator<T>> extends Item<T, _E> {
+public interface Operator<
+	_T extends Item<_T, _OPRD, _OPRT, _E, _OM>,
+	_OPRD extends Operand<_T, _OPRD, _OPRT, _E, _OM>,
+	_OPRT extends Operator<_T, _OPRD, _OPRT, _E, _OM>,
+	_E extends StackEvaluator<_T, _OPRD, _OPRT, _E, _OM>,
+	_OM extends OperatorManager<_T, _OPRD, _OPRT, _E, _OM>> extends Item<_T,_OPRD, _OPRT, _E, _OM> {
 
 	void resolve(_E eval, int order, int nbOperands) throws ManagedException;
 	
-	boolean canManage(Operand<T, _E> oprd, int order);
-	
 	boolean canManage(_E eval, int order, int nbOperands) throws ManagedException;
 
-	int nbOperand();
+	int nbOperands();
 
-	Integer priority();
+	//Integer priority();
 
 	String symbol();
 
-	//boolean isPostUnary();
-
-	//boolean isPreUnary();
-
-	boolean operandsAreCumulable();
+	//boolean operandsAreCumulable();
 
 	//boolean isNotUnary();
 

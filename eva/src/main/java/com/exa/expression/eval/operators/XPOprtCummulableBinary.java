@@ -2,19 +2,19 @@ package com.exa.expression.eval.operators;
 
 import java.util.Vector;
 
+import com.exa.eva.ComputedItem;
 import com.exa.eva.EvaException;
-import com.exa.eva.Operand;
+import com.exa.expression.OM;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperatorBase;
 import com.exa.expression.XPression;
-import com.exa.expression.eval.XPComputedItem;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
 public abstract class XPOprtCummulableBinary<T> extends XPOperatorBase<T> {
 
-	public XPOprtCummulableBinary(String symbol, int priority) {
-		super(symbol, priority, 2);
+	public XPOprtCummulableBinary(String symbol) {
+		super(symbol, 2);
 	}
 
 	@Override
@@ -24,12 +24,12 @@ public abstract class XPOprtCummulableBinary<T> extends XPOperatorBase<T> {
 		Vector<XPOperand<?>> params = new Vector<>();
 		
 		for(int i=0; i < nbOperands; i++) {
-			XPComputedItem<XPression<?>> ci = eval.popOutput();
+			ComputedItem<XPression<?>, XPression<?>, OM> ci = eval.popOperand();
 			XPression<?> item = ci.item();
 			XPOperand<?> oprd = item.asOperand();
 			if(oprd == null) {
 				item.asOperator().resolve(eval, ci.order(), ci.asComputedOperator().nbOperands());
-				oprd = eval.popOutput().item().asOperand();
+				oprd = eval.popOperand().item().asOperand();
 			}
 			
 			params.insertElementAt(oprd, 0);
@@ -52,9 +52,5 @@ public abstract class XPOprtCummulableBinary<T> extends XPOperatorBase<T> {
 		return true;
 	}
 
-	public boolean canManage(Operand<XPression<?>, XPEvaluator> oprd, int order) {
-		
-		return true;
-	}
 
 }

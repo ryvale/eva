@@ -1,20 +1,18 @@
-package com.exa.expression.eval.operators;
+package com.exa.expression;
 
-import com.exa.expression.XPOperator;
-import com.exa.expression.eval.OperatorSymbMan;
 import com.exa.expression.eval.XPEvaluator;
 
-public class OSMUnique extends OperatorSymbMan {
+public class OMUnique extends OM {
 	protected XPOperator<?> opertaor;
 	
 	private int priority;
 	private int nbOperand;
 	
-	private OSMType type;
-	private OSMAssociativity associativity;
-	private OSMOperandType operandType;
+	private OMType type;
+	private OMAssociativity associativity;
+	private OMOperandType operandType;
 	
-	public OSMUnique(XPOperator<?> operator, int priority,  int nbOperand, OSMType type, OSMOperandType operandType, OSMAssociativity associativity) {
+	public OMUnique(XPOperator<?> operator, int priority,  int nbOperand, OMType type, OMOperandType operandType, OMAssociativity associativity) {
 		super();
 		this.opertaor = operator;
 		this.priority = priority;
@@ -38,22 +36,22 @@ public class OSMUnique extends OperatorSymbMan {
 	public Integer priority() {	return priority; }
 
 	@Override
-	public int nbOperand() {
+	public int nbOperands() {
 		return nbOperand;
 	}
 
 	@Override
-	public OSMAssociativity associativity() {
+	public OMAssociativity associativity() {
 		return associativity;
 	}
 
 	@Override
-	public OSMType type() {
+	public OMType type() {
 		return type;
 	}
 
 	@Override
-	public OSMOperandType operandType() {
+	public OMOperandType operandType() {
 		return operandType;
 	}
 

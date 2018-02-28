@@ -3,20 +3,21 @@ package com.exa.expression.types;
 import java.util.List;
 import java.util.Vector;
 
-import com.exa.expression.OSMMethod;
+import com.exa.eva.ComputedItem;
+import com.exa.expression.OM;
+import com.exa.expression.OMMethod;
 import com.exa.expression.TypeMan;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPression;
-import com.exa.expression.eval.XPComputedItem;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
 public class TMString extends TypeMan<String> {
 	
 	
-	private class MethodSubstring extends OSMMethod.XPOrtMethod<String> {
+	private class MethodSubstring extends OMMethod.XPOrtMethod<String> {
 		
-		class ResultOperand extends XPMethodResult<String> {
+		class ResultOperand extends XPMethodResult {
 
 			public ResultOperand(XPOperand<String> object, List<XPOperand<?>> params) {
 				super(object, params);
@@ -59,7 +60,7 @@ public class TMString extends TypeMan<String> {
 		public boolean canManage(XPEvaluator eval, int order, int nbOperands) throws ManagedException {
 			if(eval.numberOfOperands() < nbOperands) return false;
 			
-			XPComputedItem<XPression<?>> cxp = eval.stackOperand(nbOperands-1);
+			ComputedItem<XPression<?>, XPression<?>, OM> cxp = eval.stackOperand(nbOperands-1);
 			XPression<?> xp = cxp.item();
 			
 			if(xp.type() != TypeMan.STRING) return false;
@@ -78,7 +79,7 @@ public class TMString extends TypeMan<String> {
 		}
 
 		@Override
-		protected XPMethodResult<String> createResultOperand(XPOperand<String> object, Vector<XPOperand<?>> params) {
+		protected XPMethodResult createResultOperand(XPOperand<String> object, Vector<XPOperand<?>> params) {
 			return new ResultOperand(object, params);
 		}
 	}
@@ -86,7 +87,7 @@ public class TMString extends TypeMan<String> {
 	public TMString() {
 		properties.put("length", new Property<>("length", Integer.class, object -> object.length()));
 		
-		OSMMethod<String> osm = new OSMMethod<>("substr", 3);
+		OMMethod<String> osm = new OMMethod<>("substr", 3);
 		osm.addOperator(new MethodSubstring("substr", 2));
 		osm.addOperator(new MethodSubstring("substr", 3));
 		

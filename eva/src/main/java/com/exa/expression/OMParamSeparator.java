@@ -1,14 +1,12 @@
-package com.exa.expression.eval.operators;
+package com.exa.expression;
 
-import com.exa.expression.XPOperator;
-import com.exa.expression.eval.OperatorSymbMan;
 import com.exa.expression.eval.XPEvaluator;
 
-public class OSMParamSeparator extends OperatorSymbMan {
+public class OMParamSeparator extends OM {
 
 	private String symbol;
 	
-	public OSMParamSeparator(String symbol) {
+	public OMParamSeparator(String symbol) {
 		super();
 		this.symbol = symbol;
 	}
@@ -29,23 +27,23 @@ public class OSMParamSeparator extends OperatorSymbMan {
 	}
 
 	@Override
-	public int nbOperand() {
+	public int nbOperands() {
 		return 0;
 	}
 
 	@Override
-	public OSMOperandType operandType() {
+	public OMOperandType operandType() {
 		return null;
 	}
 
 	@Override
-	public OSMAssociativity associativity() {
+	public OMAssociativity associativity() {
 		return null;
 	}
 
 	@Override
-	public OSMType type() {
-		return OSMType.PARAMS_SEPARATOR;
+	public OMType type() {
+		return OMType.PARAMS_SEPARATOR;
 	}
 
 }

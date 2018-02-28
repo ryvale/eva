@@ -5,15 +5,12 @@ import java.util.Date;
 import com.exa.eva.OperandBase;
 import com.exa.expression.eval.XPEvaluator;
 
-public abstract class XPOperandBase<T> extends OperandBase<XPression<?>, XPEvaluator> implements XPOperand<T> {
+public abstract class XPOperandBase<T> extends OperandBase<XPression<?>, XPOperand<?>, XPOperator<?>, XPEvaluator, OM> implements XPOperand<T> {
 	@Override
 	public XPOperand<T> asOperand() { return this; }
 	
 	@Override
-	public XPOperatorBase<T> asOperator() { return null; }
-	
-	@Override
-	public XPOperand<T> asSpecificItem() { return this; }
+	public XPOperator<T> asOperator() { return null; }
 	
 	@Override
 	public XPOperand<String> asOPString() { return null; }

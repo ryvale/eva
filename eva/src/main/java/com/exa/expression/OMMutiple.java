@@ -1,14 +1,12 @@
-package com.exa.expression.eval.operators;
+package com.exa.expression;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.exa.expression.XPOperator;
-import com.exa.expression.eval.OperatorSymbMan;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
-public abstract class OSMMutiple<T extends XPOperator<?>> extends OperatorSymbMan {
+public abstract class OMMutiple<T extends XPOperator<?>> extends OM {
 	private String symbol;
 	
 	private Integer priority;
@@ -16,7 +14,7 @@ public abstract class OSMMutiple<T extends XPOperator<?>> extends OperatorSymbMa
 
 	private List<T> operators = new ArrayList<>();
 	
-	public OSMMutiple(String symbol, Integer priority, int nbOperand) {
+	public OMMutiple(String symbol, Integer priority, int nbOperand) {
 		super();
 		this.symbol = symbol;
 		this.priority = priority;
@@ -44,7 +42,7 @@ public abstract class OSMMutiple<T extends XPOperator<?>> extends OperatorSymbMa
 	public Integer priority() {	return priority; }
 
 	@Override
-	public int nbOperand() {
+	public int nbOperands() {
 		return nbOperand;
 	}
 

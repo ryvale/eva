@@ -15,7 +15,7 @@ public class Identifier {
 	public String name() {	return name;}
 
 	
-	public IDType idType() {	return idType; }
+	public IDType idType() { return idType; }
 
 	public VariableIdentifier asVariableIdentifier() { return null; }
 

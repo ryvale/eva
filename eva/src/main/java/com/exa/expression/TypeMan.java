@@ -2,10 +2,8 @@ package com.exa.expression;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.exa.expression.eval.operators.OSMFunction;
 import com.exa.expression.types.TMBoolean;
 import com.exa.expression.types.TMClassObjectRoot;
 import com.exa.expression.types.TMDate;
@@ -28,10 +26,6 @@ public abstract class TypeMan<T> {
 	
 	public static interface PropertyGetter<T, V> {
 		V get(T object);
-	}
-	
-	public static interface MethodRunner<T, V> {
-		V execute(T object, List<XPOperand<?>> params) throws ManagedException;
 	}
 	
 	public class Property<V> {
@@ -81,10 +75,9 @@ public abstract class TypeMan<T> {
 	public class Method<V> {
 		private String name;
 		private Class<?> type;
-		private OSMMethod<V> osm;
+		private OMMethod<V> osm;
 		
-		
-		public Method(String name, Class<V> type, OSMMethod<V> osm) {
+		public Method(String name, Class<V> type, OMMethod<V> osm) {
 			super();
 			this.name = name;
 			this.type = type;
@@ -95,19 +88,10 @@ public abstract class TypeMan<T> {
 		
 		public TypeMan<?> type() { return TypeMan.getType(type) ; }
 		
-		public OSMMethod<V> osm() { return osm;}
-		
-		
-		/*public V excute(T object, List<XPOperand<?>> params) throws ManagedException {
-			return methodRunner.execute(object, params);
-		}*/
+		public OMMethod<V> osm() { return osm;}
 		
 	}
-	
-	public static interface TypesBrowser {
-		boolean visit(TypeMan<?> tm);
-	}
-	
+		
 	private final static Map<Class<?>, TypeMan<?>> types = new HashMap<>();
 	
 	static {
@@ -116,6 +100,7 @@ public abstract class TypeMan<T> {
 		types.put(Double.class, DOUBLE);
 		types.put(Boolean.class, BOOLEAN);
 		types.put(Date.class, DATE);
+		types.put(Object.class, OBJECT);
 	}
 	
 	protected final Map<String, Property<?>> properties = new HashMap<>();
@@ -123,13 +108,6 @@ public abstract class TypeMan<T> {
 	protected final Map<String, Method<?>> methods = new HashMap<>();
 	
 	
-	
-	public static void browse(TypesBrowser browser) {
-		for(TypeMan<?> tm : types.values()) {
-			if(browser.visit(tm)) continue;
-			break;
-		}
-	}
 	//value have not to be null
 	public static <T>TypeMan<?> getType(T value) {
 		return types.get(value.getClass());
@@ -175,19 +153,6 @@ public abstract class TypeMan<T> {
 		return method.type();
 	}
 	
-	/*public Object excuteMethod(Object object, String methodName, List<XPOperand<?>> params) throws ManagedException {
-		Method<?> method = methods.get(methodName);
-		if(method == null) return null;
-		
-		if(method.methodRunner == null) throw new ManagedException(String.format("No method body %s defined", methodName));
-		
-		T checkObject = valueOrNull(object);
-		
-		if(checkObject == null) throw new ManagedException(String.format("Invalid object while executing the method %s", methodName));
-		
-		return method.methodRunner.execute(checkObject, params);
-	}*/
-
 	public Object getProperty(Object object, String propertyName) throws ManagedException {
 		Property<?> property = properties.get(propertyName);
 		if(property == null) throw new ManagedException(String.format("No property %s", propertyName));
@@ -203,7 +168,7 @@ public abstract class TypeMan<T> {
 	public <V>TypeMan<V> specificType() { return null; }
 	
 	
-	public OSMFunction<?> methodOSM(String methodName) {
+	public OMFunction<?> methodOSM(String methodName) {
 		Method<?> method = methods.get(methodName);
 		if(method == null) return null;
 		

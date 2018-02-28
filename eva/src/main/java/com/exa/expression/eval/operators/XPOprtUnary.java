@@ -7,8 +7,8 @@ import com.exa.expression.eval.XPEvaluator;
 
 public abstract class XPOprtUnary<T> extends XPOperatorBase<T> {
 	
-	public XPOprtUnary(String symbol, int priority) {
-		super(symbol, priority, 1);
+	public XPOprtUnary(String symbol) {
+		super(symbol, 1);
 	}
 
 	@Override

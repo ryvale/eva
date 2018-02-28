@@ -1,19 +1,21 @@
 package com.exa.eva;
 
-public class ComputedItem<T extends Item<T, _E>, _E extends StackEvaluator<T>> {
-	protected T item;
+public class ComputedItem<_T, _I extends Item<_I, ?, ? , ?, _OM>, _OM extends OperatorManager<_I, ?, ?, ?, _OM>> {
+	protected _T item;
 	protected int order;
 
-	public ComputedItem(T item, int order) {
+	public ComputedItem(_T item, int order) {
 		super();
 		this.item = item;
 		this.order = order;
 	}
 	
-	public T item() { return item; }
+	public _T item() { return item; }
 	
 	public int order() { return order; }
 	
-	public ComputedOperator<T, _E> asComputedOperator() { return null; };
+	public ComputedOperator<_I, _OM> asComputedOperator() { return null; }
+	
+	public ComputedOperatorManager<_OM, _I> asComputedOperatorManager() { return null; }
 
 }

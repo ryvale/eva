@@ -7,11 +7,11 @@ import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
 
-public interface XPOperand<T> extends Operand<XPression<?>, XPEvaluator>, XPression<T> {
+public interface XPOperand<T> extends Operand<XPression<?>, XPOperand<?>, XPOperator<?>, XPEvaluator, OM>, XPression<T> {
 	
 	T value() throws ManagedException;
 
-	XPOperand<T> asSpecificItem();
+	//XPOperand<T> asSpecificItem();
 
 	XPOperand<String> asOPString();
 
