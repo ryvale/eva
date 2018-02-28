@@ -40,6 +40,12 @@ public class AppTest extends TestCase {
 		System.out.println(strRes);
 		assertTrue("OK EVA".equals(strRes));
 		
+		parser.evaluator().addVariable("this", String.class, "OK EVA");
+		xp = parser.parseString("length");
+		intRes = xp.asOPInteger().value();
+		System.out.println(intRes);
+		assertTrue(new Integer(6).equals(intRes));
+		
 		xp = parser.parseString("str.length");
 		intRes = xp.asOPInteger().value();
 		System.out.println(intRes);
@@ -165,6 +171,27 @@ public class AppTest extends TestCase {
 		Integer intRes = xp.asOPInteger().value();
 		System.out.println(intRes);
 		assertTrue(new Integer(35).equals(intRes));
+		
+		parser.evaluator().addVariable("this", String.class, "OK EVA");
+		xp = parser.parseString("2 + length");
+		intRes = xp.asOPInteger().value();
+		System.out.println(intRes);
+		assertTrue(new Integer(8).equals(intRes));
+		
+		xp = parser.parseString("2 + length + 2");
+		intRes = xp.asOPInteger().value();
+		System.out.println(intRes);
+		assertTrue(new Integer(10).equals(intRes));
+		
+		xp = parser.parseString("length + 2");
+		intRes = xp.asOPInteger().value();
+		System.out.println(intRes);
+		assertTrue(new Integer(8).equals(intRes));
+		
+		xp = parser.parseString("str.length + length");
+		intRes = xp.asOPInteger().value();
+		System.out.println(intRes);
+		assertTrue(new Integer(8).equals(intRes));
 	}
 	
 	public void testNiveau2() throws ManagedException {

@@ -30,6 +30,9 @@ import com.exa.lexing.ParsingException;
 import com.exa.utils.ManagedException;
 
 public class Parser {
+	public static interface TerminationChecker {
+		boolean check(XPLexingRules lexingRules, CharReader cr) throws ManagedException;
+	}
 	
 	static final int READ_EOF = 0;
 	static final int READ_NOT_EOF = 1;
@@ -76,9 +79,6 @@ public class Parser {
 		osmf.addOperator(new XPFunctSubstr("substr", 3));
 		
 		evaluator.addFunction(osmf);
-		
-		/*OSMUnique osmu = new OSMUnique(new XPOprtMemberAccess<>(".", 2, TypeMan.STRING), 2, 2, OSMType.REGULAR, OSMOperandType.POST_OPERAND, OSMAssociativity.LEFT_TO_RIGHT);
-		evaluator.addBinaryOp(osmu);*/
 	}
 	
 	public XPEvaluator evaluator() {
@@ -109,6 +109,29 @@ public class Parser {
 		return evaluator.compute();
 	}
 	
+	public XPOperand<?> parse(CharReader cr, TerminationChecker checker) throws ManagedException {
+		evaluator.clear();
+
+		if(readPreUnaryOPerator(cr) == READ_EOF) throw new ManagedException(String.format("No string to parse"));
+		
+		do { 
+			int readResult = readOperand(cr);
+			if(readResult != READ_OK) throw new ManagedException(String.format("Operand expected"));
+			
+			readResult = readPostUnaryOperator(cr);
+			if(readResult == READ_EOF) break;
+			
+			readResult = readNotUnaryOperator(cr);
+			if(readResult == READ_EOF) break;
+			
+			if(readResult != READ_OK) break;
+			
+		} while(readPreUnaryOPerator(cr) != READ_EOF);
+	
+		if(checker.check(lexingRules, cr)) return evaluator.compute();
+		throw new ManagedException(String.format("Error while parsing expressin."));
+	}
+	
 	private void readExpressionInBracket(CharReader cr, Character closeBracket) throws ManagedException {
 		if(readPreUnaryOPerator(cr) == READ_EOF) throw new ManagedException(String.format("No string to parse"));
 		
@@ -134,7 +157,6 @@ public class Parser {
 			
 		} while(readPreUnaryOPerator(cr) != READ_EOF);
 		
-	
 		throw new ManagedException(String.format("Bad parenthesis experssion termination. %s expected.", closeBracket.toString()));
 		
 	}
@@ -173,7 +195,11 @@ public class Parser {
 	}
 	
 	public XPOperand<?> parseString(String str) throws ManagedException {
-		return parse(new CharReader(str));
+		return parseString(str, (lexingRules, cr) -> (lexingRules.nextForwardNonBlankChar(cr)==null) );
+	}
+	
+	public XPOperand<?> parseString(String str, TerminationChecker checker) throws ManagedException {
+		return parse(new CharReader(str), checker);
 	}
 
 	public int readPreUnaryOPerator(CharReader cr) throws ManagedException {
@@ -263,7 +289,27 @@ public class Parser {
 				Identifier identifier = null;
 				if(cosm == null || !cosm.item().symbol().equals(".")) {
 					identifier = evaluator.getIdentifier(str);
-					if(identifier == null) throw new ManagedException(String.format("%s . Unknown identifier.", str));
+					if(identifier == null) {
+						identifier = evaluator.getIdentifier("this");
+						if(identifier == null) 
+							throw new ManagedException(String.format("%s . Unknown identifier.", str));
+						
+						
+						TypeMan<?> type = TypeMan.getType(identifier.asVariableIdentifier().valueClass());
+						if(type == null) 
+							throw new ManagedException(String.format("%s . Unknown identifier.", str));
+						
+						if(type.propertyType(str) == null)
+							throw new ManagedException(String.format("%s . Unknown identifier.", str));
+						
+						evaluator.push(new XPIdentifier<>(identifier));
+						evaluator.push(evaluator.getBinaryOp("."));
+						
+						identifier = new Identifier(str, IDType.PROPERTY);
+						evaluator.push(new XPIdentifier<>(identifier));
+						
+						return READ_OK;
+					}
 					
 					evaluator.push(new XPIdentifier<>(identifier));
 					return READ_OK;
@@ -281,7 +327,27 @@ public class Parser {
 				ComputedOperatorManager<OM, XPression<?>> cosm = evaluator.topOperatorManager();
 				if(cosm == null || !cosm.item().symbol().equals(".")) {
 					OMFunction<?> osmf = evaluator.getFunction(str);
-					if(osmf == null) throw new ParsingException(String.format("The function %S is not defined.", str));
+					if(osmf == null) {
+						Identifier identifier = evaluator.getIdentifier("this");
+						if(identifier == null)
+							throw new ParsingException(String.format("The function %s is not defined.", str));
+						
+						TypeMan<?> type = TypeMan.getType(identifier.asVariableIdentifier().valueClass());
+						if(type == null) 
+							throw new ParsingException(String.format("The function %s is not defined.", str));
+						
+						OMFunction<?> method = type.methodOSM(str);
+						if(method == null)
+							throw new ParsingException(String.format("The function %s is not defined.", str));
+						
+						evaluator.push(new XPIdentifier<>(identifier));
+						evaluator.push(evaluator.getBinaryOp("."));
+						
+						evaluator.push(method);
+						evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
+						readFunctionParams(cr);
+						return READ_OK;
+					}
 					
 					evaluator.push(osmf);
 					evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
@@ -313,7 +379,27 @@ public class Parser {
 			ComputedOperatorManager<OM, XPression<?>> cosm = evaluator.topOperatorManager();
 			if(cosm == null || !cosm.item().symbol().equals(".")) {
 				identifier = evaluator.getIdentifier(str);
-				if(identifier == null) throw new ManagedException(String.format("%s . Unknown identifier.", str));
+				if(identifier == null) {
+					identifier = evaluator.getIdentifier("this");
+					if(identifier == null) 
+						throw new ManagedException(String.format("%s . Unknown identifier.", str));
+					
+					
+					TypeMan<?> type = TypeMan.getType(identifier.asVariableIdentifier().valueClass());
+					if(type == null) 
+						throw new ManagedException(String.format("%s . Unknown identifier.", str));
+					
+					if(type.propertyType(str) == null)
+						throw new ManagedException(String.format("%s . Unknown identifier.", str));
+					
+					evaluator.push(new XPIdentifier<>(identifier));
+					evaluator.push(evaluator.getBinaryOp("."));
+					
+					identifier = new Identifier(str, IDType.PROPERTY);
+					evaluator.push(new XPIdentifier<>(identifier));
+					
+					return READ_OK;
+				}
 				
 				evaluator.push(new XPIdentifier<>(identifier));
 				return READ_OK;
