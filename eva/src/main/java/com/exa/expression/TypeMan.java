@@ -121,9 +121,6 @@ public abstract class TypeMan<T> {
 		return new XPConstant<T>(v);
 	}
 	
-	public void initialize() {
-	}
-	
 	@SuppressWarnings("unchecked")
 	public XPOperand<T> valueOrNull(XPOperand<?> oprd) {
 		if(oprd.type() == this) return (XPOperand<T>)oprd;

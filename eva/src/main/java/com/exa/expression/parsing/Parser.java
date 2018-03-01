@@ -341,7 +341,6 @@ public class Parser {
 							throw new ParsingException(String.format("The function %s is not defined.", str));
 						
 						evaluator.push(new XPIdentifier<>(identifier));
-						evaluator.push(evaluator.getBinaryOp("."));
 						
 						evaluator.push(method);
 						evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
