@@ -27,12 +27,12 @@ public class XPOprtConcatenation extends XPOprtCummulableBinary<String> {
 		}
 
 		@Override
-		public String value() throws ManagedException {
+		public String value(XPEvaluator evaluator) throws ManagedException {
 			StringBuilder res = new StringBuilder();
 			
 			
 			for(XPOperand<String> oprd : oprds) {
-				res.append(oprd.value());
+				res.append(oprd.value(evaluator));
 			}
 			return res.toString();
 		}

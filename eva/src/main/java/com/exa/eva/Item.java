@@ -10,5 +10,4 @@ public interface Item<
 	_OPRD asOperand();
 	_OPRT asOperator();
 	
-	//_T asSpecificItem();
 }

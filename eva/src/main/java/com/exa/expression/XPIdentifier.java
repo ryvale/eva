@@ -2,6 +2,7 @@ package com.exa.expression;
 
 import java.util.Date;
 
+import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
 public class XPIdentifier<T> extends XPOperandBase<T> {
@@ -15,12 +16,13 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public V value() throws ManagedException {
-			VariableIdentifier vi = identifier.asVariableIdentifier();
+		public V value(XPEvaluator evaluator) throws ManagedException {
 			
-			if(vi == null) return null;
+			Variable<?> var = evaluator.getVariable(identifier.name(), context);
+			if(var == null) throw new ManagedException(String.format("Unable to retreive % variable value", identifier.name()));
 			
-			Object res = vi.value();
+			
+			Object res = var.value();
 			
 			return (V)type().valueOrNull(res);
 		}
@@ -34,11 +36,14 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 	
 	private Identifier identifier;
 	
+	private String context;
+	
 	private Specific<?> cachedSpecific = null;
 	
-	public XPIdentifier(Identifier identifier) {
+	public XPIdentifier(Identifier identifier, String context) {
 		super();
 		this.identifier = identifier;
+		this.context = context;
 	}
 	
 	private Specific<?> getSpecific() {
@@ -62,12 +67,12 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T value() throws ManagedException {
-		VariableIdentifier vi = identifier.asVariableIdentifier();
+	public T value(XPEvaluator evaluator) throws ManagedException {
+		Variable<?> var = evaluator.getVariable(identifier.name(), context);
+		if(var == null) throw new ManagedException(String.format("Unable to retreive % variable value", identifier.name()));
 		
-		if(vi == null) return null;
 		
-		Object res = vi.value();
+		Object res = var.value();
 		
 		return (T)type().valueOrNull(res);
 	}

@@ -381,6 +381,15 @@ public class LexingRules {
 		return currentChar;
 	}
 	
+	public Character nextForwardRequiredNonBlankChar(CharReader charReader) throws ManagedException {
+		Character currentChar = nextNonBlankChar(charReader);
+		if(currentChar == null) throw new ManagedException(String.format("Unexpected end of while seeking non blank char"));
+		
+		charReader.back(currentChar.toString());
+		
+		return currentChar;
+	}
+	
 	public String readBlank() { return sbBlank.toString(); }
 		
 	public String trimLeft(String str) {

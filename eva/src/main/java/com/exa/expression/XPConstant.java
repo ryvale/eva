@@ -1,6 +1,7 @@
 package com.exa.expression;
 
 import com.exa.eva.EvaException;
+import com.exa.expression.eval.XPEvaluator;
 
 public class XPConstant<T> extends XPDynamicTypeOperand<T> {
 	private T v;
@@ -17,7 +18,7 @@ public class XPConstant<T> extends XPDynamicTypeOperand<T> {
 	public boolean isConstant() { return true; }
 
 	@Override
-	public T value() throws EvaException {
+	public T value(XPEvaluator evaluator) throws EvaException {
 		return v;
 	}
 

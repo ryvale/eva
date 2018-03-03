@@ -9,7 +9,7 @@ import com.exa.utils.ManagedException;
 
 public interface XPOperand<T> extends Operand<XPression<?>, XPOperand<?>, XPOperator<?>, XPEvaluator, OM>, XPression<T> {
 	
-	T value() throws ManagedException;
+	T value(XPEvaluator evaluator) throws ManagedException;
 
 	//XPOperand<T> asSpecificItem();
 

@@ -9,11 +9,15 @@ import com.exa.expression.OMFunction;
 import com.exa.expression.Identifier.IDType;
 import com.exa.expression.OM;
 import com.exa.expression.TypeMan;
+import com.exa.expression.Variable;
+import com.exa.expression.VariableContext;
+import com.exa.expression.VariableIdentifier;
 import com.exa.expression.XPConstant;
 import com.exa.expression.XPIdentifier;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
+import com.exa.expression.eval.MapVariableContext;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.expression.eval.functions.XPFunctSubstr;
 import com.exa.expression.eval.operators.XPOprtConcatenation;
@@ -40,9 +44,10 @@ public class Parser {
 	
 	private XPLexingRules lexingRules = new XPLexingRules();
 		
-	private XPEvaluator evaluator = new XPEvaluator();
+	private XPEvaluator evaluator;
 	
-	public Parser() {
+	public Parser(VariableContext variableContext) {
+		evaluator = new XPEvaluator(variableContext);
 		OMBinary osmm = new OMBinary("+", 6);
 		osmm.addOperator(new XPOprtConcatenation("+"));
 		osmm.addOperator(new XPOprtIntAdd("+"));
@@ -81,18 +86,22 @@ public class Parser {
 		evaluator.addFunction(osmf);
 	}
 	
+	public Parser() {
+		this(new MapVariableContext());
+	}
+	
 	public XPEvaluator evaluator() {
 		return evaluator;
 	}
 	
 	
-	public XPOperand<?> parse(CharReader cr) throws ManagedException {
+	public XPOperand<?> parse(CharReader cr, String context) throws ManagedException {
 		evaluator.clear();
 
 		if(readPreUnaryOPerator(cr) == READ_EOF) throw new ManagedException(String.format("No string to parse"));
 		
 		do { 
-			int readResult = readOperand(cr);
+			int readResult = readOperand(cr, context);
 			if(readResult != READ_OK) throw new ManagedException(String.format("Operand expected"));
 			
 			readResult = readPostUnaryOperator(cr);
@@ -109,13 +118,17 @@ public class Parser {
 		return evaluator.compute();
 	}
 	
-	public XPOperand<?> parse(CharReader cr, TerminationChecker checker) throws ManagedException {
+	public XPOperand<?> parse(CharReader cr) throws ManagedException {
+		return parse(cr, evaluator.getDefaultVariableContext());
+	}
+	
+	public XPOperand<?> parse(CharReader cr, TerminationChecker checker, String context) throws ManagedException {
 		evaluator.clear();
 
 		if(readPreUnaryOPerator(cr) == READ_EOF) throw new ManagedException(String.format("No string to parse"));
 		
 		do { 
-			int readResult = readOperand(cr);
+			int readResult = readOperand(cr, context);
 			if(readResult != READ_OK) throw new ManagedException(String.format("Operand expected"));
 			
 			readResult = readPostUnaryOperator(cr);
@@ -132,11 +145,11 @@ public class Parser {
 		throw new ManagedException(String.format("Error while parsing expressin."));
 	}
 	
-	private void readExpressionInBracket(CharReader cr, Character closeBracket) throws ManagedException {
+	private void readExpressionInBracket(CharReader cr, Character closeBracket, String context) throws ManagedException {
 		if(readPreUnaryOPerator(cr) == READ_EOF) throw new ManagedException(String.format("No string to parse"));
 		
 		do { 
-			int readResult = readOperand(cr);
+			int readResult = readOperand(cr, context);
 			if(readResult != READ_OK) throw new ManagedException(String.format("Operand expected"));
 			
 			readResult = readPostUnaryOperator(cr);
@@ -161,12 +174,12 @@ public class Parser {
 		
 	}
 	
-	private void readFunctionParams(CharReader cr) throws ManagedException {
+	private void readFunctionParams(CharReader cr, String context) throws ManagedException {
 		
 		if(readPreUnaryOPerator(cr) == READ_EOF) throw new ManagedException(String.format("No string to parse"));
 		
 		do { 
-			int readResult = readOperand(cr);
+			int readResult = readOperand(cr, context);
 			if(readResult != READ_OK) throw new ManagedException(String.format("Operand expected"));
 			
 			readResult = readPostUnaryOperator(cr);
@@ -194,12 +207,16 @@ public class Parser {
 		
 	}
 	
-	public XPOperand<?> parseString(String str) throws ManagedException {
-		return parseString(str, (lexingRules, cr) -> (lexingRules.nextForwardNonBlankChar(cr)==null) );
+	public XPOperand<?> parseString(String str, String context) throws ManagedException {
+		return parseString(str, (lexingRules, cr) -> (lexingRules.nextForwardNonBlankChar(cr)==null), context );
 	}
 	
-	public XPOperand<?> parseString(String str, TerminationChecker checker) throws ManagedException {
-		return parse(new CharReader(str), checker);
+	public XPOperand<?> parseString(String str) throws ManagedException {
+		return parseString(str, (lexingRules, cr) -> (lexingRules.nextForwardNonBlankChar(cr)==null), evaluator.getDefaultVariableContext());
+	}
+	
+	public XPOperand<?> parseString(String str, TerminationChecker checker, String context) throws ManagedException {
+		return parse(new CharReader(str), checker, context);
 	}
 
 	public int readPreUnaryOPerator(CharReader cr) throws ManagedException {
@@ -250,7 +267,7 @@ public class Parser {
 		return READ_NOT_EOF;
 	}
 	
-	public int readOperand(CharReader cr) throws ManagedException {
+	public int readOperand(CharReader cr, String context) throws ManagedException {
 		Character ch = lexingRules.nextForwardNonBlankChar(cr);
 		if(ch == null) return READ_EOF;
 		
@@ -286,38 +303,40 @@ public class Parser {
 				
 				ComputedOperatorManager<OM, XPression<?>> cosm = evaluator.topOperatorManager();
 				
-				Identifier identifier = null;
+				Variable<?> var = null;
 				if(cosm == null || !cosm.item().symbol().equals(".")) {
-					identifier = evaluator.getIdentifier(str);
-					if(identifier == null) {
-						identifier = evaluator.getIdentifier("this");
-						if(identifier == null) 
+					var = evaluator.getVariable(str, context);
+					if(var == null) {
+						var = evaluator.getVariable("this", context);
+						if(var == null) 
 							throw new ManagedException(String.format("%s . Unknown identifier.", str));
 						
 						
-						TypeMan<?> type = TypeMan.getType(identifier.asVariableIdentifier().valueClass());
+						TypeMan<?> type = TypeMan.getType(var.valueClass());
 						if(type == null) 
 							throw new ManagedException(String.format("%s . Unknown identifier.", str));
 						
 						if(type.propertyType(str) == null)
 							throw new ManagedException(String.format("%s . Unknown identifier.", str));
 						
-						evaluator.push(new XPIdentifier<>(identifier));
+						//Identifier identifier = new VariableIdentifier(var.name(), var.valueClass());
+						
+						evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), var.valueClass()), context));
 						evaluator.push(evaluator.getBinaryOp("."));
 						
-						identifier = new Identifier(str, IDType.PROPERTY);
-						evaluator.push(new XPIdentifier<>(identifier));
+						//identifier = new Identifier(str, IDType.PROPERTY);
+						evaluator.push(new XPIdentifier<>(new Identifier(str, IDType.PROPERTY), context));
 						
 						return READ_OK;
 					}
 					
-					evaluator.push(new XPIdentifier<>(identifier));
+					evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), var.valueClass()), context));
 					return READ_OK;
 				}
 				
-				identifier = new Identifier(str, IDType.PROPERTY);
+				//identifier = new Identifier(str, IDType.PROPERTY);
 			
-				evaluator.push(new XPIdentifier<>(identifier));
+				evaluator.push(new XPIdentifier<>(new Identifier(str, IDType.PROPERTY), context));
 				return READ_OK;
 			}
 			
@@ -328,11 +347,11 @@ public class Parser {
 				if(cosm == null || !cosm.item().symbol().equals(".")) {
 					OMFunction<?> osmf = evaluator.getFunction(str);
 					if(osmf == null) {
-						Identifier identifier = evaluator.getIdentifier("this");
-						if(identifier == null)
+						Variable<?> var = evaluator.getVariable("this", context);
+						if(var == null)
 							throw new ParsingException(String.format("The function %s is not defined.", str));
 						
-						TypeMan<?> type = TypeMan.getType(identifier.asVariableIdentifier().valueClass());
+						TypeMan<?> type = TypeMan.getType(var.valueClass());
 						if(type == null) 
 							throw new ParsingException(String.format("The function %s is not defined.", str));
 						
@@ -340,17 +359,17 @@ public class Parser {
 						if(method == null)
 							throw new ParsingException(String.format("The function %s is not defined.", str));
 						
-						evaluator.push(new XPIdentifier<>(identifier));
+						evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), var.valueClass()), context));
 						
 						evaluator.push(method);
 						evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
-						readFunctionParams(cr);
+						readFunctionParams(cr, context);
 						return READ_OK;
 					}
 					
 					evaluator.push(osmf);
 					evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
-					readFunctionParams(cr);
+					readFunctionParams(cr, context);
 					
 					return READ_OK;
 				}
@@ -370,50 +389,50 @@ public class Parser {
 					
 				evaluator.push(osmf);
 				evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
-				readFunctionParams(cr);
+				readFunctionParams(cr, context);
 				return READ_OK;
 			}
 			
-			Identifier identifier = null;
+			//Identifier identifier = null;
 			ComputedOperatorManager<OM, XPression<?>> cosm = evaluator.topOperatorManager();
 			if(cosm == null || !cosm.item().symbol().equals(".")) {
-				identifier = evaluator.getIdentifier(str);
-				if(identifier == null) {
-					identifier = evaluator.getIdentifier("this");
-					if(identifier == null) 
+				Variable<?> var = evaluator.getVariable(str, context);
+				if(var == null) {
+					var = evaluator.getVariable("this", context);
+					if(var == null) 
 						throw new ManagedException(String.format("%s . Unknown identifier.", str));
 					
 					
-					TypeMan<?> type = TypeMan.getType(identifier.asVariableIdentifier().valueClass());
+					TypeMan<?> type = TypeMan.getType(var.valueClass());
 					if(type == null) 
 						throw new ManagedException(String.format("%s . Unknown identifier.", str));
 					
 					if(type.propertyType(str) == null)
 						throw new ManagedException(String.format("%s . Unknown identifier.", str));
 					
-					evaluator.push(new XPIdentifier<>(identifier));
+					evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), var.valueClass()), context));
 					evaluator.push(evaluator.getBinaryOp("."));
 					
-					identifier = new Identifier(str, IDType.PROPERTY);
-					evaluator.push(new XPIdentifier<>(identifier));
+					//identifier = new Identifier(str, IDType.PROPERTY);
+					evaluator.push(new XPIdentifier<>(new Identifier(str, IDType.PROPERTY), context));
 					
 					return READ_OK;
 				}
 				
-				evaluator.push(new XPIdentifier<>(identifier));
+				evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), var.valueClass()), context));
 				return READ_OK;
 			}
 			
-			identifier = new Identifier(str, IDType.PROPERTY);
+			//identifier = new Identifier(str, IDType.PROPERTY);
 			
-			evaluator.push(new XPIdentifier<>(identifier));
+			evaluator.push(new XPIdentifier<>(new Identifier(str, IDType.PROPERTY), context));
 			return READ_OK;
 		}
 		
 		if('(' == ch) {
 			lexingRules.nextNonBlankChar(cr);
 			evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
-			readExpressionInBracket(cr, ')');
+			readExpressionInBracket(cr, ')', context);
 			
 			return READ_OK;			
 		}

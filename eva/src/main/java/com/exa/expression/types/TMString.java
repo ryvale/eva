@@ -24,20 +24,20 @@ public class TMString extends TypeMan<String> {
 			}
 
 			@Override
-			public String value() throws ManagedException {
+			public String value(XPEvaluator evaluator) throws ManagedException {
 				/*XPOperand<String> xpStr = params.get(0).asOPString();
 				if(xpStr == null) throw new ManagedException(String.format("Unexpected errer while executing the method %s", symbol));*/
 				
 				XPOperand<Integer> xpStart = params.get(0).asOPInteger();
 				if(xpStart == null) throw new ManagedException(String.format("Unexpected errer while executing the method %s", symbol));
 				
-				String str = object.value();
-				Integer start = xpStart.value();
+				String str = object.value(evaluator);
+				Integer start = xpStart.value(evaluator);
 				if(params.size() > 1) {
 					XPOperand<Integer> xpNb = params.get(1).asOPInteger();
 					if(xpNb == null) throw new ManagedException(String.format("Unexpected errer while executing the method %s", symbol));
 					
-					Integer nb = xpNb.value();
+					Integer nb = xpNb.value(evaluator);
 					
 					return str.substring(start, start+nb);
 					

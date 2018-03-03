@@ -24,14 +24,14 @@ public class MapVariableContext implements VariableContext {
 	public <T>Variable<T> addVariable(String name, Class<?> valueClass, T defaultValue) throws ManagedException {
 		if(variables.containsKey(name)) throw new ManagedException(String.format("The variable %s alredy exists", name));
 		
-		MemoryVariable<T> res = new MemoryVariable<T>(this, name, valueClass, defaultValue);
+		MemoryVariable<T> res = new MemoryVariable<T>(name, valueClass, defaultValue);
 		variables.put(name, res);
 		
 		return res;
 	}
 
 	@Override
-	public VariableContext parent() {
+	public VariableContext getParent() {
 		return parent;
 	}
 
@@ -48,11 +48,28 @@ public class MapVariableContext implements VariableContext {
 			res = vc.getContextVariable(name);
 			if(res != null) break;
 			
-			vc = vc.parent();
+			vc = vc.getParent();
 			
 		} while(vc != null);
 		
 		return res;
+	}
+
+	@Override
+	public void releaseVariable(String name) {
+		variables.remove(name);
+		
+	}
+
+	@Override
+	public void clearVariable() {
+		variables.clear();
+	}
+
+	@Override
+	public void setParent(VariableContext vc) {
+		this.parent = vc;
+		
 	}
 	
 	

@@ -11,7 +11,6 @@ import com.exa.eva.OperatorManager.OMAssociativity;
 import com.exa.eva.OperatorManager.OMOperandType;
 import com.exa.eva.OperatorManager.OMType;
 import com.exa.eva.StackEvaluator;
-import com.exa.expression.VariableIdentifier;
 import com.exa.expression.OM;
 import com.exa.expression.OMClosedParenthesis;
 import com.exa.expression.OMFunction;
@@ -24,7 +23,6 @@ import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
 import com.exa.utils.ManagedException;
-
 
 public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, XPOperator<?>, XPEvaluator, OM> {
 	public static final OMOpenParenthesis OP_OPEN_PARENTHESIS = new OMOpenParenthesis("(", 100);
@@ -46,13 +44,18 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	
 	protected Map<String, OMFunction<?>> osmsFunctions = new HashMap<>();
 	
-	private VariableContext variableContext;
+	//private VariableContext variableContext;
+	private String defaultVariableContext = "_global";
 	
+	
+
+	private Map<String, VariableContext> variablesContexts = new HashMap<>();
+
 	private int nbFreeOperand = 0;
 	
 	public XPEvaluator(VariableContext variableContext) {
 		super();
-		this.variableContext = variableContext;
+		variablesContexts.put(defaultVariableContext, variableContext);
 	}
 	
 	public XPEvaluator() {
@@ -91,16 +94,49 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		return osmsFunctions.get(symbol);
 	}
 	
-	public void addVariable(String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
-		variableContext.addVariable(name, valueClass, defaultValue);
+	public void addVariableContext(VariableContext vc, String name, String bindTo) throws ManagedException {
+		if(variablesContexts.containsKey(name)) throw new ManagedException(String.format("The variable context %s already exists", name));
+		 
+		VariableContext parent = variablesContexts.get(bindTo);
+		if(parent == null) throw new ManagedException(String.format("The variable context %s does not exist", bindTo));
+		 
+		vc.setParent(parent);
+		
+		variablesContexts.put(name, vc);
 	}
 	
-	public VariableIdentifier getIdentifier(String name) {
-		Variable<?> var = variableContext.getVariable(name);
+	public VariableContext getVariableContext(String name) {
+		return variablesContexts.get(name);
+	}
+	
+	public void addVariable(String context, String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
+		VariableContext vc = variablesContexts.get(context);
+		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
+		vc.addVariable(name, valueClass, defaultValue);
+	}
+	
+	public void addVariable(String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
+		addVariable(defaultVariableContext, name, valueClass, defaultValue);
+	}
+	
+	
+	
+	public void clearVariables() {
+		
+	}
+	
+	public Variable<?> getVariable(String name, String context) throws ManagedException {
+		VariableContext vc = variablesContexts.get(context);
+		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
+		Variable<?> var = vc.getVariable(name);
 		
 		if(var == null) return null;
 		
-		return new VariableIdentifier(name, var.valueClass(), var.variableContext());
+		return var;
+	}
+	
+	public Variable<?> getVariable(String name) throws ManagedException {
+		return getVariable(defaultVariableContext, name);
 	}
 
 	@Override
@@ -448,5 +484,15 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		
 		return true;
 	}
+	
+	public String getDefaultVariableContext() {
+		return defaultVariableContext;
+	}
+
+	public void setDefaultVariableContext(String defaultVariableContext) {
+		this.defaultVariableContext = defaultVariableContext;
+	}
+	
+	
 	
 }

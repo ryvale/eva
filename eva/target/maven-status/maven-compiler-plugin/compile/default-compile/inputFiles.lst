@@ -4,7 +4,6 @@ C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\OMMethod.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\XPOprtDblDiv.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\lexing\ParsingException.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\eva\Item.java
-C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\parsing\XPLom.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\XPConvertToString.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\XPOperator.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\lexing\BlankWord.java
@@ -20,7 +19,6 @@ C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\Variable.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\lexing\ActiveWord.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\eva\Operator.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\lexing\WordSeparator.java
-C:\Projets\-communs\eva\eva\src\main\java\com\exa\lexing\LexerOperationMan.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\XPConstant.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\XPOprtIntDiv.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\MapVariableContext.java
@@ -28,6 +26,7 @@ C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\XPOperandBase.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\XPDynamicTypeOperand.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\eva\EvaException.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\types\TMDate.java
+C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\StandardXPEvaluator.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\parsing\Parser.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\lexing\WordWithOpenCloseDelimiter.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\eva\OperandBase.java

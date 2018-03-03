@@ -22,13 +22,13 @@ public class XPOprtIntMultiply extends XPOprtCummulableBinary<Integer> {
 		List<XPOperand<Integer>> oprds = new ArrayList<>();
 
 		@Override
-		public Integer value() throws ManagedException {
-			Integer res = oprds.get(0).value();
+		public Integer value(XPEvaluator evaluator) throws ManagedException {
+			Integer res = oprds.get(0).value(evaluator);
 			
 			if(res == null) throw new ManagedException(String.format("The oprator %s could not accept null operand", symbol));
 			
 			for(int i=1; i<oprds.size(); i++) {
-				Integer v = oprds.get(i).value();
+				Integer v = oprds.get(i).value(evaluator);
 				if(v == null) throw new ManagedException(String.format("The oprator %s could not accept null operand", symbol));
 				
 				res *= v;

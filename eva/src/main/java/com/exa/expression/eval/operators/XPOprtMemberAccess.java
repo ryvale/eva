@@ -25,8 +25,8 @@ public class XPOprtMemberAccess<T> extends XPOprtCummulableBinary<T> {
 		}
 
 		@Override
-		public T value() throws ManagedException {
-			return getProperyValue(params);
+		public T value(XPEvaluator evaluator) throws ManagedException {
+			return getProperyValue(params, evaluator);
 		}
 
 		@Override
@@ -82,11 +82,11 @@ public class XPOprtMemberAccess<T> extends XPOprtCummulableBinary<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <V>V getProperyValue(List<XPOperand<?>> params) throws ManagedException {
+	public <V>V getProperyValue(List<XPOperand<?>> params, XPEvaluator evaluator) throws ManagedException {
 		XPOperand<?> oprd = params.get(0);
 		if(oprd == null) throw new ManagedException(String.format("Unexpected error near '.'"));
 				
-		Object object = oprd.value();
+		Object object = oprd.value(evaluator);
 		TypeMan<?> typeMan = oprd.type();
 		
 		for(int i=1; i<params.size(); i++) {

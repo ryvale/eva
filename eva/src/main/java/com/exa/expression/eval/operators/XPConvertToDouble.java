@@ -3,6 +3,7 @@ package com.exa.expression.eval.operators;
 import com.exa.expression.TypeMan;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperandBase;
+import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
 public class XPConvertToDouble extends XPOperandBase<Double>{
@@ -14,8 +15,8 @@ public class XPConvertToDouble extends XPOperandBase<Double>{
 	}
 
 	@Override
-	public Double value() throws ManagedException {
-		Number v = oprd.value();
+	public Double value(XPEvaluator evaluator) throws ManagedException {
+		Number v = oprd.value(evaluator);
 		if(v == null) return null;
 		return v.doubleValue();
 	}

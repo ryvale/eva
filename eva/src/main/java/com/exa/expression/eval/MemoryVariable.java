@@ -2,24 +2,25 @@ package com.exa.expression.eval;
 
 import com.exa.expression.Variable;
 import com.exa.expression.VariableContext;
+import com.exa.utils.ManagedException;
 
 public class MemoryVariable<T> implements Variable<T> {
 	private String name;
 	private T value;
 	
-	private VariableContext variableContrext;
 	private Class<?> valueClass;
 	
-	public MemoryVariable(VariableContext variableContrext, String name, Class<?> valueClass, T value) {
+	public MemoryVariable(String name, Class<?> valueClass, T value) {
 		super();
 		this.name = name;
 		this.value = value;
-		this.variableContrext = variableContrext;
 		this.valueClass = valueClass;
+		
+		
 	}
 	
-	public MemoryVariable(VariableContext variableContrext, String name, Class<?> valueClass) {
-		this(variableContrext, name, valueClass, null);
+	public MemoryVariable(String name, Class<?> valueClass) {
+		this(name, valueClass, null);
 	}
 
 	/* (non-Javadoc)
@@ -47,14 +48,16 @@ public class MemoryVariable<T> implements Variable<T> {
 	}
 
 	@Override
-	public VariableContext variableContext() {
-		return variableContrext;
-	}
-
-	@Override
 	public Class<?> valueClass() {
 		
 		return valueClass;
+	}
+
+	@Override
+	public void valueToSet(Object value) throws ManagedException {
+		if(valueClass.isInstance(value)) this.value = (T)value;
+		
+		throw new ManagedException(String.format("The variable %s canot be assigned by %", name, value));
 	}
 	
 	
