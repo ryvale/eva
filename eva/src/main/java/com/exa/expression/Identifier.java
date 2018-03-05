@@ -1,7 +1,7 @@
 package com.exa.expression;
 
 public class Identifier {
-	public static enum IDType { VARIABLE, PROPERTY, METHOD, FUNCTION }
+	public static enum IDType { VARIABLE, CLASS, PROPERTY, METHOD, FUNCTION }
 
 	protected String name;
 	protected IDType idType;

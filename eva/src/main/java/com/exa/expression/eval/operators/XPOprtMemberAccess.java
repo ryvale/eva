@@ -5,11 +5,12 @@ import java.util.Vector;
 
 import com.exa.eva.ComputedItem;
 import com.exa.expression.OM;
-import com.exa.expression.TypeMan;
+import com.exa.expression.Type;
 import com.exa.expression.XPDynamicTypeOperand;
 import com.exa.expression.XPIdentifier;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPression;
+import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
@@ -30,31 +31,32 @@ public class XPOprtMemberAccess<T> extends XPOprtCummulableBinary<T> {
 		}
 
 		@Override
-		public TypeMan<?> type() {
+		public Type<?> type() {
 			return XPOprtMemberAccess.this.type;
 		}
 		
 	}
 	
-	private TypeMan<T> type;
+	private Type<T> type;
 	
-	public XPOprtMemberAccess(String symbol, TypeMan<T> type) {
+	public XPOprtMemberAccess(String symbol, Type<T> type) {
 		super(symbol);
 		this.type = type;
 	}
 	
 	@Override
-	public TypeMan<?> type() { return type; }
+	public Type<?> type() { return type; }
 
 	@Override
 	public boolean canManage(XPEvaluator eval, int order, int nbOperands) throws ManagedException {
 		if(!super.canManage(eval, order, nbOperands)) return false;
 		
+		ClassesMan classesMan = eval.classesMan();
 		
 		ComputedItem<XPression<?>, XPression<?>, OM> coprd = eval.stackOperand(nbOperands-1);
 		XPression<?> xp = coprd.item();
 		
-		TypeMan<?> typeMan = xp.type();
+		Type<?> typeMan = xp.type();
 		
 		if(eval.numberOfOperands() == 1) return typeMan == type();
 		
@@ -68,7 +70,7 @@ public class XPOprtMemberAccess<T> extends XPOprtCummulableBinary<T> {
 			XPIdentifier<?> xpIdentifier = oprd.asOPIdentifier();
 			if(xpIdentifier == null) return false;
 			
-			typeMan = typeMan.propertyType(xpIdentifier.identifier().name());
+			typeMan = classesMan.getType(typeMan.propertyValueClass(xpIdentifier.identifier().name())) ;
 			
 			i--;
 		}
@@ -85,9 +87,11 @@ public class XPOprtMemberAccess<T> extends XPOprtCummulableBinary<T> {
 	public <V>V getProperyValue(List<XPOperand<?>> params, XPEvaluator evaluator) throws ManagedException {
 		XPOperand<?> oprd = params.get(0);
 		if(oprd == null) throw new ManagedException(String.format("Unexpected error near '.'"));
-				
+		
+		ClassesMan classesMan = evaluator.classesMan();
+		
 		Object object = oprd.value(evaluator);
-		TypeMan<?> typeMan = oprd.type();
+		Type<?> typeMan = oprd.type();
 		
 		for(int i=1; i<params.size(); i++) {
 			oprd =params.get(i);
@@ -97,7 +101,8 @@ public class XPOprtMemberAccess<T> extends XPOprtCummulableBinary<T> {
 			
 			String identifierName = xpIdentifier.identifier().name();
 			object = typeMan.getProperty(object, identifierName);
-			typeMan = typeMan.propertyType(identifierName);
+			
+			typeMan = classesMan.getType(typeMan.propertyValueClass(identifierName));
 		}
 
 		return (V)typeMan.valueOrNull(object);

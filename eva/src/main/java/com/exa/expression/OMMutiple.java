@@ -46,6 +46,12 @@ public abstract class OMMutiple<T extends XPOperator<?>> extends OM {
 		return nbOperand;
 	}
 
+	@Override
+	public OMMutiple<?> asOMM() {
+		return this;
+	}
+
+	
 	
 	
 }

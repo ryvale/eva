@@ -1,8 +1,9 @@
 package com.exa.expression.eval.operators;
 
-import com.exa.expression.TypeMan;
+import com.exa.expression.Type;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperandBase;
+import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
@@ -20,8 +21,8 @@ public class XPConvertToString extends XPOperandBase<String> {
 	}
 
 	@Override
-	public TypeMan<?> type() {
-		return TypeMan.STRING;
+	public Type<?> type() {
+		return ClassesMan.T_STRING;
 	}
 
 }

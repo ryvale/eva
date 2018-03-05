@@ -1,18 +1,22 @@
 package com.exa.expression;
 
-import com.exa.utils.ManagedException;
-
 public class VariableIdentifier extends Identifier {
-	private Class<?> valueClass;
+	//private Class<?> valueClass;
+	private Type<?> type;
 
-	public VariableIdentifier(String name, Class<?> valueClass) {
+	public VariableIdentifier(String name, Type<?> type) {
 		super(name, IDType.VARIABLE);
 		this.name = name;
-		this.valueClass = valueClass;
+		//this.valueClass = valueClass;
+		this.type = type;
 	}
 	
-	public Class<?> valueClass() {
+	/*public Class<?> valueClass() {
 		return valueClass;
+	}*/
+	
+	public Type<?> type() {
+		return type;
 	}
 
 

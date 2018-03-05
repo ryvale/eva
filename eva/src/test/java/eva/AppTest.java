@@ -72,6 +72,18 @@ public class AppTest extends TestCase {
 		intRes = xp.asOPInteger().value(evaluator);
 		System.out.println(intRes);
 		assertTrue(new Integer(3).equals(intRes));
+		
+		
+		evaluator.classesMan().registerClass(new TTest());
+		xp = parser.parseString("test.execute()");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK".equals(strRes));
+		
+		xp = parser.parseString("test.sqlString('Sonia')");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("'Sonia'".equals(strRes));
 	}
 	
 	public void testNiveau1() throws ManagedException {

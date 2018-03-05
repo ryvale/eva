@@ -1,17 +1,25 @@
 package com.exa.expression;
 
 import com.exa.eva.EvaException;
+import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;
 
 public class XPConstant<T> extends XPDynamicTypeOperand<T> {
 	private T v;
-	private TypeMan<?> type;
+	private Type<?> type;
 
 	public XPConstant(T v) {
 		super();
 		this.v = v;
 		
-		type = TypeMan.getType(v);
+		type = ClassesMan.STANDARD.getType(v);
+	}
+	
+	public XPConstant(T v, Type<T> type) {
+		super();
+		this.v = v;
+		
+		this.type = type;
 	}
 
 	@Override
@@ -23,7 +31,7 @@ public class XPConstant<T> extends XPDynamicTypeOperand<T> {
 	}
 
 	@Override
-	public TypeMan<?> type() {
+	public Type<?> type() {
 		return type;
 	}
 	

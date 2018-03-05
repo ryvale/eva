@@ -11,5 +11,7 @@ public abstract class OM implements OperatorManager<XPression<?>, XPOperand<?>, 
 	}
 	
 	
+	public OMMutiple<?> asOMM() {return null; }
+	
 
 }

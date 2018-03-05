@@ -1,6 +1,7 @@
 package com.exa.expression.eval.operators;
 
-import com.exa.expression.TypeMan;
+import com.exa.expression.Type;
+import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;
 
 public class XPOprtDblUnaryMinus extends XPOprtUnary<Double> {
@@ -10,8 +11,8 @@ public class XPOprtDblUnaryMinus extends XPOprtUnary<Double> {
 	}
 	
 	@Override
-	public TypeMan<?> type() {
-		return TypeMan.DOUBLE;
+	public Type<?> type() {
+		return ClassesMan.T_DOUBLE;
 	}
 
 	@Override

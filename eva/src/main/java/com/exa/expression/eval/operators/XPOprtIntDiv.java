@@ -7,11 +7,12 @@ import java.util.Vector;
 import com.exa.eva.ComputedItem;
 import com.exa.eva.ComputedOperator;
 import com.exa.expression.OM;
-import com.exa.expression.TypeMan;
+import com.exa.expression.Type;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperandBase;
 import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
+import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;
 
 import com.exa.utils.ManagedException;
@@ -39,8 +40,8 @@ public class XPOprtIntDiv extends XPOprtCummulableBinary<Integer>  {
 		}
 
 		@Override
-		public TypeMan<?> type() {
-			return TypeMan.INTEGER;
+		public Type<?> type() {
+			return ClassesMan.T_INTEGER;
 		}
 
 		@Override
@@ -60,8 +61,8 @@ public class XPOprtIntDiv extends XPOprtCummulableBinary<Integer>  {
 	}
 
 	@Override
-	public TypeMan<?> type() {
-		return TypeMan.INTEGER;
+	public Type<?> type() {
+		return ClassesMan.T_INTEGER;
 	}
 
 	@Override
@@ -75,15 +76,15 @@ public class XPOprtIntDiv extends XPOprtCummulableBinary<Integer>  {
 			XPOperator<?> oprt = xp.asOperator();
 			
 			if(oprt == null) {
-				if(xp.asOperand().type() != TypeMan.INTEGER) return false;
+				if(xp.asOperand().type() != ClassesMan.T_INTEGER) return false;
 				operandIndex++;
 				continue;
 			}
 			
 			ComputedOperator<XPression<?>, OM> coprt = coprd.asComputedOperator();
 			
-			TypeMan<?> type = oprt.type();
-			if(type != TypeMan.INTEGER) return false;
+			Type<?> type = oprt.type();
+			if(type != ClassesMan.T_INTEGER) return false;
 			operandIndex += coprt.nbOperands()+1;
 			
 		}

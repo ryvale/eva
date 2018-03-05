@@ -12,6 +12,7 @@ import com.exa.eva.OperatorManager.OMOperandType;
 import com.exa.eva.OperatorManager.OMType;
 import com.exa.eva.StackEvaluator;
 import com.exa.expression.OM;
+import com.exa.expression.OMBinary;
 import com.exa.expression.OMClosedParenthesis;
 import com.exa.expression.OMFunction;
 import com.exa.expression.OMOpenParenthesis;
@@ -22,6 +23,7 @@ import com.exa.expression.XPConstant;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
+import com.exa.expression.eval.operators.XPOprtCummulableBinary;
 import com.exa.utils.ManagedException;
 
 public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, XPOperator<?>, XPEvaluator, OM> {
@@ -44,23 +46,31 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	
 	protected Map<String, OMFunction<?>> osmsFunctions = new HashMap<>();
 	
-	//private VariableContext variableContext;
 	private String defaultVariableContext = "_global";
 	
-	
-
 	private Map<String, VariableContext> variablesContexts = new HashMap<>();
 
 	private int nbFreeOperand = 0;
 	
+	private XPEClassesMan classesMan;
+	
+	protected OMBinary omBinaryMemberAcces = new OMBinary(".", 2);
+	
 	public XPEvaluator(VariableContext variableContext) {
 		super();
 		variablesContexts.put(defaultVariableContext, variableContext);
+		this.classesMan = new XPEClassesMan(this);
+		
+		addBinaryOSM(omBinaryMemberAcces);
 	}
 	
 	public XPEvaluator() {
 		this(new MapVariableContext());
 	}
+	
+	public ClassesMan classesMan() { return classesMan; }
+	
+	public int decNbFreeOperand() { return --nbFreeOperand; }
 	
 	public void addPreUnaryOp(OM osm) {
 		osmsPreUnary.put(osm.symbol(), osm);
@@ -70,8 +80,12 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		osmsPostUnary.put(osm.symbol(), osm);
 	}
 	
-	public void addBinaryOp(OM osm) {
+	public void addBinaryOSM(OM osm) {
 		osmsBinary.put(osm.symbol(), osm);
+	}
+	
+	public void addMemberAccessOprt(XPOprtCummulableBinary<?> oprt) {
+		omBinaryMemberAcces.addOperator(oprt);
 	}
 	
 	public void addFunction(OMFunction<?> osm) {

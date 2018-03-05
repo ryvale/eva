@@ -2,14 +2,15 @@ package com.exa.expression;
 
 import java.util.Date;
 
+import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
 public class XPIdentifier<T> extends XPOperandBase<T> {
 	class Specific<V> extends XPDynamicTypeOperand<V> {
-		private TypeMan<?> type;
+		private Type<?> type;
 		
-		public Specific(TypeMan<T> type) {
+		public Specific(Type<T> type) {
 			super();
 			this.type = type;
 		}
@@ -28,7 +29,7 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 		}
 		
 		@Override
-		public TypeMan<?> type() {	
+		public Type<?> type() {	
 			return type;
 		}
 		
@@ -49,18 +50,18 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 	private Specific<?> getSpecific() {
 		if(cachedSpecific != null) return cachedSpecific;
 		
-		TypeMan<?> type = type();
+		Type<?> type = type();
 		
-		if(type == TypeMan.STRING) 
-			cachedSpecific = new Specific<>(TypeMan.STRING);
-		else if(type == TypeMan.INTEGER) 
-			cachedSpecific = new Specific<>(TypeMan.INTEGER);
-		else if(type == TypeMan.BOOLEAN) 
-			cachedSpecific = new Specific<>(TypeMan.BOOLEAN);
-		else if(type == TypeMan.DOUBLE) 
-			cachedSpecific = new Specific<>(TypeMan.DOUBLE);
-		else if(type == TypeMan.DATE) 
-			cachedSpecific = new Specific<>(TypeMan.DATE);
+		if(type == ClassesMan.T_STRING) 
+			cachedSpecific = new Specific<>(ClassesMan.T_STRING);
+		else if(type == ClassesMan.T_INTEGER) 
+			cachedSpecific = new Specific<>(ClassesMan.T_INTEGER);
+		else if(type == ClassesMan.T_BOOLEAN) 
+			cachedSpecific = new Specific<>(ClassesMan.T_BOOLEAN);
+		else if(type == ClassesMan.T_DOUBLE) 
+			cachedSpecific = new Specific<>(ClassesMan.T_DOUBLE);
+		else if(type == ClassesMan.T_DATE) 
+			cachedSpecific = new Specific<>(ClassesMan.T_DATE);
 		
 		return cachedSpecific;
 	}
@@ -78,11 +79,11 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 	}
 
 	@Override
-	public TypeMan<?> type() {
+	public Type<?> type() {
 		VariableIdentifier vi = identifier.asVariableIdentifier();
 		
 		if(vi == null) return null;
-		return TypeMan.getType(vi.valueClass());
+		return vi.type();
 	}
 	
 	
@@ -95,22 +96,22 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 
 	@Override
 	public XPOperand<String> asOPString() {
-		return TypeMan.STRING.valueOrNull(getSpecific());
+		return ClassesMan.T_STRING.valueOrNull(getSpecific());
 	}
 
 	@Override
 	public XPOperand<Date> asOPDate() {
-		return TypeMan.DATE.valueOrNull(getSpecific());
+		return ClassesMan.T_DATE.valueOrNull(getSpecific());
 	}
 
 	@Override
 	public XPOperand<Integer> asOPInteger() {
-		return TypeMan.INTEGER.valueOrNull(getSpecific());
+		return ClassesMan.T_INTEGER.valueOrNull(getSpecific());
 	}
 
 	@Override
 	public XPOperand<Boolean> asOPBoolean() {
-		return TypeMan.BOOLEAN.valueOrNull(getSpecific());
+		return ClassesMan.T_BOOLEAN.valueOrNull(getSpecific());
 	}
 
 	

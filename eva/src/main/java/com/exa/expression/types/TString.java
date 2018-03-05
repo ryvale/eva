@@ -4,15 +4,17 @@ import java.util.List;
 import java.util.Vector;
 
 import com.exa.eva.ComputedItem;
+import com.exa.eva.OperatorManager.OMOperandType;
 import com.exa.expression.OM;
 import com.exa.expression.OMMethod;
-import com.exa.expression.TypeMan;
+import com.exa.expression.Type;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPression;
+import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
-public class TMString extends TypeMan<String> {
+public class TString extends Type<String> {
 	
 	
 	private class MethodSubstring extends OMMethod.XPOrtMethod<String> {
@@ -52,8 +54,8 @@ public class TMString extends TypeMan<String> {
 		}
 
 		@Override
-		public TypeMan<?> type() {
-			return TypeMan.STRING;
+		public Type<?> type() {
+			return ClassesMan.T_STRING;
 		}
 
 		@Override
@@ -63,16 +65,16 @@ public class TMString extends TypeMan<String> {
 			ComputedItem<XPression<?>, XPression<?>, OM> cxp = eval.stackOperand(nbOperands-1);
 			XPression<?> xp = cxp.item();
 			
-			if(xp.type() != TypeMan.STRING) return false;
+			if(xp.type() != ClassesMan.T_STRING) return false;
 			
 			cxp = eval.stackOperand(nbOperands-2);
 			
-			if(cxp.item().type() != TypeMan.INTEGER) return false;
+			if(cxp.item().type() != ClassesMan.T_INTEGER) return false;
 			
 			if(nbOperands > 2) {
 				cxp = eval.stackOperand(nbOperands-3);
 				
-				if(cxp.item().type() != TypeMan.INTEGER) return false;
+				if(cxp.item().type() != ClassesMan.T_INTEGER) return false;
 			}
 			
 			return true;
@@ -84,22 +86,33 @@ public class TMString extends TypeMan<String> {
 		}
 	}
 
-	public TMString() {
-		properties.put("length", new Property<>("length", Integer.class, object -> object.length()));
-		
-		OMMethod<String> osm = new OMMethod<>("substr", 3);
-		osm.addOperator(new MethodSubstring("substr", 2));
-		osm.addOperator(new MethodSubstring("substr", 3));
-		
-		methods.put("substr", new Method<>("substr", String.class, osm));
-		
+	public TString() {
+		super(String.class);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public TypeMan<String> specificType() {
+	public Type<String> specificType() {
 		return this;
 	}
+
+	@Override
+	public String typeName() {
+		return "string";
+	}
+
+	@Override
+	public void initialize() {
+		properties.put("length", new Property<>("length", Integer.class, object -> object.length()));
+		
+		OMMethod<String> osm = new OMMethod<>("substr", 3, OMOperandType.POST_OPERAND);
+		osm.addOperator(new MethodSubstring("substr", 2));
+		osm.addOperator(new MethodSubstring("substr", 3));
+		
+		methods.put("substr", new Method<>("substr", String.class, osm));
+	}
+	
+	
 	
 	
 	

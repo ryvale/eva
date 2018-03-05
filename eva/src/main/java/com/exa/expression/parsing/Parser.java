@@ -4,11 +4,10 @@ import com.exa.buffer.CharReader;
 import com.exa.chars.EscapeCharMan;
 import com.exa.eva.ComputedOperatorManager;
 import com.exa.expression.Identifier;
-import com.exa.expression.OMBinary;
 import com.exa.expression.OMFunction;
 import com.exa.expression.Identifier.IDType;
 import com.exa.expression.OM;
-import com.exa.expression.TypeMan;
+import com.exa.expression.Type;
 import com.exa.expression.Variable;
 import com.exa.expression.VariableContext;
 import com.exa.expression.VariableIdentifier;
@@ -17,19 +16,10 @@ import com.exa.expression.XPIdentifier;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
+import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.MapVariableContext;
+import com.exa.expression.eval.StandardXPEvaluator;
 import com.exa.expression.eval.XPEvaluator;
-import com.exa.expression.eval.functions.XPFunctSubstr;
-import com.exa.expression.eval.operators.XPOprtConcatenation;
-import com.exa.expression.eval.operators.XPOprtDblAdd;
-import com.exa.expression.eval.operators.XPOprtDblDiv;
-import com.exa.expression.eval.operators.XPOprtDblMultiply;
-import com.exa.expression.eval.operators.XPOprtDblSubstract;
-import com.exa.expression.eval.operators.XPOprtIntAdd;
-import com.exa.expression.eval.operators.XPOprtIntDiv;
-import com.exa.expression.eval.operators.XPOprtIntMultiply;
-import com.exa.expression.eval.operators.XPOprtMemberAccess;
-import com.exa.expression.eval.operators.XPOprtIntSubstract;
 import com.exa.lexing.ParsingException;
 import com.exa.utils.ManagedException;
 
@@ -46,44 +36,12 @@ public class Parser {
 		
 	private XPEvaluator evaluator;
 	
+	private ClassesMan classesMan;
+	
 	public Parser(VariableContext variableContext) {
-		evaluator = new XPEvaluator(variableContext);
-		OMBinary osmm = new OMBinary("+", 6);
-		osmm.addOperator(new XPOprtConcatenation("+"));
-		osmm.addOperator(new XPOprtIntAdd("+"));
-		osmm.addOperator(new XPOprtDblAdd("+"));
-		evaluator.addBinaryOp(osmm);
 		
-		osmm = new OMBinary("-", 6);
-		osmm.addOperator(new XPOprtIntSubstract("-"));
-		osmm.addOperator(new XPOprtDblSubstract("-"));
-		evaluator.addBinaryOp(osmm);
-		
-		osmm = new OMBinary("*", 5);
-		osmm.addOperator(new XPOprtIntMultiply("*"));
-		osmm.addOperator(new XPOprtDblMultiply("*"));
-		evaluator.addBinaryOp(osmm);
-		
-		osmm = new OMBinary("/", 5);
-		osmm.addOperator(new XPOprtIntDiv("/"));
-		osmm.addOperator(new XPOprtDblDiv("/"));
-		evaluator.addBinaryOp(osmm);
-		
-		osmm = new OMBinary(".", 2);
-		osmm.addOperator(new XPOprtMemberAccess<>(".", TypeMan.STRING));
-		osmm.addOperator(new XPOprtMemberAccess<>(".", TypeMan.INTEGER));
-		osmm.addOperator(new XPOprtMemberAccess<>(".", TypeMan.BOOLEAN));
-		osmm.addOperator(new XPOprtMemberAccess<>(".", TypeMan.DOUBLE));
-		osmm.addOperator(new XPOprtMemberAccess<>(".", TypeMan.DATE));
-		osmm.addOperator(new XPOprtMemberAccess<>(".", TypeMan.OBJECT));
-		
-		evaluator.addBinaryOp(osmm);
-		
-		OMFunction<XPOperator<String>> osmf = new OMFunction<>("substr", 3);
-		
-		osmf.addOperator(new XPFunctSubstr("substr", 3));
-		
-		evaluator.addFunction(osmf);
+		evaluator = new StandardXPEvaluator(variableContext);
+		this.classesMan = evaluator.classesMan();
 	}
 	
 	public Parser() {
@@ -177,10 +135,23 @@ public class Parser {
 	private void readFunctionParams(CharReader cr, String context) throws ManagedException {
 		
 		if(readPreUnaryOPerator(cr) == READ_EOF) throw new ManagedException(String.format("No string to parse"));
-		
+		boolean firstParamRead = false;
 		do { 
 			int readResult = readOperand(cr, context);
-			if(readResult != READ_OK) throw new ManagedException(String.format("Operand expected"));
+			
+			if(readResult == READ_OK) firstParamRead = true;
+			else {
+				if(firstParamRead) throw new ManagedException(String.format("Operand expected"));
+				Character ch = lexingRules.nextNonBlankChar(cr);
+				if(ch == null) throw new ManagedException(String.format("Unexpected end of file. ')' expected in function params."));
+				
+				if(')' == ch) {
+					evaluator.push(XPEvaluator.OP_CLOSED_PARENTHESIS);
+					return;
+				}
+				
+				throw new ManagedException(String.format("Operand  or ')' expected."));
+			}
 			
 			readResult = readPostUnaryOperator(cr);
 			if(readResult == READ_EOF) break;
@@ -305,6 +276,9 @@ public class Parser {
 				
 				Variable<?> var = null;
 				if(cosm == null || !cosm.item().symbol().equals(".")) {
+					Type<?> t = classesMan.getType(str);
+					if(t != null) throw new ManagedException(String.format("Unexpected end of file near the type % . expect .", str));
+					
 					var = evaluator.getVariable(str, context);
 					if(var == null) {
 						var = evaluator.getVariable("this", context);
@@ -312,16 +286,16 @@ public class Parser {
 							throw new ManagedException(String.format("%s . Unknown identifier.", str));
 						
 						
-						TypeMan<?> type = TypeMan.getType(var.valueClass());
+						Type<?> type = classesMan.getType(var.valueClass());
 						if(type == null) 
 							throw new ManagedException(String.format("%s . Unknown identifier.", str));
 						
-						if(type.propertyType(str) == null)
+						if(type.propertyValueClass(str) == null)
 							throw new ManagedException(String.format("%s . Unknown identifier.", str));
 						
 						//Identifier identifier = new VariableIdentifier(var.name(), var.valueClass());
 						
-						evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), var.valueClass()), context));
+						evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), classesMan.getType(var.valueClass())), context));
 						evaluator.push(evaluator.getBinaryOp("."));
 						
 						//identifier = new Identifier(str, IDType.PROPERTY);
@@ -330,7 +304,7 @@ public class Parser {
 						return READ_OK;
 					}
 					
-					evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), var.valueClass()), context));
+					evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), classesMan.getType(var.valueClass())), context));
 					return READ_OK;
 				}
 				
@@ -339,6 +313,7 @@ public class Parser {
 				evaluator.push(new XPIdentifier<>(new Identifier(str, IDType.PROPERTY), context));
 				return READ_OK;
 			}
+			
 			
 			if('(' == ch) {
 				lexingRules.nextNonBlankChar(cr);
@@ -351,7 +326,7 @@ public class Parser {
 						if(var == null)
 							throw new ParsingException(String.format("The function %s is not defined.", str));
 						
-						TypeMan<?> type = TypeMan.getType(var.valueClass());
+						Type<?> type = classesMan.getType(var.valueClass());
 						if(type == null) 
 							throw new ParsingException(String.format("The function %s is not defined.", str));
 						
@@ -359,7 +334,7 @@ public class Parser {
 						if(method == null)
 							throw new ParsingException(String.format("The function %s is not defined.", str));
 						
-						evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), var.valueClass()), context));
+						evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), classesMan.getType(var.valueClass())), context));
 						
 						evaluator.push(method);
 						evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
@@ -376,6 +351,29 @@ public class Parser {
 				
 				OM osm = cosm.item();
 				
+				XPression<?> xp = evaluator.stackOperand(0).item();
+				XPOperand<?> oprd = xp.asOperand();
+				if(oprd != null) {
+				
+					XPIdentifier<?> xpI = xp.asOperand().asOPIdentifier();
+					if(xpI != null) {
+						if(xpI.identifier().idType().equals(IDType.CLASS)) {
+							Type<?> t = classesMan.getType(xpI.identifier().name());
+							if(t != null) {
+								OMFunction<?> om = t.staticMethodOSM(str);
+								if(om != null) {
+									evaluator.decNbFreeOperand();
+									evaluator.popOperand();
+									evaluator.popOperator();
+									evaluator.push(om);
+									evaluator.push(XPEvaluator.OP_OPEN_PARENTHESIS);
+									readFunctionParams(cr, context);
+									return READ_OK;
+								}
+							}
+						}
+					}
+				}
 				XPOperator<?> oprt =  osm.operatorOf(evaluator, cosm.order(), cosm.nbOperands());
 				if(oprt == null) throw new ManagedException(String.format("Unexpected error near %s", str));
 				
@@ -396,6 +394,15 @@ public class Parser {
 			//Identifier identifier = null;
 			ComputedOperatorManager<OM, XPression<?>> cosm = evaluator.topOperatorManager();
 			if(cosm == null || !cosm.item().symbol().equals(".")) {
+				Type<?> t = classesMan.getType(str);
+				if(t != null) {
+					if('.' != ch) throw new ManagedException(String.format("Syntax error near %s . Unexpected %S", str, ch.toString()));
+					
+					evaluator.push(new XPIdentifier<>(new Identifier(str, IDType.CLASS), context));
+					return READ_OK;
+					
+				}
+				
 				Variable<?> var = evaluator.getVariable(str, context);
 				if(var == null) {
 					var = evaluator.getVariable("this", context);
@@ -403,14 +410,14 @@ public class Parser {
 						throw new ManagedException(String.format("%s . Unknown identifier.", str));
 					
 					
-					TypeMan<?> type = TypeMan.getType(var.valueClass());
+					Type<?> type = classesMan.getType(var.valueClass());
 					if(type == null) 
 						throw new ManagedException(String.format("%s . Unknown identifier.", str));
 					
-					if(type.propertyType(str) == null)
+					if(type.propertyValueClass(str) == null)
 						throw new ManagedException(String.format("%s . Unknown identifier.", str));
 					
-					evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), var.valueClass()), context));
+					evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), classesMan.getType(var.valueClass())), context));
 					evaluator.push(evaluator.getBinaryOp("."));
 					
 					//identifier = new Identifier(str, IDType.PROPERTY);
@@ -419,7 +426,7 @@ public class Parser {
 					return READ_OK;
 				}
 				
-				evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), var.valueClass()), context));
+				evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), classesMan.getType(var.valueClass())), context));
 				return READ_OK;
 			}
 			
@@ -505,33 +512,33 @@ public class Parser {
 		
 		if(!lexingRules.isInteger(res.toString(), true)) throw new ManagedException(String.format("%s is not a  valid number", res.toString()));
 		
-		if(XPLexingRules.EXTENDED_NUMERIC_TERMINATION.indexOf(str.charAt(str.length() - 1)) >= 0) return TypeMan.DOUBLE.constant(Double.valueOf(res.toString()));
+		if(XPLexingRules.EXTENDED_NUMERIC_TERMINATION.indexOf(str.charAt(str.length() - 1)) >= 0) return ClassesMan.T_DOUBLE.constant(Double.valueOf(res.toString()));
 		
 		Character ch = lexingRules.nextForwardChar(cr);
 		
-		if(ch == null) return TypeMan.INTEGER.constant(Integer.valueOf(res.toString()));
+		if(ch == null) return ClassesMan.T_INTEGER.constant(Integer.valueOf(res.toString()));
 		
 		if(ch == '.') {
 			cr.nextChar();
 			
 			ch = lexingRules.nextForwardChar(cr);
-			if(ch == null || XPLexingRules.NUMERIC_DIGITS.indexOf(ch) < 0) 	return TypeMan.DOUBLE.constant(Double.valueOf(res.toString()));
+			if(ch == null || XPLexingRules.NUMERIC_DIGITS.indexOf(ch) < 0) 	return ClassesMan.T_DOUBLE.constant(Double.valueOf(res.toString()));
 			
 			String str2 = lexingRules.nextNonNullString(cr);
 			
 			if(!lexingRules.isInteger(str, true)) throw new ManagedException(String.format("%s is not not numeric", str2));
 			res.append("." + str2);
 			
-			return TypeMan.DOUBLE.constant(Double.valueOf(res.toString()));
+			return ClassesMan.T_DOUBLE.constant(Double.valueOf(res.toString()));
 		}
 		
-		return TypeMan.INTEGER.constant(Integer.valueOf(res.toString()));
+		return ClassesMan.T_INTEGER.constant(Integer.valueOf(res.toString()));
 	}
 	
 	private int readString(CharReader cr, Character end) throws ManagedException {
 		String str = readStringReturnString(cr, end);
 		
-		evaluator.push(TypeMan.STRING.constant(str));
+		evaluator.push(ClassesMan.T_STRING.constant(str));
 		
 		return READ_OK;
 	}

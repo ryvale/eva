@@ -8,10 +8,11 @@ import com.exa.eva.ComputedItem;
 import com.exa.eva.ComputedOperator;
 import com.exa.eva.EvaException;
 import com.exa.expression.OM;
-import com.exa.expression.TypeMan;
+import com.exa.expression.Type;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
+import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.expression.eval.XPOprdString;
 import com.exa.utils.ManagedException;
@@ -69,15 +70,15 @@ public class XPOprtConcatenation extends XPOprtCummulableBinary<String> {
 			XPOperator<?> oprt = xp.asOperator();
 			
 			if(oprt == null) {
-				if(xp.asOperand().type() == TypeMan.STRING) return true;
+				if(xp.asOperand().type() == ClassesMan.T_STRING) return true;
 				operandIndex++;
 				continue;
 			}
 			
 			ComputedOperator<XPression<?>, OM> coprt = coprd.asComputedOperator();
 			//TypeMan<?> type = oprt.getType(eval, coprd.order(), coprt.nbOperands());
-			TypeMan<?> type = oprt.type();
-			if(type == TypeMan.STRING) return true;
+			Type<?> type = oprt.type();
+			if(type == ClassesMan.T_STRING) return true;
 			operandIndex += coprt.nbOperands()+1;
 			
 		}
@@ -86,8 +87,8 @@ public class XPOprtConcatenation extends XPOprtCummulableBinary<String> {
 	}
 	
 	@Override
-	public TypeMan<?> type() {
-		return TypeMan.STRING;
+	public Type<?> type() {
+		return ClassesMan.T_STRING;
 	}
 
 }

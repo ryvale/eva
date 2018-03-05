@@ -25,6 +25,6 @@ public interface XPOperand<T> extends Operand<XPression<?>, XPOperand<?>, XPOper
 	
 	XPOperand<Double> asOPDouble() ;
 	
-	TypeMan<?> type();
+	Type<?> type();
 	
 }
