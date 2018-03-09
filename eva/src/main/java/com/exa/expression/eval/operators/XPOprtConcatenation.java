@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Vector;
 
 import com.exa.eva.ComputedItem;
-import com.exa.eva.ComputedOperator;
 import com.exa.eva.EvaException;
 import com.exa.expression.OM;
 import com.exa.expression.Type;
 import com.exa.expression.XPOperand;
-import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
 import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;
@@ -67,19 +65,10 @@ public class XPOprtConcatenation extends XPOprtCummulableBinary<String> {
 		for(int i = 0; i<nbOperands; i++) {
 			ComputedItem<XPression<?>, XPression<?>, OM> coprd = eval.stackOperand(operandIndex);
 			XPression<?> xp = coprd.item();
-			XPOperator<?> oprt = xp.asOperator();
 			
-			if(oprt == null) {
-				if(xp.asOperand().type() == ClassesMan.T_STRING) return true;
-				operandIndex++;
-				continue;
-			}
+			if(xp.type() == ClassesMan.T_STRING) return true;
 			
-			ComputedOperator<XPression<?>, OM> coprt = coprd.asComputedOperator();
-			//TypeMan<?> type = oprt.getType(eval, coprd.order(), coprt.nbOperands());
-			Type<?> type = oprt.type();
-			if(type == ClassesMan.T_STRING) return true;
-			operandIndex += coprt.nbOperands()+1;
+			operandIndex = OM.nextOperand(eval, operandIndex);
 			
 		}
 		

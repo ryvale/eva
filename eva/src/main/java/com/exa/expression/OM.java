@@ -10,17 +10,38 @@ public abstract class OM implements OperatorManager<XPression<?>, XPOperand<?>, 
 		boolean doAction(XPression<?> xp) throws ManagedException;
 	}
 	
-	protected int operandAction(XPEvaluator eval, int nb, OperandAction oa) throws ManagedException {
+	public static int nextOperand(XPEvaluator eval, int nb) {
+		ComputedItem<XPression<?>, XPression<?>, ?> ci = eval.stackOperand(nb);
+		
+		nb++;
+		XPOperator<?> oprt = ci.item().asOperator();
+		if(oprt == null) return nb;
+		
+		for(int i=0;i<oprt.nbOperands(); i++) {
+			nb = nextOperand(eval, nb);
+		}
+		
+		return nb;
+		
+	}
+	
+	public static int operandAction(XPEvaluator eval, int nb, OperandAction oa) throws ManagedException {
 		ComputedItem<XPression<?>, XPression<?>, ?> ci = eval.stackOperand(nb);
 		
 		XPression<?> xp = ci.item();
 		
 		if(!oa.doAction(xp)) return -1;
 		
+		nb++;
 		XPOperator<?> oprt = xp.asOperator();
-		if(oprt == null) return nb + 1;
+		if(oprt == null) return nb;
 		
-		return nb+oprt.nbOperands();
+		
+		for(int i=0; i <oprt.nbOperands(); i++) {
+			nb = nextOperand(eval, nb);
+		}
+		
+		return nb;
 	}
 	
 	@Override

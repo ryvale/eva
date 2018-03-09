@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Vector;
 
 import com.exa.eva.ComputedItem;
-import com.exa.eva.ComputedOperator;
 import com.exa.expression.OM;
 import com.exa.expression.Type;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperandBase;
-import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
 import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;
@@ -69,6 +67,15 @@ public class XPOprtDblMultiply extends XPOprtCummulableBinary<Double> {
 		for(int i = 0; i<nbOperands; i++) {
 			ComputedItem<XPression<?>, XPression<?>, OM> coprd = eval.stackOperand(operandIndex);
 			XPression<?> xp = coprd.item();
+			
+			if(xp.type() != ClassesMan.T_INTEGER && xp.type() != ClassesMan.T_DOUBLE) return false;
+			
+			operandIndex = OM.nextOperand(eval, operandIndex);
+		}
+		/*int operandIndex = 0;
+		for(int i = 0; i<nbOperands; i++) {
+			ComputedItem<XPression<?>, XPression<?>, OM> coprd = eval.stackOperand(operandIndex);
+			XPression<?> xp = coprd.item();
 			XPOperator<?> oprt = xp.asOperator();
 			
 			if(oprt == null) {
@@ -83,7 +90,7 @@ public class XPOprtDblMultiply extends XPOprtCummulableBinary<Double> {
 			if(type != ClassesMan.T_INTEGER && type != ClassesMan.T_DOUBLE) return false;
 			operandIndex += coprt.nbOperands()+1;
 			
-		}
+		}*/
 				
 		return true;
 	}

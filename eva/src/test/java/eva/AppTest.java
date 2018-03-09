@@ -89,6 +89,16 @@ public class AppTest extends TestCase {
 		System.out.println(blRes);
 		assertTrue(Boolean.TRUE.equals(blRes));
 		
+		xp = parser.parseString("2 != 2");
+		blRes = xp.asOPBoolean().value(evaluator);
+		System.out.println(blRes);
+		assertTrue(Boolean.FALSE.equals(blRes));
+		
+		xp = parser.parseString("2 != 1");
+		blRes = xp.asOPBoolean().value(evaluator);
+		System.out.println(blRes);
+		assertTrue(Boolean.TRUE.equals(blRes));
+		
 		xp = parser.parseString("null == null");
 		blRes = xp.asOPBoolean().value(evaluator);
 		System.out.println(blRes);
@@ -247,12 +257,7 @@ public class AppTest extends TestCase {
 		System.out.println(dblRes);
 		assertTrue(new Double(1).equals(dblRes));
 		
-		xp = parser.parseString("2 == 2 ? 1 == 4 ? 'Non OK' : 'OK' : 'Non OK'");
-		strRes = xp.asOPString().value(evaluator);
-		System.out.println(strRes);
-		assertTrue("OK".equals(strRes));
-		
-		xp = parser.parseString("2 == 2 ? 1 == 4 ? 'Non OK' : 'OK' : 'Non OK'");
+		xp = parser.parseString("2 == 2 ? (1 == 4 ? 'Non OK' : 'OK') : 'Non OK'");
 		strRes = xp.asOPString().value(evaluator);
 		System.out.println(strRes);
 		assertTrue("OK".equals(strRes));
@@ -325,6 +330,11 @@ public class AppTest extends TestCase {
 		
 		parser.evaluator().addVariable("str2", String.class, null);
 		xp = parser.parseString("str2 == null ? 'OK' : 'KO'");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK".equals(strRes));
+		
+		xp = parser.parseString("str != null ? ('O' +'K') : 'KO'");
 		strRes = xp.asOPString().value(evaluator);
 		System.out.println(strRes);
 		assertTrue("OK".equals(strRes));

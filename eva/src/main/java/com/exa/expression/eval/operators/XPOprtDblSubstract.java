@@ -70,6 +70,16 @@ public class XPOprtDblSubstract extends XPOprtCummulableBinary<Double> {
 		for(int i = 0; i<nbOperands; i++) {
 			ComputedItem<XPression<?>, XPression<?>, OM> coprd = eval.stackOperand(operandIndex);
 			XPression<?> xp = coprd.item();
+			
+			if(xp.type() != ClassesMan.T_INTEGER && xp.type() != ClassesMan.T_DOUBLE) return false;
+			
+			operandIndex = OM.nextOperand(eval, operandIndex);
+		}
+		
+		/*int operandIndex = 0;
+		for(int i = 0; i<nbOperands; i++) {
+			ComputedItem<XPression<?>, XPression<?>, OM> coprd = eval.stackOperand(operandIndex);
+			XPression<?> xp = coprd.item();
 			XPOperator<?> oprt = xp.asOperator();
 			
 			if(oprt == null) {
@@ -84,7 +94,7 @@ public class XPOprtDblSubstract extends XPOprtCummulableBinary<Double> {
 			if(type != ClassesMan.T_INTEGER && type != ClassesMan.T_DOUBLE) return false;
 			operandIndex += coprt.nbOperands()+1;
 			
-		}
+		}*/
 				
 		return true;
 	}

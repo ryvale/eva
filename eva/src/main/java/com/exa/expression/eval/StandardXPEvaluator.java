@@ -7,6 +7,7 @@ import com.exa.expression.XPOperator;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.expression.eval.functions.XPFunctSubstr;
 import com.exa.expression.eval.operators.OMCumulableBinary;
+import com.exa.expression.eval.operators.OMDifferent;
 import com.exa.expression.eval.operators.OMEqualTo;
 import com.exa.expression.eval.operators.OMTernary;
 import com.exa.expression.eval.operators.XPOprtConcatenation;
@@ -73,6 +74,7 @@ public class StandardXPEvaluator extends XPEvaluator {
 		addFunction(osmf);
 		
 		addBinaryOM(new OMEqualTo("==", 10));
+		addBinaryOM(new OMDifferent("!=", 10));
 		
 		addBinaryOM(new OMTernary("?", 16));
 	}

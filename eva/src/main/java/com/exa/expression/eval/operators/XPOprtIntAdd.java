@@ -72,22 +72,12 @@ public class XPOprtIntAdd extends XPOprtCummulableBinary<Integer> {
 		for(int i = 0; i<nbOperands; i++) {
 			ComputedItem<XPression<?>, XPression<?>, OM> coprd = eval.stackOperand(operandIndex);
 			XPression<?> xp = coprd.item();
-			XPOperator<?> oprt = xp.asOperator();
 			
-			if(oprt == null) {
-				if(xp.asOperand().type() != ClassesMan.T_INTEGER) return false;
-				operandIndex++;
-				continue;
-			}
+			if(xp.type() != ClassesMan.T_INTEGER) return false;
 			
-			ComputedOperator<XPression<?>, OM> coprt = coprd.asComputedOperator();
-			
-			Type<?> type = oprt.type();
-			if(type != ClassesMan.T_INTEGER) return false;
-			operandIndex += coprt.nbOperands()+1;
-			
+			operandIndex = OM.nextOperand(eval, operandIndex);
 		}
-				
+		
 		return true;
 	}
 
