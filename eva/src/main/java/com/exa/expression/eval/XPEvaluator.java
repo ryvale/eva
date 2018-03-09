@@ -16,13 +16,16 @@ import com.exa.expression.OMBinary;
 import com.exa.expression.OMClosedParenthesis;
 import com.exa.expression.OMFunction;
 import com.exa.expression.OMOpenParenthesis;
+import com.exa.expression.OMOperandSeparator;
 import com.exa.expression.OMParamSeparator;
 import com.exa.expression.Variable;
 import com.exa.expression.VariableContext;
 import com.exa.expression.XPConstant;
+import com.exa.expression.XPNull;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
+import com.exa.expression.eval.operators.OMCumulableBinary;
 import com.exa.expression.eval.operators.XPOprtCummulableBinary;
 import com.exa.utils.ManagedException;
 
@@ -30,9 +33,12 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	public static final OMOpenParenthesis OP_OPEN_PARENTHESIS = new OMOpenParenthesis("(", 100);
 	public static final OMClosedParenthesis OP_CLOSED_PARENTHESIS = new OMClosedParenthesis(")");
 	public static final OMParamSeparator OP_PARAMS_SEPARATOR = new OMParamSeparator(",");
+	public static final OMOperandSeparator OP_OPERAND_SEPARATOR = new OMOperandSeparator(":");
 	
 	public final static XPConstant<Boolean> TRUE = new XPConstant<>(Boolean.TRUE);
 	public final static XPConstant<Boolean> FALSE = new XPConstant<>(Boolean.FALSE);
+	
+	public final static XPNull<?> NULL = new XPNull<>();
 	
 	protected Stack<ComputedItem<XPression<?>, XPression<?>, OM>> outputStack = new Stack<>();
 	protected Stack<ComputedOperatorManager<OM, XPression<?>>> opStack = new Stack<>();
@@ -54,14 +60,14 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	
 	private XPEClassesMan classesMan;
 	
-	protected OMBinary omBinaryMemberAcces = new OMBinary(".", 2);
+	protected OMBinary<XPOprtCummulableBinary<?>> omBinaryMemberAcces = new OMCumulableBinary(".", 2);
 	
 	public XPEvaluator(VariableContext variableContext) {
 		super();
 		variablesContexts.put(defaultVariableContext, variableContext);
 		this.classesMan = new XPEClassesMan(this);
 		
-		addBinaryOSM(omBinaryMemberAcces);
+		addBinaryOM(omBinaryMemberAcces);
 	}
 	
 	public XPEvaluator() {
@@ -80,7 +86,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		osmsPostUnary.put(osm.symbol(), osm);
 	}
 	
-	public void addBinaryOSM(OM osm) {
+	public void addBinaryOM(OM osm) {
 		osmsBinary.put(osm.symbol(), osm);
 	}
 	
@@ -121,6 +127,29 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	
 	public VariableContext getVariableContext(String name) {
 		return variablesContexts.get(name);
+	}
+	
+	public void assignVariable(String context, String name, Object value) throws ManagedException {
+		VariableContext vc = variablesContexts.get(context);
+		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
+		
+		vc.assignVariable(name, value);
+		//vc.addVariable(name, valueClass, defaultValue);
+	}
+	
+	public void assignVariable(String name, Object value) throws ManagedException {
+		assignVariable(defaultVariableContext, name, value);
+	}
+	
+	public void assignOrDeclareVariable(String context, String name, Class<?> valueClass, Object value) throws ManagedException {
+		VariableContext vc = variablesContexts.get(context);
+		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
+		
+		vc.assignOrDeclareVariable(name, valueClass, value);
+	}
+	
+	public void assignOrDeclareVariable(String name, Class<?> valueClass, Object value) throws ManagedException {
+		assignOrDeclareVariable(defaultVariableContext, name, valueClass, value);
 	}
 	
 	public void addVariable(String context, String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
@@ -385,7 +414,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 
 	@Override
 	public void push(OM om) throws ManagedException {
-		if(om.type().equals(OMType.REGULAR)) {
+		if(om.type().equals(OMType.REGULAR) || om.type().equals(OMType.REGULAR_OPERAND_START)) {
 			if(opStack.size() > 0) {
 				ComputedOperatorManager<OM, XPression<?>> coprt = opStack.peek();
 				
@@ -398,11 +427,18 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 				
 				while(opStack.size() > 0) {
 					ComputedOperatorManager<OM, XPression<?>> cop = opStack.peek();
-					OM osm2 = cop.item();
-					boolean ltr = om.associativity().equals(OMAssociativity.LEFT_TO_RIGHT) && (om.priority() >= osm2.priority());
-					boolean rtl =om.associativity().equals(OMAssociativity.RIGHT_TO_LEFT) && (om.priority() < osm2.priority());
+					OM actualTopOM = cop.item();
+					if(actualTopOM.type().equals(OMType.PARAMS_START)) break;
 					
-					if(!ltr && !rtl) break;
+					boolean c1 = actualTopOM.priority() < om.priority();
+					boolean c2 = (actualTopOM.priority() == om.priority()) && om.associativity().equals(OMAssociativity.LEFT_TO_RIGHT);
+					
+					//boolean ltr = om.associativity().equals(OMAssociativity.LEFT_TO_RIGHT) && (om.priority() >= actualTopOM.priority());
+					//boolean rtl =om.associativity().equals(OMAssociativity.RIGHT_TO_LEFT) && (om.priority() < actualTopOM.priority());
+					
+					if(!c1 && !c2) break;
+					
+					//if(!ltr && !rtl) break;
 					
 					popOperatorInOperandStack();
 				} 
@@ -420,7 +456,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 			
 			while(opStack.size() > 0) {
 				ComputedOperatorManager<OM, XPression<?>> cop = opStack.peek();
-				if(cop.item().type().equals(OMType.OPEN_PARENTHESIS)) break;
+				if(cop.item().type().equals(OMType.PARAMS_START)) break;
 				
 				popOperatorInOperandStack();
 			}
@@ -428,15 +464,27 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 			return;
 		}
 		
-		if(om.type().equals(OMType.OPEN_PARENTHESIS)) {
+		if(om.type().equals(OMType.OPERAND_SEPARATOR)) {
+			
+			while(opStack.size() > 0) {
+				ComputedOperatorManager<OM, XPression<?>> cop = opStack.peek();
+				if(cop.item().type().equals(OMType.REGULAR_OPERAND_START)) break;
+				
+				popOperatorInOperandStack();
+			}
+			
+			return;
+		}
+		
+		if(om.type().equals(OMType.PARAMS_START)) {
 			_push(om);
 			return;
 		}
 		
-		if(om.type().equals(OMType.CLOSED_PARENTHESIS)) {
+		if(om.type().equals(OMType.PARAMS_END)) {
 			while(opStack.size() > 0) {
 				ComputedOperatorManager<OM, XPression<?>> cop = opStack.peek();
-				if(cop.item().type().equals(OMType.OPEN_PARENTHESIS)) {
+				if(cop.item().type().equals(OMType.PARAMS_START)) {
 					opStack.pop();
 					break;
 				}
@@ -455,7 +503,6 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 				return;
 			}
 			
-			//if(cop.expectOperand()) cop.incOperandNumber();
 			if(osm2.symbol().equals(".")) popOperatorInOperandStack();
 			 
 			
@@ -505,6 +552,10 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 
 	public void setDefaultVariableContext(String defaultVariableContext) {
 		this.defaultVariableContext = defaultVariableContext;
+	}
+
+	public XPEClassesMan getClassesMan() {
+		return classesMan;
 	}
 	
 	

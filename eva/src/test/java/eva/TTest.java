@@ -74,7 +74,6 @@ public class TTest extends TObjectClass<ValueCls, Object> {
 		
 	}
 
-	
 	public TTest() {
 		super(null, ValueCls.class, "test");
 	}

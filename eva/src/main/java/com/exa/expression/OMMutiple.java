@@ -7,7 +7,7 @@ import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
 public abstract class OMMutiple<T extends XPOperator<?>> extends OM {
-	private String symbol;
+	protected String symbol;
 	
 	private Integer priority;
 	private int nbOperand;

@@ -22,7 +22,10 @@ public class ClassesMan {
 	
 	public final static Type<?> T_UNKNOWN = new TUnknown();
 	
+	public final static Type<?> T_OBJECT = new TObjectClass<>(null, Object.class, "object");
+	
 	static {
+		T_OBJECT.initialize();
 		T_STRING.initialize();
 		T_INTEGER.initialize();
 		T_DOUBLE.initialize();
@@ -61,9 +64,24 @@ public class ClassesMan {
 	}
 	
 	public <T>Type<?> getType(Class<T> valueClass) {
-		Type<?> type = types.get(valueClass);
+		Type<?> res = types.get(valueClass);
 		
-		return type;
+		if(res ==  null) {
+			Class<?> betterClass = null;
+			for(Class<?> cl : types.keySet()) {
+				if(cl.isAssignableFrom(valueClass)) {
+					if(betterClass == null) betterClass = cl;
+					else {
+						if(betterClass.isAssignableFrom(cl)) betterClass = cl;
+					}
+				}
+			}
+			
+			if(betterClass == null) return null;
+			return types.get(betterClass);
+		}
+		
+		return res;
 	}
 	
 	public Type<?> getType(String typeName) {

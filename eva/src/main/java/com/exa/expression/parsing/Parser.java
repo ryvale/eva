@@ -65,7 +65,7 @@ public class Parser {
 			readResult = readPostUnaryOperator(cr);
 			if(readResult == READ_EOF) break;
 			
-			readResult = readNotUnaryOperator(cr);
+			readResult = readNotUnaryOperator(cr, context);
 			if(readResult == READ_EOF) break;
 			
 			if(readResult != READ_OK) throw new ManagedException(String.format("Not unary operator expected"));
@@ -82,7 +82,13 @@ public class Parser {
 	
 	public XPOperand<?> parse(CharReader cr, TerminationChecker checker, String context) throws ManagedException {
 		evaluator.clear();
-
+	
+		if(readExpression(cr, checker, context)) return evaluator.compute();
+		
+		throw new ManagedException(String.format("Error while parsing expressin."));
+	}
+	
+	public boolean readExpression(CharReader cr, TerminationChecker checker, String context) throws ManagedException {
 		if(readPreUnaryOPerator(cr) == READ_EOF) throw new ManagedException(String.format("No string to parse"));
 		
 		do { 
@@ -92,15 +98,14 @@ public class Parser {
 			readResult = readPostUnaryOperator(cr);
 			if(readResult == READ_EOF) break;
 			
-			readResult = readNotUnaryOperator(cr);
+			readResult = readNotUnaryOperator(cr, context);
 			if(readResult == READ_EOF) break;
 			
 			if(readResult != READ_OK) break;
 			
 		} while(readPreUnaryOPerator(cr) != READ_EOF);
-	
-		if(checker.check(lexingRules, cr)) return evaluator.compute();
-		throw new ManagedException(String.format("Error while parsing expressin."));
+		
+		return checker.check(lexingRules, cr);
 	}
 	
 	private void readExpressionInBracket(CharReader cr, Character closeBracket, String context) throws ManagedException {
@@ -113,7 +118,7 @@ public class Parser {
 			readResult = readPostUnaryOperator(cr);
 			if(readResult == READ_EOF) break;
 			
-			readResult = readNotUnaryOperator(cr);
+			readResult = readNotUnaryOperator(cr, context);
 			if(readResult == READ_EOF) break;
 			
 			if(readResult != READ_OK) {
@@ -156,7 +161,7 @@ public class Parser {
 			readResult = readPostUnaryOperator(cr);
 			if(readResult == READ_EOF) break;
 			
-			readResult = readNotUnaryOperator(cr);
+			readResult = readNotUnaryOperator(cr, context);
 			if(readResult == READ_EOF) break;
 			
 			if(readResult != READ_OK) {
@@ -265,6 +270,11 @@ public class Parser {
 			
 			if("false".equals(str)) {
 				evaluator.push(XPEvaluator.FALSE);
+				return READ_OK;
+			}
+			
+			if("null".equals(str)) {
+				evaluator.push(XPEvaluator.NULL);
 				return READ_OK;
 			}
 			
@@ -444,7 +454,6 @@ public class Parser {
 			return READ_OK;			
 		}
 		
-		
 		return READ_NOT_EOF;
 		
 	}
@@ -456,12 +465,13 @@ public class Parser {
 		return READ_NOT_EOF;
 	}
 	
-	public int readNotUnaryOperator(CharReader cr) throws ManagedException {
+	public int readNotUnaryOperator(CharReader cr, String context) throws ManagedException {
 		Character firstChar = lexingRules.nextForwardNonBlankChar(cr);
 		if(firstChar == null) return READ_EOF;
 		
 		if('+' == firstChar || '-' == firstChar || '*' == firstChar || '/' == firstChar) {
-			cr.nextChar();
+			//cr.nextChar();
+			lexingRules.nextNonBlankChar(cr);
 			
 			Character ch = lexingRules.nextForwardChar(cr);
 			if(ch == null) throw new ParsingException(String.format("Operand expected after operator %s", firstChar.toString()));
@@ -485,12 +495,45 @@ public class Parser {
 			
 			return READ_NOT_EOF;
 		}
+		if('=' == firstChar) {
+			lexingRules.nextNonBlankChar(cr);
+			
+			
+			Character ch = lexingRules.nextForwardChar(cr);
+			if(ch == null) throw new ParsingException(String.format("Operand expected after operator %s", firstChar.toString()));
+			
+			if('=' == ch) {
+				cr.nextChar();
+				evaluator.push(evaluator.getBinaryOp(firstChar.toString() + ch));
+				return READ_OK;
+			}
+		}
 		
 		if('.' == firstChar) {
-			cr.nextChar();
+			//cr.nextChar();
+			lexingRules.nextNonBlankChar(cr);
 			evaluator.push(evaluator.getBinaryOp(firstChar.toString()));
 			
 			return READ_OK;
+		}
+		
+		if('?' == firstChar) {
+			lexingRules.nextNonBlankChar(cr);
+			
+			evaluator.push(evaluator.getBinaryOp(firstChar.toString()));
+			
+			if(!readExpression(cr, (lx, cr2) -> {
+				Character ch = lx.nextNonBlankChar(cr2);
+				if(ch == null) return false;
+						
+				return ':' == ch;
+			}, context)) throw new ManagedException(String.format("':' expected after operator '?'"));
+			
+			evaluator.push(XPEvaluator.OP_OPERAND_SEPARATOR);
+			
+			readExpression(cr, (lx, cr2) -> true, context);
+			
+			return READ_NOT_EOF;
 		}
 		
 		

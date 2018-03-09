@@ -31,8 +31,4 @@ public abstract class XPDynamicTypeOperand<T> extends XPOperandBase<T> {
 		return ClassesMan.T_DOUBLE.valueOrNull(this);
 	}
 	
-	
-	
-
-	
 }

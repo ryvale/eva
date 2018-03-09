@@ -1,7 +1,6 @@
 package com.exa.expression.eval;
 
 import com.exa.expression.Variable;
-import com.exa.expression.VariableContext;
 import com.exa.utils.ManagedException;
 
 public class MemoryVariable<T> implements Variable<T> {
@@ -53,6 +52,7 @@ public class MemoryVariable<T> implements Variable<T> {
 		return valueClass;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void valueToSet(Object value) throws ManagedException {
 		if(valueClass.isInstance(value)) this.value = (T)value;

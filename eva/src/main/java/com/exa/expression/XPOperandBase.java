@@ -29,6 +29,12 @@ public abstract class XPOperandBase<T> extends OperandBase<XPression<?>, XPOpera
 	
 	@Override
 	public XPOperand<Double> asOPDouble() { return null; }
+
+	@Override
+	public boolean isNull() { return false;	}
+	
+	
+	
 }
 
 

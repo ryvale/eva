@@ -3,6 +3,8 @@ package com.exa.expression;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.exa.expression.eval.ClassesMan;
+import com.exa.expression.types.TObjectClass;
 import com.exa.utils.ManagedException;
 
 public abstract class Type<T> {
@@ -208,11 +210,21 @@ public abstract class Type<T> {
 		return method.osm();
 	}
 	
-	
 	public Class<?> valueClass() { return valueClass; }
 	
 	public abstract String typeName(); 
 	
 	public void initialize() {} 
+	
+	public TObjectClass<T, ?> asObjectClass() { return null; }
+	
+	public boolean isSubTypeOf(Type<?> type) { return type == this || type == ClassesMan.T_OBJECT; }
+	
+	public boolean canBeComputedBy(Type<?> type) { return type == this || type == ClassesMan.T_OBJECT; }
+	
+	public T convert(Object o) throws ManagedException {
+		if(o == null) return null;
+		throw new ManagedException(String.format("Unable to convert this object to a %s value", typeName()));
+	}
 	
 }

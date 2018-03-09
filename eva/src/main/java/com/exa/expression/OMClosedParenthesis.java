@@ -18,7 +18,6 @@ public class OMClosedParenthesis extends OM {
 
 	@Override
 	public XPOperator<?> operatorOf(XPEvaluator eval, int order, int nbOperands) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -44,7 +43,7 @@ public class OMClosedParenthesis extends OM {
 
 	@Override
 	public OMType type() {
-		return OMType.CLOSED_PARENTHESIS;
+		return OMType.PARAMS_END;
 	}
 
 }

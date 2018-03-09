@@ -73,7 +73,6 @@ public class AppTest extends TestCase {
 		System.out.println(intRes);
 		assertTrue(new Integer(3).equals(intRes));
 		
-		
 		evaluator.classesMan().registerClass(new TTest());
 		xp = parser.parseString("test.execute()");
 		strRes = xp.asOPString().value(evaluator);
@@ -84,6 +83,21 @@ public class AppTest extends TestCase {
 		strRes = xp.asOPString().value(evaluator);
 		System.out.println(strRes);
 		assertTrue("'Sonia'".equals(strRes));
+		
+		xp = parser.parseString("2 == 2");
+		Boolean blRes = xp.asOPBoolean().value(evaluator);
+		System.out.println(blRes);
+		assertTrue(Boolean.TRUE.equals(blRes));
+		
+		xp = parser.parseString("null == null");
+		blRes = xp.asOPBoolean().value(evaluator);
+		System.out.println(blRes);
+		assertTrue(Boolean.TRUE.equals(blRes));
+		
+		xp = parser.parseString("true ? 'OK' : 'Non OK'");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK".equals(strRes));
 	}
 	
 	public void testNiveau1() throws ManagedException {
@@ -207,6 +221,36 @@ public class AppTest extends TestCase {
 		intRes = xp.asOPInteger().value(evaluator);
 		System.out.println(intRes);
 		assertTrue(new Integer(8).equals(intRes));
+		
+		xp = parser.parseString("2 == 2 ? 'OK' : 'Non OK'");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK".equals(strRes));
+		
+		xp = parser.parseString("2 == null ? 'OK' : 'Non OK'");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("Non OK".equals(strRes));
+		
+		xp = parser.parseString("2 == null ? 'OK' : null");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue(strRes == null);
+		
+		xp = parser.parseString("str == 'OK' ? 'OK' : null");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK".equals(strRes));
+		
+		xp = parser.parseString("str == 'OK' ? 1 : 0.5");
+		Double dblRes = xp.asOPDouble().value(evaluator);
+		System.out.println(dblRes);
+		assertTrue(new Double(1).equals(dblRes));
+		
+		xp = parser.parseString("2 == 2 ? 1 == 4 ? 'Non OK' : 'OK' : 'Non OK'");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK".equals(strRes));
 	}
 	
 	public void testNiveau2() throws ManagedException {

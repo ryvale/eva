@@ -41,7 +41,7 @@ public class OMOpenParenthesis extends OM {
 
 	@Override
 	public OMType type() {
-		return OMType.OPEN_PARENTHESIS;
+		return OMType.PARAMS_START;
 	}
 
 	@Override

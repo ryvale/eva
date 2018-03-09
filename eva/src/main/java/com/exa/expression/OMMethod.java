@@ -15,16 +15,15 @@ public class OMMethod<T> extends OMFunction<OMMethod.XPOprtMethodBase<T>> {
 			super(symbol, nbOperands);
 
 		}
-		
 	}
 	
-	public abstract static class XPOrtMethod<T> extends XPOprtMethodBase<T> {
+	public abstract static class XPOrtMethod<_C, T> extends XPOprtMethodBase<T> {
 		
 		public abstract class XPMethodResult extends XPDynamicTypeOperand<T> {
-			protected XPOperand<T> object;
+			protected XPOperand<_C> object;
 			protected List<XPOperand<?>> params;
 			
-			public XPMethodResult(XPOperand<T> object, List<XPOperand<?>> params) {
+			public XPMethodResult(XPOperand<_C> object, List<XPOperand<?>> params) {
 				super();
 				this.object = object;
 				this.params = params;
@@ -60,7 +59,7 @@ public class OMMethod<T> extends OMFunction<OMMethod.XPOprtMethodBase<T>> {
 			
 			if(type != oprd.type()) throw new ManagedException(String.format("Unexpected error of object type while computing method %s", symbol));
 				
-			Type<T> tmSpecific = type.specificType();
+			Type<_C> tmSpecific = type.specificType();
 			
 			XPMethodResult res = createResultOperand(tmSpecific.valueOrNull(oprd),  params);
 			
@@ -74,7 +73,7 @@ public class OMMethod<T> extends OMFunction<OMMethod.XPOprtMethodBase<T>> {
 			return true;
 		}*/
 
-		protected abstract XPMethodResult createResultOperand(XPOperand<T> object, Vector<XPOperand<?>> params);
+		protected abstract XPMethodResult createResultOperand(XPOperand<_C> object, Vector<XPOperand<?>> params);
 
 		
 	}
@@ -87,7 +86,6 @@ public class OMMethod<T> extends OMFunction<OMMethod.XPOprtMethodBase<T>> {
 			
 			public XPMethodResult(List<XPOperand<?>> params) {
 				super();
-				//this.object = object;
 				this.params = params;
 			}
 

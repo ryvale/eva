@@ -17,7 +17,7 @@ import com.exa.utils.ManagedException;
 public class TString extends Type<String> {
 	
 	
-	private class MethodSubstring extends OMMethod.XPOrtMethod<String> {
+	private class MethodSubstring extends OMMethod.XPOrtMethod<String, String> {
 		
 		class ResultOperand extends XPMethodResult {
 
@@ -27,8 +27,6 @@ public class TString extends Type<String> {
 
 			@Override
 			public String value(XPEvaluator evaluator) throws ManagedException {
-				/*XPOperand<String> xpStr = params.get(0).asOPString();
-				if(xpStr == null) throw new ManagedException(String.format("Unexpected errer while executing the method %s", symbol));*/
 				
 				XPOperand<Integer> xpStart = params.get(0).asOPInteger();
 				if(xpStart == null) throw new ManagedException(String.format("Unexpected errer while executing the method %s", symbol));
@@ -110,6 +108,12 @@ public class TString extends Type<String> {
 		osm.addOperator(new MethodSubstring("substr", 3));
 		
 		methods.put("substr", new Method<>("substr", String.class, osm));
+	}
+
+	@Override
+	public String convert(Object o) throws ManagedException {
+		if(o instanceof String) return o.toString();
+		return super.convert(o);
 	}
 	
 	

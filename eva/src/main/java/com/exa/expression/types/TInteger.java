@@ -1,6 +1,7 @@
 package com.exa.expression.types;
 
 import com.exa.expression.Type;
+import com.exa.expression.eval.ClassesMan;
 
 public class TInteger extends Type<Integer> {
 
@@ -18,5 +19,12 @@ public class TInteger extends Type<Integer> {
 	public String typeName() {
 		return "int";
 	}
+
+	@Override 
+	public boolean canBeComputedBy(Type<?> type) {
+		return type == ClassesMan.T_DOUBLE || type == this;
+	}
+	
+	
 	
 }

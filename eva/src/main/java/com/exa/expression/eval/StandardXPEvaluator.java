@@ -6,7 +6,11 @@ import com.exa.expression.VariableContext;
 import com.exa.expression.XPOperator;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.expression.eval.functions.XPFunctSubstr;
+import com.exa.expression.eval.operators.OMCumulableBinary;
+import com.exa.expression.eval.operators.OMEqualTo;
+import com.exa.expression.eval.operators.OMTernary;
 import com.exa.expression.eval.operators.XPOprtConcatenation;
+import com.exa.expression.eval.operators.XPOprtCummulableBinary;
 import com.exa.expression.eval.operators.XPOprtDblAdd;
 import com.exa.expression.eval.operators.XPOprtDblDiv;
 import com.exa.expression.eval.operators.XPOprtDblMultiply;
@@ -27,28 +31,27 @@ public class StandardXPEvaluator extends XPEvaluator {
 	public StandardXPEvaluator(VariableContext variableContext) {
 		super(variableContext);
 		
-		OMBinary osmm = new OMBinary("+", 6);
-		osmm.addOperator(new XPOprtConcatenation("+"));
-		osmm.addOperator(new XPOprtIntAdd("+"));
-		osmm.addOperator(new XPOprtDblAdd("+"));
-		addBinaryOSM(osmm);
+		OMBinary<XPOprtCummulableBinary<?>> ombc = new OMCumulableBinary("+", 6);
+		ombc.addOperator(new XPOprtConcatenation("+"));
+		ombc.addOperator(new XPOprtIntAdd("+"));
+		ombc.addOperator(new XPOprtDblAdd("+"));
+		addBinaryOM(ombc);
 		
-		osmm = new OMBinary("-", 6);
-		osmm.addOperator(new XPOprtIntSubstract("-"));
-		osmm.addOperator(new XPOprtDblSubstract("-"));
-		addBinaryOSM(osmm);
+		ombc = new OMCumulableBinary("-", 6);
+		ombc.addOperator(new XPOprtIntSubstract("-"));
+		ombc.addOperator(new XPOprtDblSubstract("-"));
+		addBinaryOM(ombc);
 		
-		osmm = new OMBinary("*", 5);
-		osmm.addOperator(new XPOprtIntMultiply("*"));
-		osmm.addOperator(new XPOprtDblMultiply("*"));
-		addBinaryOSM(osmm);
+		ombc = new OMCumulableBinary("*", 5);
+		ombc.addOperator(new XPOprtIntMultiply("*"));
+		ombc.addOperator(new XPOprtDblMultiply("*"));
+		addBinaryOM(ombc);
 		
-		osmm = new OMBinary("/", 5);
-		osmm.addOperator(new XPOprtIntDiv("/"));
-		osmm.addOperator(new XPOprtDblDiv("/"));
-		addBinaryOSM(osmm);
+		ombc = new OMCumulableBinary("/", 5);
+		ombc.addOperator(new XPOprtIntDiv("/"));
+		ombc.addOperator(new XPOprtDblDiv("/"));
+		addBinaryOM(ombc);
 		
-		//osmm = new OMBinary(".", 2);
 		omBinaryMemberAcces.addOperator(new XPOprtMemberAccess<>(".", ClassesMan.T_STRING));
 		omBinaryMemberAcces.addOperator(new XPOprtMemberAccess<>(".", ClassesMan.T_INTEGER));
 		omBinaryMemberAcces.addOperator(new XPOprtMemberAccess<>(".", ClassesMan.T_BOOLEAN));
@@ -60,15 +63,18 @@ public class StandardXPEvaluator extends XPEvaluator {
 		omBinaryMemberAcces.addOperator(new XPOprtStaticMemberAccess<>(".", ClassesMan.T_BOOLEAN));
 		omBinaryMemberAcces.addOperator(new XPOprtStaticMemberAccess<>(".", ClassesMan.T_DOUBLE));
 		omBinaryMemberAcces.addOperator(new XPOprtStaticMemberAccess<>(".", ClassesMan.T_DATE));
-		//osmm.addOperator(new XPOprtMemberAccess<>(".", Type.OBJECT));
 		
-		addBinaryOSM(omBinaryMemberAcces);
+		addBinaryOM(omBinaryMemberAcces);
 		
 		OMFunction<XPOperator<String>> osmf = new OMFunction<>("substr", 3);
 		
 		osmf.addOperator(new XPFunctSubstr("substr", 3));
 		
 		addFunction(osmf);
+		
+		addBinaryOM(new OMEqualTo("==", 10));
+		
+		addBinaryOM(new OMTernary("?", 16));
 	}
 	
 	

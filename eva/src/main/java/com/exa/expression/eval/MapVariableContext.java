@@ -71,6 +71,53 @@ public class MapVariableContext implements VariableContext {
 		this.parent = vc;
 		
 	}
+
+	@Override
+	public <T>void assignVariable(String name, T value) throws ManagedException {
+		VariableContext vc = this;
+		Variable<?> res = null;
+		do {
+			res = vc.getContextVariable(name);
+			if(res != null) {
+				vc.assignContextVariable(name, value);
+				return;
+			}
+			
+			vc = vc.getParent();
+			
+		} while(vc != null);
+		
+		throw new ManagedException(String.format("No variable %s found", name));
+	}
+
+	@Override
+	public <T>void assignContextVariable(String name, T value) {
+		variables.put(name, new MemoryVariable<T>(name, value.getClass()));
+	}
+
+	@Override
+	public <T> void assignOrDeclareVariable(String name, Class<?> valueClass, T value) {
+		VariableContext vc = this;
+		Variable<?> res = null;
+		do {
+			res = vc.getContextVariable(name);
+			if(res != null) {
+				vc.assignContextVariable(name, value);
+				return;
+			}
+			
+			vc = vc.getParent();
+			
+		} while(vc != null);
+		
+		try {
+			addVariable(name, valueClass, value);
+		} catch (ManagedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 	
 	
 

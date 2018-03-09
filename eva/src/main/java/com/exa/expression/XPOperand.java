@@ -11,7 +11,7 @@ public interface XPOperand<T> extends Operand<XPression<?>, XPOperand<?>, XPOper
 	
 	T value(XPEvaluator evaluator) throws ManagedException;
 
-	//XPOperand<T> asSpecificItem();
+	boolean isNull();
 
 	XPOperand<String> asOPString();
 
