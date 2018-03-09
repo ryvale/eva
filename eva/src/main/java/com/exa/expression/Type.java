@@ -137,6 +137,7 @@ public abstract class Type<T> {
 	//value have not to be null
 	@SuppressWarnings("unchecked")
 	public T valueOrNull(Object value) {
+		if(value == null) return null;
 		if(valueClass == value.getClass()) return (T)value;
 		
 		return null;

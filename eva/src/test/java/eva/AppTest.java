@@ -251,6 +251,11 @@ public class AppTest extends TestCase {
 		strRes = xp.asOPString().value(evaluator);
 		System.out.println(strRes);
 		assertTrue("OK".equals(strRes));
+		
+		xp = parser.parseString("2 == 2 ? 1 == 4 ? 'Non OK' : 'OK' : 'Non OK'");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK".equals(strRes));
 	}
 	
 	public void testNiveau2() throws ManagedException {
@@ -318,10 +323,11 @@ public class AppTest extends TestCase {
 		System.out.println(dblRes);
 		assertTrue(new Double(17).equals(dblRes));
 		
-		xp = parser.parseString("(1 + 2 * (1+2) )*5");
-		intRes = xp.asOPInteger().value(evaluator);
-		System.out.println(intRes);
-		assertTrue(new Integer(35).equals(intRes));
+		parser.evaluator().addVariable("str2", String.class, null);
+		xp = parser.parseString("str2 == null ? 'OK' : 'KO'");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK".equals(strRes));
 	}
 	
 	
