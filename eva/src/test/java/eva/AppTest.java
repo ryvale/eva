@@ -303,7 +303,6 @@ public class AppTest extends TestCase {
 		System.out.println(dblRes);
 		assertTrue(new Double(12).equals(dblRes));
 		
-		
 		xp = parser.parseString("8 + 7.0");
 		dblRes = xp.asOPDouble().value(evaluator);
 		System.out.println(dblRes);
