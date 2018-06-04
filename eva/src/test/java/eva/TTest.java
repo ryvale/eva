@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import com.exa.eva.OperatorManager.OMOperandType;
 import com.exa.expression.OMMethod;
+import com.exa.expression.OMMethod.XPOrtMethod;
 import com.exa.expression.Type;
 import com.exa.expression.XPOperand;
 import com.exa.expression.eval.ClassesMan;
@@ -17,7 +18,7 @@ public class TTest extends TObjectClass<ValueCls, Object> {
 	private class MethodExecute extends OMMethod.XPOrtStaticMethod<String> {
 
 		public MethodExecute(String symbol) {
-			super(symbol, 0);
+			super(symbol, 1);
 		}
 
 		@Override
@@ -44,10 +45,10 @@ public class TTest extends TObjectClass<ValueCls, Object> {
 		
 	}
 	
-	private class MethodSQLString extends OMMethod.XPOrtStaticMethod<String> {
+	private class MethodSQLString extends OMMethod.XPOrtMethod<TTest, String> {
 
 		public MethodSQLString(String symbol) {
-			super(symbol, 1);
+			super(symbol, 2);
 		}
 
 		@Override
@@ -61,6 +62,26 @@ public class TTest extends TObjectClass<ValueCls, Object> {
 		}
 
 		@Override
+		protected XPOrtMethod<TTest, String>.XPMethodResult createResultOperand(XPOperand<TTest> xpOb,	Vector<XPOperand<?>> params) {
+			// TODO Auto-generated method stub
+			return new XPMethodResult(xpOb, params) {
+
+				@Override
+				public String value(XPEvaluator evaluator) throws ManagedException {
+					return "'" + params.get(0).asOPString().value(evaluator) + "'";
+				}
+				
+				/*@Override
+				public String value(XPEvaluator eval) throws ManagedException {
+					String fieldName = xpFieldName.get(0).asOPString().value(eval);
+					DataReader<?> dr = xpDR.value(eval);
+					
+					return dr.getDate(fieldName);
+				}*/
+			};
+		}
+
+		/*@Override
 		protected XPMethodResult createResultOperand(Vector<XPOperand<?>> params) {
 			
 			return new XPMethodResult(params) {
@@ -70,7 +91,7 @@ public class TTest extends TObjectClass<ValueCls, Object> {
 					return "'" + params.get(0).asOPString().value(evaluator) + "'";
 				}
 			};
-		}
+		}*/
 		
 	}
 
@@ -80,13 +101,15 @@ public class TTest extends TObjectClass<ValueCls, Object> {
 	
 	@Override
 	public void initialize() {
-		OMMethod<String> osm = new OMMethod<>("execute", 0, OMOperandType.PRE_OPERAND);
+		OMMethod<String> osm = new OMMethod<>("execute", 1, OMOperandType.PRE_OPERAND);
 		osm.addOperator(new MethodExecute("execute"));
 		
 		staticMethods.put("execute", new Method<>("execute", String.class, osm));
 		
-		osm = new OMMethod<>("sqlString", 1, OMOperandType.PRE_OPERAND);
+		osm = new OMMethod<>("sqlString", 2, OMOperandType.POST_OPERAND);
 		osm.addOperator(new MethodSQLString("sqlString"));
+		methods.put("sqlString", new Method<>("sqlString", String.class, osm));
+		//methods.put(key, value)
 		
 		staticMethods.put("sqlString", new Method<>("sqlString", String.class, osm));
 	}

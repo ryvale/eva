@@ -1,6 +1,7 @@
 package com.exa.expression;
 
 import com.exa.eva.ComputedItem;
+import com.exa.eva.ComputedOperator;
 import com.exa.eva.OperatorManager;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
@@ -37,7 +38,11 @@ public abstract class OM implements OperatorManager<XPression<?>, XPOperand<?>, 
 		if(oprt == null) return nb;
 		
 		
-		for(int i=0; i <oprt.nbOperands(); i++) {
+		/*for(int i=0; i <oprt.nbOperands(); i++) {
+			nb = nextOperand(eval, nb);
+		}*/
+		ComputedOperator<XPression<?>, ?> cop = ci.asComputedOperator();
+		for(int i=0; i <cop.nbOperands(); i++) {
 			nb = nextOperand(eval, nb);
 		}
 		

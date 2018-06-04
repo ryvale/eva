@@ -102,7 +102,7 @@ public class MapVariableContext implements VariableContext {
 		do {
 			res = vc.getContextVariable(name);
 			if(res != null) {
-				vc.assignContextVariable(name, value);
+				vc.assignContextVariable(name, value, valueClass);
 				return;
 			}
 			
@@ -116,6 +116,13 @@ public class MapVariableContext implements VariableContext {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+	}
+
+	@Override
+	public <T> void assignContextVariable(String name, T value, Class<?> valueClass) {
+		variables.put(name, new MemoryVariable<T>(name, valueClass, value));
+		
 		
 	}
 	

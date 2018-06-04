@@ -104,7 +104,7 @@ public class TString extends Type<String> {
 		properties.put("length", new Property<>("length", Integer.class, object -> object.length()));
 		
 		OMMethod<String> osm = new OMMethod<>("substr", 3, OMOperandType.POST_OPERAND);
-		osm.addOperator(new MethodSubstring("substr", 2));
+		//osm.addOperator(new MethodSubstring("substr", 2));
 		osm.addOperator(new MethodSubstring("substr", 3));
 		
 		methods.put("substr", new Method<>("substr", String.class, osm));

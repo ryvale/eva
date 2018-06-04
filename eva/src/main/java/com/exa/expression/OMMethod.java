@@ -48,7 +48,7 @@ public class OMMethod<T> extends OMFunction<OMMethod.XPOprtMethodBase<T>> {
 			
 			//TypeMan<?> type = getType(eval, order, nbOperands);
 			
-			Type<?> type = type();
+			//Type<?> type = type();
 			
 			for(int i=0; i < nbOperands - 1; i++) {
 				XPOperand<?> oprd = resolveOperand(eval);
@@ -57,7 +57,9 @@ public class OMMethod<T> extends OMFunction<OMMethod.XPOprtMethodBase<T>> {
 			}
 			XPOperand<?> oprd = resolveOperand(eval);
 			
-			if(type != oprd.type()) throw new ManagedException(String.format("Unexpected error of object type while computing method %s", symbol));
+			Type<?> type = oprd.type();
+			
+			//if(type != oprd.type()) throw new ManagedException(String.format("Unexpected error of object type while computing method %s", symbol));
 				
 			Type<_C> tmSpecific = type.specificType();
 			
@@ -136,7 +138,6 @@ public class OMMethod<T> extends OMFunction<OMMethod.XPOprtMethodBase<T>> {
 		}*/
 
 		protected abstract XPMethodResult createResultOperand(Vector<XPOperand<?>> params);
-
 		
 	}
 	
@@ -152,6 +153,11 @@ public class OMMethod<T> extends OMFunction<OMMethod.XPOprtMethodBase<T>> {
 	@Override
 	public OMOperandType operandType() {
 		return operandType;
+	}
+
+	@Override
+	public OMType type() {
+		return OMType.METHOD;
 	}
 	
 	

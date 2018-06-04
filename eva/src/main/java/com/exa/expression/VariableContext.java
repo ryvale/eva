@@ -19,6 +19,7 @@ public interface VariableContext {
 	void clearVariable();
 
 	<T>void assignContextVariable(String name, T value);
+	<T>void assignContextVariable(String name, T value, Class<?> valueClass);
 	
 	<T>void assignVariable(String name, T value) throws ManagedException;
 	

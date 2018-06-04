@@ -14,6 +14,10 @@ import com.exa.expression.types.TString;
 import com.exa.expression.types.TUnknown;
 
 public class ClassesMan {
+	public static interface TypeVistor {
+		void visit(String name, Class<?> valueClass);
+	}
+	
 	public final static Type<String> T_STRING = new TString();
 	public final static Type<Integer> T_INTEGER = new TInteger();
 	public final static Type<Double> T_DOUBLE = new TDouble();
@@ -52,6 +56,8 @@ public class ClassesMan {
 		typesByNames.put(T_BOOLEAN.typeName(), T_BOOLEAN);
 		typesByNames.put(T_DATE.typeName(), T_DATE);
 	}
+	
+	//private TypeSolver typeS
 	
 	public ClassesMan() {
 		super();
@@ -95,6 +101,10 @@ public class ClassesMan {
 	}
 	
 	
-	
+	public void forAllTypeDo(TypeVistor visitor) {
+		for(String typeName : typesByNames.keySet()) {
+			visitor.visit(typeName, typesByNames.get(typeName).valueClass());
+		}
+	}
 	
 }

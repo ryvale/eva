@@ -9,7 +9,7 @@ public abstract interface OperatorManager<
 	_E extends StackEvaluator<_T, _OPRD, _OPRT, _E, _OM>,
 	_OM extends OperatorManager<_T, _OPRD, _OPRT, _E, _OM>> {
 		
-	public static enum OMType { REGULAR, PARAMS_START, PARAMS_END, FUNCTION, PARAMS_SEPARATOR, REGULAR_OPERAND_START, OPERAND_SEPARATOR}
+	public static enum OMType { REGULAR, PARAMS_START, PARAMS_END, FUNCTION, METHOD, PARAMS_SEPARATOR, REGULAR_OPERAND_START, OPERAND_SEPARATOR}
 	
 	public static enum OMAssociativity { LEFT_TO_RIGHT, RIGHT_TO_LEFT, NONE}
 	

@@ -78,6 +78,10 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	
 	public int decNbFreeOperand() { return --nbFreeOperand; }
 	
+	public boolean contextExists(String name) {
+		return variablesContexts.containsKey(name);
+	}
+	
 	public void addPreUnaryOp(OM osm) {
 		osmsPreUnary.put(osm.symbol(), osm);
 	}
@@ -179,7 +183,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	}
 	
 	public Variable<?> getVariable(String name) throws ManagedException {
-		return getVariable(defaultVariableContext, name);
+		return getVariable(name, defaultVariableContext);
 	}
 
 	@Override
@@ -195,7 +199,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 			if(opStack.size() > 1) {
 				if(coprt.item() == OP_OPEN_PARENTHESIS) {
 					ComputedOperatorManager<OM, XPression<?>> coprt2 = opStack.get(opStack.size()-2);
-					if(coprt2.item().type().equals(OMType.FUNCTION)) {
+					if(coprt2.item().type().equals(OMType.FUNCTION) || coprt2.item().type().equals(OMType.METHOD)) {
 						//if(coprt2.expectOperand()) coprt2.incOperandNumber();
 					}
 					outputStack.push(new ComputedItem<>(item, order++));
@@ -447,7 +451,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 			return;
 		}
 		
-		if(om.type().equals(OMType.FUNCTION)) {
+		if(om.type().equals(OMType.FUNCTION) || om.type().equals(OMType.METHOD)) {
 			_push(om);
 			return;
 		}
@@ -498,7 +502,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 			if(cop == null) return;
 			
 			OM osm2 = cop.item();
-			if(osm2.type().equals(OMType.FUNCTION)) {
+			if(osm2.type().equals(OMType.FUNCTION) || osm2.type().equals(OMType.METHOD)) {
 				popOperatorInOperandStack();
 				return;
 			}
@@ -539,7 +543,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 			
 			cop = opStack.get(opStack.size() - 2);
 			
-			if(!cop.item().type().equals(OMType.FUNCTION)) return true;
+			if(!cop.item().type().equals(OMType.FUNCTION) && !cop.item().type().equals(OMType.METHOD)) return true;
 		}
 		//cop.incOperandNumber();
 		

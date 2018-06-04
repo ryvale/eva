@@ -1,5 +1,8 @@
 package eva;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.exa.expression.XPOperand;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.expression.parsing.Parser;
@@ -73,16 +76,16 @@ public class AppTest extends TestCase {
 		System.out.println(intRes);
 		assertTrue(new Integer(3).equals(intRes));
 		
-		evaluator.classesMan().registerClass(new TTest());
+		/*evaluator.classesMan().registerClass(new TTest());
 		xp = parser.parseString("test.execute()");
 		strRes = xp.asOPString().value(evaluator);
 		System.out.println(strRes);
-		assertTrue("OK".equals(strRes));
+		assertTrue("OK".equals(strRes));*/
 		
-		xp = parser.parseString("test.sqlString('Sonia')");
+		/*xp = parser.parseString("test.sqlString('Sonia')");
 		strRes = xp.asOPString().value(evaluator);
 		System.out.println(strRes);
-		assertTrue("'Sonia'".equals(strRes));
+		assertTrue("'Sonia'".equals(strRes));*/
 		
 		xp = parser.parseString("2 == 2");
 		Boolean blRes = xp.asOPBoolean().value(evaluator);
@@ -338,6 +341,49 @@ public class AppTest extends TestCase {
 		strRes = xp.asOPString().value(evaluator);
 		System.out.println(strRes);
 		assertTrue("OK".equals(strRes));
+	}
+	
+	public void testMethod() throws ManagedException {
+		Parser parser = new Parser();
+		XPEvaluator evaluator = parser.evaluator();
+		parser.evaluator().addVariable("str", String.class, "OK EVA-EXA");
+		
+		/*XPOperand<?>  xp = parser.parseString("str.substr(0, 2)");
+		String strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK".equals(strRes));
+		
+		evaluator.getClassesMan().registerClass(new TTest());
+		evaluator.addVariable("x", ValueCls.class, new ValueCls());
+		xp = parser.parseString("x.sqlString('abc')");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("'abc'".equals(strRes));*/
+		
+		
+		Map<String, Object> mp = new LinkedHashMap<>();
+		mp.put("start", "OK");
+		GlobalParams gp = new GlobalParams(mp);
+		evaluator.getClassesMan().registerClass(new TGlobalParams());
+		evaluator.addVariable("x2", GlobalParams.class, gp);
+		XPOperand<?>  xp = parser.parseString("x2.getString('start')");
+		String strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK".equals(strRes));
+		
+	}
+	
+	public void testSpecifique() throws ManagedException {
+		Parser parser = new Parser();
+		XPEvaluator evaluator = parser.evaluator();
+		parser.evaluator().addVariable("exploitation", String.class, "M41");
+		parser.evaluator().addVariable("departement", String.class, null);
+		
+		XPOperand<?> xp = parser.parseString(" (departement == null ? \" like '\" + exploitation + \"%'\" : \"='\" + exploitation + \"-\" + departement + \"'\") ");
+		//XPOperand<?> xp = parser.parseString("departement == null ? ' like ' + exploitation  + 'x' : 'OK'");
+		//XPOperand<?> xp = parser.parseString("' like ' + exploitation + 'x'");
+		String strRes = xp.asOPString().value(evaluator);
+		assertTrue(" like 'M41%'".equals(strRes));
 	}
 	
 	
