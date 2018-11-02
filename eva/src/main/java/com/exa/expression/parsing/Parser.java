@@ -20,6 +20,7 @@ import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.MapVariableContext;
 import com.exa.expression.eval.StandardXPEvaluator;
 import com.exa.expression.eval.XPEvaluator;
+import com.exa.expression.eval.XPEvaluator.ContextResolver;
 import com.exa.lexing.ParsingException;
 import com.exa.utils.ManagedException;
 
@@ -38,14 +39,14 @@ public class Parser {
 	
 	private ClassesMan classesMan;
 	
-	public Parser(VariableContext variableContext) {
+	public Parser(VariableContext variableContext, ContextResolver contextResolver) {
 		
-		evaluator = new StandardXPEvaluator(variableContext);
+		evaluator = new StandardXPEvaluator(variableContext, contextResolver);
 		this.classesMan = evaluator.classesMan();
 	}
 	
 	public Parser() {
-		this(new MapVariableContext());
+		this(new MapVariableContext(), XPEvaluator.CR_DEFAULT);
 	}
 	
 	public XPEvaluator evaluator() {

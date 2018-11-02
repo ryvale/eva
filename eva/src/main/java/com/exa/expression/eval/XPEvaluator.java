@@ -30,6 +30,13 @@ import com.exa.expression.eval.operators.XPOprtCummulableBinary;
 import com.exa.utils.ManagedException;
 
 public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, XPOperator<?>, XPEvaluator, OM> {
+	
+	public static interface ContextResolver {
+		VariableContext resolve(Map<String, VariableContext> variablesContexts, String context);
+	}
+	
+	public static final ContextResolver CR_DEFAULT = (vcs, context) -> vcs.get(context);
+	
 	public static final OMOpenParenthesis OP_OPEN_PARENTHESIS = new OMOpenParenthesis("(", 100);
 	public static final OMClosedParenthesis OP_CLOSED_PARENTHESIS = new OMClosedParenthesis(")");
 	public static final OMParamSeparator OP_PARAMS_SEPARATOR = new OMParamSeparator(",");
@@ -60,18 +67,22 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	
 	private XPEClassesMan classesMan;
 	
+	private ContextResolver contextResolver;
+	
 	protected OMBinary<XPOprtCummulableBinary<?>> omBinaryMemberAcces = new OMCumulableBinary(".", 2);
 	
-	public XPEvaluator(VariableContext variableContext) {
+	public XPEvaluator(VariableContext variableContext, ContextResolver contextResolver) {
 		super();
 		variablesContexts.put(defaultVariableContext, variableContext);
 		this.classesMan = new XPEClassesMan(this);
+		
+		this.contextResolver = contextResolver;
 		
 		addBinaryOM(omBinaryMemberAcces);
 	}
 	
 	public XPEvaluator() {
-		this(new MapVariableContext());
+		this(new MapVariableContext(), CR_DEFAULT);
 	}
 	
 	public ClassesMan classesMan() { return classesMan; }
@@ -173,7 +184,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	}
 	
 	public Variable<?> getVariable(String name, String context) throws ManagedException {
-		VariableContext vc = variablesContexts.get(context);
+		VariableContext vc = contextResolver.resolve(variablesContexts, context); //variablesContexts.get(context);
 		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
 		Variable<?> var = vc.getVariable(name);
 		
