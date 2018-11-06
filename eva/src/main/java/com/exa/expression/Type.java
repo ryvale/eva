@@ -138,7 +138,10 @@ public abstract class Type<T> {
 	@SuppressWarnings("unchecked")
 	public T valueOrNull(Object value) {
 		if(value == null) return null;
-		if(valueClass == value.getClass()) return (T)value;
+		
+		//if(valueClass == value.getClass()) return (T)value;
+		
+		if(valueClass.isInstance(value)) return (T)value;
 		
 		return null;
 	}

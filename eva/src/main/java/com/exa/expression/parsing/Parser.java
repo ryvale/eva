@@ -29,6 +29,10 @@ public class Parser {
 		boolean check(XPLexingRules lexingRules, CharReader cr) throws ManagedException;
 	}
 	
+	public static interface UnknownIdentifierValidation {
+		String type(String id, String context);
+	}
+	
 	static final int READ_EOF = 0;
 	static final int READ_NOT_EOF = 1;
 	static final int READ_OK = 3;
@@ -39,10 +43,21 @@ public class Parser {
 	
 	private ClassesMan classesMan;
 	
-	public Parser(VariableContext variableContext, ContextResolver contextResolver) {
+	protected UnknownIdentifierValidation unknownIdValidation;
+	
+	public Parser(VariableContext variableContext, ContextResolver contextResolver, UnknownIdentifierValidation unknownIdValidation) {
 		
 		evaluator = new StandardXPEvaluator(variableContext, contextResolver);
 		this.classesMan = evaluator.classesMan();
+		this.unknownIdValidation = unknownIdValidation;
+	}
+	
+	public Parser(VariableContext variableContext, ContextResolver contextResolver) {
+		this(variableContext, contextResolver, (id, context) -> null);
+	}
+	
+	public Parser(UnknownIdentifierValidation unknownIdValidation) {
+		this(new MapVariableContext(), XPEvaluator.CR_DEFAULT, unknownIdValidation);
 	}
 	
 	public Parser() {
@@ -290,29 +305,35 @@ public class Parser {
 					Type<?> t = classesMan.getType(str);
 					if(t != null) throw new ManagedException(String.format("Unexpected end of file near the type % . expect .", str));
 					
-					var = evaluator.getVariable(str, context);
+					var = evaluator.getVariable(str);
+					
 					if(var == null) {
-						var = evaluator.getVariable("this", context);
-						if(var == null) 
-							throw new ManagedException(String.format("%s . Unknown identifier.", str));
+						String ts = unknownIdValidation.type(str, context);
+						if(ts == null) {
+							var = evaluator.getVariable("this");
+							
+							if(var == null) 
+								throw new ManagedException(String.format("%s . Unknown identifier.", str));
+								
+							Type<?> type = classesMan.getType(var.valueClass());
+							
+							if(type == null) 
+								throw new ManagedException(String.format("%s . Unknown identifier.", str));
+							
+							if(type.propertyValueClass(str) == null)
+								throw new ManagedException(String.format("%s . Unknown identifier.", str));
+							
+							evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), classesMan.getType(var.valueClass())), context));
+							evaluator.push(evaluator.getBinaryOp("."));
+							
+							evaluator.push(new XPIdentifier<>(new Identifier(str, IDType.PROPERTY), context));
+							
+							return READ_OK;
+						}
 						
-						
-						Type<?> type = classesMan.getType(var.valueClass());
-						if(type == null) 
-							throw new ManagedException(String.format("%s . Unknown identifier.", str));
-						
-						if(type.propertyValueClass(str) == null)
-							throw new ManagedException(String.format("%s . Unknown identifier.", str));
-						
-						//Identifier identifier = new VariableIdentifier(var.name(), var.valueClass());
-						
-						evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), classesMan.getType(var.valueClass())), context));
-						evaluator.push(evaluator.getBinaryOp("."));
-						
-						//identifier = new Identifier(str, IDType.PROPERTY);
-						evaluator.push(new XPIdentifier<>(new Identifier(str, IDType.PROPERTY), context));
-						
+						evaluator.push(new XPIdentifier<>(new VariableIdentifier(str, classesMan.getType(ts)), context));
 						return READ_OK;
+						
 					}
 					
 					evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), classesMan.getType(var.valueClass())), context));
@@ -333,7 +354,7 @@ public class Parser {
 				if(cosm == null || !cosm.item().symbol().equals(".")) {
 					OMFunction<?> osmf = evaluator.getFunction(str);
 					if(osmf == null) {
-						Variable<?> var = evaluator.getVariable("this", context);
+						Variable<?> var = evaluator.getVariable("this");
 						if(var == null)
 							throw new ParsingException(String.format("The function %s is not defined.", str));
 						
@@ -414,26 +435,34 @@ public class Parser {
 					
 				}
 				
-				Variable<?> var = evaluator.getVariable(str, context);
+				Variable<?> var = evaluator.getVariable(str);
 				if(var == null) {
-					var = evaluator.getVariable("this", context);
-					if(var == null) 
-						throw new ManagedException(String.format("%s . Unknown identifier.", str));
+					String ts = unknownIdValidation.type(str, context);
 					
+					if(ts == null) {
+						var = evaluator.getVariable("this");
+						
+						if(var == null) 
+							throw new ManagedException(String.format("%s . Unknown identifier.", str));
+							
+						Type<?> type = classesMan.getType(var.valueClass());
+						
+						if(type == null) 
+							throw new ManagedException(String.format("%s . Unknown identifier.", str));
+						
+						if(type.propertyValueClass(str) == null)
+							throw new ManagedException(String.format("%s . Unknown identifier.", str));
+						
+						evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), classesMan.getType(var.valueClass())), context));
+						evaluator.push(evaluator.getBinaryOp("."));
+						
+						
+						evaluator.push(new XPIdentifier<>(new Identifier(str, IDType.PROPERTY), context));
+						
+						return READ_OK;
+					}
 					
-					Type<?> type = classesMan.getType(var.valueClass());
-					if(type == null) 
-						throw new ManagedException(String.format("%s . Unknown identifier.", str));
-					
-					if(type.propertyValueClass(str) == null)
-						throw new ManagedException(String.format("%s . Unknown identifier.", str));
-					
-					evaluator.push(new XPIdentifier<>(new VariableIdentifier(var.name(), classesMan.getType(var.valueClass())), context));
-					evaluator.push(evaluator.getBinaryOp("."));
-					
-					//identifier = new Identifier(str, IDType.PROPERTY);
-					evaluator.push(new XPIdentifier<>(new Identifier(str, IDType.PROPERTY), context));
-					
+					evaluator.push(new XPIdentifier<>(new VariableIdentifier(str, classesMan.getType(ts)), context));
 					return READ_OK;
 				}
 				

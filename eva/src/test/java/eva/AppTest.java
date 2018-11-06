@@ -76,11 +76,16 @@ public class AppTest extends TestCase {
 		System.out.println(intRes);
 		assertTrue(new Integer(3).equals(intRes));
 		
-		/*evaluator.classesMan().registerClass(new TTest());
+		evaluator.classesMan().registerClass(new TTest());
 		xp = parser.parseString("test.execute()");
 		strRes = xp.asOPString().value(evaluator);
 		System.out.println(strRes);
-		assertTrue("OK".equals(strRes));*/
+		assertTrue("OK".equals(strRes));
+		
+		xp = parser.parseString("test.execute2('2')");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("OK2".equals(strRes));
 		
 		/*xp = parser.parseString("test.sqlString('Sonia')");
 		strRes = xp.asOPString().value(evaluator);

@@ -19,7 +19,7 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 		@Override
 		public V value(XPEvaluator evaluator) throws ManagedException {
 			
-			Variable<?> var = evaluator.getVariable(identifier.name(), context);
+			Variable<?> var = evaluator.getVariable(identifier.name());
 			if(var == null) throw new ManagedException(String.format("Unable to retreive % variable value", identifier.name()));
 			
 			
@@ -69,8 +69,10 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public T value(XPEvaluator evaluator) throws ManagedException {
-		Variable<?> var = evaluator.contextExists(context) ?  evaluator.getVariable(identifier.name(), context) : evaluator.getVariable(identifier.name());
-		if(var == null) throw new ManagedException(String.format("Unable to retreive % variable value", identifier.name()));
+		/*Variable<?> var = evaluator.contextExists(context) ?  evaluator.getVariable(identifier.name(), context) : evaluator.getVariable(identifier.name());
+		if(var == null) throw new ManagedException(String.format("Unable to retreive % variable value", identifier.name()));*/
+		
+		Variable<?> var = evaluator.getVariable(identifier.name());
 		
 		Object res = var.value();
 		

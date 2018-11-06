@@ -5,6 +5,7 @@ import java.util.Vector;
 import com.exa.eva.OperatorManager.OMOperandType;
 import com.exa.expression.OMMethod;
 import com.exa.expression.OMMethod.XPOrtMethod;
+import com.exa.expression.OMMethod.XPOrtStaticMethod;
 import com.exa.expression.Type;
 import com.exa.expression.XPOperand;
 import com.exa.expression.eval.ClassesMan;
@@ -18,7 +19,7 @@ public class TTest extends TObjectClass<ValueCls, Object> {
 	private class MethodExecute extends OMMethod.XPOrtStaticMethod<String> {
 
 		public MethodExecute(String symbol) {
-			super(symbol, 1);
+			super(symbol, 0);
 		}
 
 		@Override
@@ -39,6 +40,35 @@ public class TTest extends TObjectClass<ValueCls, Object> {
 				@Override
 				public String value(XPEvaluator evaluator) throws ManagedException {
 					return "OK";
+				}
+			};
+		}
+		
+	}
+	
+	private class MethodExecute2 extends OMMethod.XPOrtStaticMethod<String> {
+
+		public MethodExecute2(String symbol) {
+			super(symbol, 1);
+		}
+
+		@Override
+		public boolean canManage(XPEvaluator eval, int order, int nbOperands) throws ManagedException {
+			return true;
+		}
+
+		@Override
+		public Type<?> type() {
+			return ClassesMan.T_STRING;
+		}
+
+		@Override
+		protected XPOrtStaticMethod<String>.XPMethodResult createResultOperand(Vector<XPOperand<?>> params) {
+			return new XPMethodResult(params) {
+				
+				@Override
+				public String value(XPEvaluator evaluator) throws ManagedException {
+					return "OK2";
 				}
 			};
 		}
@@ -101,10 +131,15 @@ public class TTest extends TObjectClass<ValueCls, Object> {
 	
 	@Override
 	public void initialize() {
-		OMMethod<String> osm = new OMMethod<>("execute", 1, OMOperandType.PRE_OPERAND);
+		OMMethod<String> osm = new OMMethod<>("execute", 0, OMOperandType.PRE_OPERAND);
 		osm.addOperator(new MethodExecute("execute"));
 		
 		staticMethods.put("execute", new Method<>("execute", String.class, osm));
+		
+		osm = new OMMethod<>("execute2", 1, OMOperandType.PRE_OPERAND);
+		osm.addOperator(new MethodExecute2("execute2"));
+		
+		staticMethods.put("execute2", new Method<>("execute2", String.class, osm));
 		
 		osm = new OMMethod<>("sqlString", 2, OMOperandType.POST_OPERAND);
 		osm.addOperator(new MethodSQLString("sqlString"));

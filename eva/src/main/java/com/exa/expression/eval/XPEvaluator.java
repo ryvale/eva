@@ -1,6 +1,7 @@
 package com.exa.expression.eval;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -61,7 +62,9 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	
 	private String defaultVariableContext = "_global";
 	
-	private Map<String, VariableContext> variablesContexts = new HashMap<>();
+	private Map<String, VariableContext> variablesContexts = new LinkedHashMap<>();
+	
+	private VariableContext currentVariableContext;
 
 	private int nbFreeOperand = 0;
 	
@@ -74,6 +77,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	public XPEvaluator(VariableContext variableContext, ContextResolver contextResolver) {
 		super();
 		variablesContexts.put(defaultVariableContext, variableContext);
+		this.currentVariableContext = variableContext;
 		this.classesMan = new XPEClassesMan(this);
 		
 		this.contextResolver = contextResolver;
@@ -85,6 +89,19 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		this(new MapVariableContext(), CR_DEFAULT);
 	}
 	
+	public VariableContext getCurrentVariableContext() {
+		return currentVariableContext;
+	}
+	
+	public void pushVariableContext(VariableContext vc) {
+		vc.setParent(currentVariableContext);
+		currentVariableContext = vc;
+	}
+	
+	public void popVariableContext() {
+		currentVariableContext = currentVariableContext.getParent();
+	}
+
 	public ClassesMan classesMan() { return classesMan; }
 	
 	public int decNbFreeOperand() { return --nbFreeOperand; }
@@ -156,15 +173,17 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		assignVariable(defaultVariableContext, name, value);
 	}
 	
-	public void assignOrDeclareVariable(String context, String name, Class<?> valueClass, Object value) throws ManagedException {
+	/*public void assignOrDeclareVariable(String context, String name, Class<?> valueClass, Object value) throws ManagedException {
 		VariableContext vc = variablesContexts.get(context);
 		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
 		
 		vc.assignOrDeclareVariable(name, valueClass, value);
-	}
+	}*/
 	
 	public void assignOrDeclareVariable(String name, Class<?> valueClass, Object value) throws ManagedException {
-		assignOrDeclareVariable(defaultVariableContext, name, valueClass, value);
+		//assignOrDeclareVariable(defaultVariableContext, name, valueClass, value);
+		
+		currentVariableContext.assignOrDeclareVariable(name, valueClass, value);
 	}
 	
 	public void addVariable(String context, String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
@@ -184,7 +203,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	}
 	
 	public Variable<?> getVariable(String name, String context) throws ManagedException {
-		VariableContext vc = contextResolver.resolve(variablesContexts, context); //variablesContexts.get(context);
+		VariableContext vc = contextResolver.resolve(variablesContexts, context);
 		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
 		Variable<?> var = vc.getVariable(name);
 		
@@ -193,8 +212,18 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		return var;
 	}
 	
+	public Variable<?> getVariable(String name, VariableContext vc) throws ManagedException {
+		//VariableContext vc = contextResolver.resolve(variablesContexts, context); //variablesContexts.get(context);
+		if(vc == null) throw new ManagedException("The variable context should not be null");
+		Variable<?> var = vc.getVariable(name);
+		
+		if(var == null) return null;
+		
+		return var;
+	}
+	
 	public Variable<?> getVariable(String name) throws ManagedException {
-		return getVariable(name, defaultVariableContext);
+		return getVariable(name, currentVariableContext);
 	}
 
 	@Override
