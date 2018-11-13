@@ -1,3 +1,4 @@
+C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\OMLogicalOr.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\types\TDouble.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\XPOprtIntAdd.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\OMMethod.java
@@ -14,7 +15,9 @@ C:\Projets\-communs\eva\eva\src\main\java\com\exa\eva\ComputedItem.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\XPOprtDblSubstract.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\eva\ComputedOperator.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\OMDifferent.java
+C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\OMGreaterThan.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\MemoryVariable.java
+C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\XPressionVariable.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\Variable.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\lexing\ActiveWord.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\types\TObjectClass.java
@@ -31,6 +34,7 @@ C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\Type.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\StandardClassesMan.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\OMTernary.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\OMCumulableBinary.java
+C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\OMLesserThan.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\StandardXPEvaluator.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\parsing\Parser.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\lexing\WordWithOpenCloseDelimiter.java
@@ -73,6 +77,7 @@ C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\OMMutiple.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\XPOprtCummulableBinary.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\types\TUnknown.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\types\TInteger.java
+C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\OMLogicalAnd.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\XPIdentifier.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\lexing\LexingRules.java
 C:\Projets\-communs\eva\eva\src\main\java\com\exa\expression\eval\operators\XPOprtDblMultiply.java

@@ -5,11 +5,12 @@ import java.util.Map;
 
 import com.exa.expression.Variable;
 import com.exa.expression.VariableContext;
+import com.exa.expression.XPOperand;
 import com.exa.utils.ManagedException;
 
 public class MapVariableContext implements VariableContext {
 	
-	private Map<String, MemoryVariable<?>> variables = new HashMap<>();
+	private Map<String, Variable<?>> variables = new HashMap<>();
 	
 	private VariableContext parent;
 	
@@ -36,7 +37,7 @@ public class MapVariableContext implements VariableContext {
 	}
 
 	@Override
-	public MemoryVariable<?> getContextVariable(String name) {
+	public Variable<?> getContextVariable(String name) {
 		return variables.get(name);
 	}
 
@@ -124,6 +125,16 @@ public class MapVariableContext implements VariableContext {
 		variables.put(name, new MemoryVariable<T>(name, valueClass, value));
 		
 		
+	}
+
+	@Override
+	public <T> Variable<T> addVariable(String name, Class<?> valueClass, XPOperand<T> xpValue, XPEvaluator evaluator, VariableContext vc)	throws ManagedException {
+		if(variables.containsKey(name)) throw new ManagedException(String.format("The variable %s alredy exists", name));
+		
+		XPressionVariable<T> res = new XPressionVariable(name, valueClass, xpValue, evaluator, vc); //MemoryVariable<T>(name, valueClass, defaultValue);
+		variables.put(name, res);
+		
+		return res;
 	}
 	
 	

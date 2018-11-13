@@ -20,7 +20,6 @@ import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.MapVariableContext;
 import com.exa.expression.eval.StandardXPEvaluator;
 import com.exa.expression.eval.XPEvaluator;
-import com.exa.expression.eval.XPEvaluator.ContextResolver;
 import com.exa.lexing.ParsingException;
 import com.exa.utils.ManagedException;
 
@@ -41,27 +40,27 @@ public class Parser {
 		
 	private XPEvaluator evaluator;
 	
-	private ClassesMan classesMan;
+	protected ClassesMan classesMan;
 	
 	protected UnknownIdentifierValidation unknownIdValidation;
 	
-	public Parser(VariableContext variableContext, ContextResolver contextResolver, UnknownIdentifierValidation unknownIdValidation) {
+	public Parser(VariableContext variableContext/*, ContextResolver contextResolver*/, UnknownIdentifierValidation unknownIdValidation) {
 		
-		evaluator = new StandardXPEvaluator(variableContext, contextResolver);
+		evaluator = new StandardXPEvaluator(variableContext/*, contextResolver*/);
 		this.classesMan = evaluator.classesMan();
 		this.unknownIdValidation = unknownIdValidation;
 	}
 	
-	public Parser(VariableContext variableContext, ContextResolver contextResolver) {
-		this(variableContext, contextResolver, (id, context) -> null);
+	public Parser(VariableContext variableContext/*, ContextResolver contextResolver*/) {
+		this(variableContext/*, contextResolver*/, (id, context) -> null);
 	}
 	
 	public Parser(UnknownIdentifierValidation unknownIdValidation) {
-		this(new MapVariableContext(), XPEvaluator.CR_DEFAULT, unknownIdValidation);
+		this(new MapVariableContext()/*, XPEvaluator.CR_DEFAULT*/, unknownIdValidation);
 	}
 	
 	public Parser() {
-		this(new MapVariableContext(), XPEvaluator.CR_DEFAULT);
+		this(new MapVariableContext()/*, XPEvaluator.CR_DEFAULT*/);
 	}
 	
 	public XPEvaluator evaluator() {
@@ -93,7 +92,7 @@ public class Parser {
 	}
 	
 	public XPOperand<?> parse(CharReader cr) throws ManagedException {
-		return parse(cr, evaluator.getDefaultVariableContext());
+		return parse(cr, "root");
 	}
 	
 	public XPOperand<?> parse(CharReader cr, TerminationChecker checker, String context) throws ManagedException {
@@ -204,7 +203,7 @@ public class Parser {
 	}
 	
 	public XPOperand<?> parseString(String str) throws ManagedException {
-		return parseString(str, (lexingRules, cr) -> (lexingRules.nextForwardNonBlankChar(cr)==null), evaluator.getDefaultVariableContext());
+		return parseString(str, (lexingRules, cr) -> (lexingRules.nextForwardNonBlankChar(cr)==null), "root");
 	}
 	
 	public XPOperand<?> parseString(String str, TerminationChecker checker, String context) throws ManagedException {
@@ -540,6 +539,32 @@ public class Parser {
 			
 		}
 		
+		if('>' == firstChar) {
+			lexingRules.nextNonBlankChar(cr);
+			
+			Character ch = lexingRules.nextForwardChar(cr);
+			if('=' == ch) {
+				cr.nextChar();
+				evaluator.push(evaluator.getBinaryOp(">="));
+			}
+			else evaluator.push(evaluator.getBinaryOp(firstChar.toString()));
+			
+			return READ_OK;
+		}
+		
+		if('<' == firstChar) {
+			lexingRules.nextNonBlankChar(cr);
+			
+			Character ch = lexingRules.nextForwardChar(cr);
+			if('=' == ch) {
+				cr.nextChar();
+				evaluator.push(evaluator.getBinaryOp("<="));
+			}
+			else evaluator.push(evaluator.getBinaryOp(firstChar.toString()));
+			
+			return READ_OK;
+		}
+		
 		if('!' == firstChar) {
 			lexingRules.nextNonBlankChar(cr);
 			
@@ -578,6 +603,34 @@ public class Parser {
 			readExpression(cr, (lx, cr2) -> true, context);
 			
 			return READ_NOT_EOF;
+		}
+		
+		if('&' == firstChar) {
+			lexingRules.nextNonBlankChar(cr);
+			
+			Character ch = lexingRules.nextForwardChar(cr);
+			if(ch == null) throw new ParsingException(String.format("Operand expected after operator %s", firstChar.toString()));
+			
+			if('&' == ch) {
+				cr.nextChar();
+				evaluator.push(evaluator.getBinaryOp(firstChar.toString() + ch));
+				return READ_OK;
+			}
+			
+		}
+		
+		if('|' == firstChar) {
+			lexingRules.nextNonBlankChar(cr);
+			
+			Character ch = lexingRules.nextForwardChar(cr);
+			if(ch == null) throw new ParsingException(String.format("Operand expected after operator %s", firstChar.toString()));
+			
+			if('|' == ch) {
+				cr.nextChar();
+				evaluator.push(evaluator.getBinaryOp(firstChar.toString() + ch));
+				return READ_OK;
+			}
+			
 		}
 		
 		

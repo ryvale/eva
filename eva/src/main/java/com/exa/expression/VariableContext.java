@@ -1,10 +1,13 @@
 package com.exa.expression;
 
+import com.exa.expression.eval.XPEvaluator;
 import com.exa.utils.ManagedException;
 
 public interface VariableContext {
 	
 	<T>Variable<T> addVariable(String name, Class<?> valueClass, T defaultValue) throws ManagedException;
+	
+	<T>Variable<T> addVariable(String name, Class<?> valueClass, XPOperand<T> xpValue, XPEvaluator evaluator, VariableContext vc) throws ManagedException;
 	
 	void releaseVariable(String name);
 	

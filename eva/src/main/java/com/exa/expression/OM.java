@@ -18,7 +18,8 @@ public abstract class OM implements OperatorManager<XPression<?>, XPOperand<?>, 
 		XPOperator<?> oprt = ci.item().asOperator();
 		if(oprt == null) return nb;
 		
-		for(int i=0;i<oprt.nbOperands(); i++) {
+		ComputedOperator<XPression<?>, ?> cop = ci.asComputedOperator();
+		for(int i=0;i<cop.nbOperands(); i++) {
 			nb = nextOperand(eval, nb);
 		}
 		

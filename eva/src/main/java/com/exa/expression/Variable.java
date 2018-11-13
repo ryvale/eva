@@ -4,7 +4,7 @@ import com.exa.utils.ManagedException;
 
 public interface Variable<T> {
 
-	T value();
+	T value() throws ManagedException;
 
 	void value(T value);
 	
