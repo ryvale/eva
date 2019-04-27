@@ -19,20 +19,7 @@ public abstract class XPOperatorBase<T> extends OperatorBase<XPression<?>, XPOpe
 	
 	@Override
 	public XPOperand<T> asOperand() { return null; }
-	
-	/*protected int operandAction(XPEvaluator eval, int nb, OperandAction oa) throws ManagedException {
-		ComputedItem<XPression<?>, XPression<?>, ?> ci = eval.stackOperand(nb);
 		
-		XPression<?> xp = ci.item();
-		
-		if(!oa.doAction(xp)) return -1;
-		
-		XPOperator<?> oprt = xp.asOperator();
-		if(oprt == null) return nb+1;
-		
-		return nb+oprt.nbOperands();
-	}*/
-	
 	protected static XPOperand<?> resolveOperand(XPEvaluator eval, ComputedItem<XPression<?>, XPression<?>, ?> ci) throws ManagedException {
 		XPression<?> item = ci.item();
 		XPOperand<?> oprd = item.asOperand();

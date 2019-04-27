@@ -539,6 +539,32 @@ public class Parser {
 			
 		}
 		
+		if('>' == firstChar) {
+			lexingRules.nextNonBlankChar(cr);
+			
+			Character ch = lexingRules.nextForwardChar(cr);
+			if('=' == ch) {
+				cr.nextChar();
+				evaluator.push(evaluator.getBinaryOp(">="));
+			}
+			else evaluator.push(evaluator.getBinaryOp(firstChar.toString()));
+			
+			return READ_OK;
+		}
+		
+		if('<' == firstChar) {
+			lexingRules.nextNonBlankChar(cr);
+			
+			Character ch = lexingRules.nextForwardChar(cr);
+			if('=' == ch) {
+				cr.nextChar();
+				evaluator.push(evaluator.getBinaryOp("<="));
+			}
+			else evaluator.push(evaluator.getBinaryOp(firstChar.toString()));
+			
+			return READ_OK;
+		}
+		
 		if('!' == firstChar) {
 			lexingRules.nextNonBlankChar(cr);
 			
@@ -577,6 +603,34 @@ public class Parser {
 			readExpression(cr, (lx, cr2) -> true, context);
 			
 			return READ_NOT_EOF;
+		}
+		
+		if('&' == firstChar) {
+			lexingRules.nextNonBlankChar(cr);
+			
+			Character ch = lexingRules.nextForwardChar(cr);
+			if(ch == null) throw new ParsingException(String.format("Operand expected after operator %s", firstChar.toString()));
+			
+			if('&' == ch) {
+				cr.nextChar();
+				evaluator.push(evaluator.getBinaryOp(firstChar.toString() + ch));
+				return READ_OK;
+			}
+			
+		}
+		
+		if('|' == firstChar) {
+			lexingRules.nextNonBlankChar(cr);
+			
+			Character ch = lexingRules.nextForwardChar(cr);
+			if(ch == null) throw new ParsingException(String.format("Operand expected after operator %s", firstChar.toString()));
+			
+			if('|' == ch) {
+				cr.nextChar();
+				evaluator.push(evaluator.getBinaryOp(firstChar.toString() + ch));
+				return READ_OK;
+			}
+			
 		}
 		
 		

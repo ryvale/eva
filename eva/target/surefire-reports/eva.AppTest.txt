@@ -1,4 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: eva.AppTest
 -------------------------------------------------------------------------------
+<<<<<<< HEAD
 Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.168 sec
+=======
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.178 sec
+>>>>>>> 2979c8838eb7f6c7282b09cc7c1f45c60c348d7d

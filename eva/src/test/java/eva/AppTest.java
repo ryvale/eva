@@ -61,6 +61,38 @@ public class AppTest extends TestCase {
 		System.out.println(strRes);
 		assertTrue("O".equals(strRes));
 		
+		xp = parser.parseString("str.indexOf('OK')");
+		intRes = xp.asOPInteger().value(evaluator);
+		System.out.println(intRes);
+		assertTrue(new Integer(0).equals(intRes));
+		
+		xp = parser.parseString("str.indexOf('EVA')");
+		intRes = xp.asOPInteger().value(evaluator);
+		System.out.println(intRes);
+		assertTrue(new Integer(3).equals(intRes));
+		
+		xp = parser.parseString("str.indexOf('EVA') + 2");
+		intRes = xp.asOPInteger().value(evaluator);
+		System.out.println(intRes);
+		assertTrue(new Integer(5).equals(intRes));
+		
+		Boolean blRes;
+		xp = parser.parseString("5 > 0");
+		blRes = xp.asOPBoolean().value(evaluator);
+		assertTrue(Boolean.TRUE.equals(blRes));
+		
+		xp = parser.parseString("str.indexOf('EVA') >= 0");
+		blRes = xp.asOPBoolean().value(evaluator);
+		assertTrue(Boolean.TRUE.equals(blRes));
+		
+		xp = parser.parseString("str.indexOf('EVA') >= 0 || false");
+		blRes = xp.asOPBoolean().value(evaluator);
+		assertTrue(Boolean.TRUE.equals(blRes));
+		
+		xp = parser.parseString("str.indexOf('EVA') == 0 || false");
+		blRes = xp.asOPBoolean().value(evaluator);
+		assertTrue(Boolean.FALSE.equals(blRes));
+		
 		xp = parser.parseString("7.0");
 		Double dblRes = xp.asOPDouble().value(evaluator);
 		System.out.println(dblRes);
@@ -93,7 +125,7 @@ public class AppTest extends TestCase {
 		assertTrue("'Sonia'".equals(strRes));*/
 		
 		xp = parser.parseString("2 == 2");
-		Boolean blRes = xp.asOPBoolean().value(evaluator);
+		blRes = xp.asOPBoolean().value(evaluator);
 		System.out.println(blRes);
 		assertTrue(Boolean.TRUE.equals(blRes));
 		
@@ -116,6 +148,10 @@ public class AppTest extends TestCase {
 		strRes = xp.asOPString().value(evaluator);
 		System.out.println(strRes);
 		assertTrue("OK".equals(strRes));
+		
+		xp = parser.parseString("true && true");
+		blRes = xp.asOPBoolean().value(evaluator);
+		assertTrue(Boolean.TRUE.equals(blRes));
 	}
 	
 	public void testNiveau1() throws ManagedException {
@@ -353,18 +389,6 @@ public class AppTest extends TestCase {
 		XPEvaluator evaluator = parser.evaluator();
 		parser.evaluator().addVariable("str", String.class, "OK EVA-EXA");
 		
-		/*XPOperand<?>  xp = parser.parseString("str.substr(0, 2)");
-		String strRes = xp.asOPString().value(evaluator);
-		System.out.println(strRes);
-		assertTrue("OK".equals(strRes));
-		
-		evaluator.getClassesMan().registerClass(new TTest());
-		evaluator.addVariable("x", ValueCls.class, new ValueCls());
-		xp = parser.parseString("x.sqlString('abc')");
-		strRes = xp.asOPString().value(evaluator);
-		System.out.println(strRes);
-		assertTrue("'abc'".equals(strRes));*/
-		
 		
 		Map<String, Object> mp = new LinkedHashMap<>();
 		mp.put("start", "OK");
@@ -389,6 +413,31 @@ public class AppTest extends TestCase {
 		//XPOperand<?> xp = parser.parseString("' like ' + exploitation + 'x'");
 		String strRes = xp.asOPString().value(evaluator);
 		assertTrue(" like 'M41%'".equals(strRes));
+	}
+	
+	public void testDeepOp() throws ManagedException {
+		Parser parser = new Parser();
+		XPEvaluator evaluator = parser.evaluator();
+		parser.evaluator().addVariable("str", String.class, "M41");
+		//parser.evaluator().addVariable("departement", String.class, null);
+		
+		XPOperand<?> xp = parser.parseString("str.substr(0, 1) + str.substr(0, 1) ");
+		
+		String strRes = xp.asOPString().value(evaluator);
+		
+		System.out.println(strRes);
+		assertTrue("MM".equals(strRes));
+		
+		
+		xp = parser.parseString("str.substr(0, 1+1)");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("M4".equals(strRes));
+		
+		xp = parser.parseString("'x' + (str == '' ? '4' + str.substr(0, 2) + '5': 'y' + str + 'z') + 'a'+ str");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("xyM41zaM41".equals(strRes));
 	}
 	
 	

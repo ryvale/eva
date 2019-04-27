@@ -17,7 +17,7 @@ public class XPLexingRules extends LexingRules {
 		
 		addWordSeparator(new WordWithOpenCloseDelimiter(this, '"','"'));
 		addWordSeparator(new WordWithOpenCloseDelimiter(this, '\'','\''));
-		addWordSeparator("=", "+=", "-=", "*=", "/=", "+", "-", "*", "/", "?", ":", ".", "(", ",", ")");
+		addWordSeparator("=", "+=", "-=", "*=", "/=", "+", "-", "*", "/", "?", ":", ".", "(", ",", ")", ">", "&", "&&", "|", "||");
 	}
 	
 	public boolean isInteger(String str, boolean exetendNum) {

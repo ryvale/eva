@@ -6,9 +6,13 @@ import com.exa.expression.VariableContext;
 import com.exa.expression.XPOperator;
 import com.exa.expression.eval.XPEvaluator;
 import com.exa.expression.eval.functions.XPFunctSubstr;
+import com.exa.expression.eval.operators.OMLogicalAnd;
+import com.exa.expression.eval.operators.OMLogicalOr;
 import com.exa.expression.eval.operators.OMCumulableBinary;
 import com.exa.expression.eval.operators.OMDifferent;
 import com.exa.expression.eval.operators.OMEqualTo;
+import com.exa.expression.eval.operators.OMGreaterThan;
+import com.exa.expression.eval.operators.OMLesserThan;
 import com.exa.expression.eval.operators.OMTernary;
 import com.exa.expression.eval.operators.XPOprtConcatenation;
 import com.exa.expression.eval.operators.XPOprtCummulableBinary;
@@ -26,11 +30,19 @@ import com.exa.expression.eval.operators.XPOprtStaticMemberAccess;
 public class StandardXPEvaluator extends XPEvaluator {
 
 	public StandardXPEvaluator() {
+<<<<<<< HEAD
 		this(new MapVariableContext()/*, XPEvaluator.CR_DEFAULT*/);
 	}
 
 	public StandardXPEvaluator(VariableContext variableContext/*, ContextResolver contextResolver*/) {
 		super(variableContext/*, contextResolver*/);
+=======
+		this(new MapVariableContext());
+	}
+
+	public StandardXPEvaluator(VariableContext variableContext) {
+		super(variableContext);
+>>>>>>> 2979c8838eb7f6c7282b09cc7c1f45c60c348d7d
 		
 		OMBinary<XPOprtCummulableBinary<?>> ombc = new OMCumulableBinary("+", 6);
 		ombc.addOperator(new XPOprtConcatenation("+"));
@@ -73,8 +85,18 @@ public class StandardXPEvaluator extends XPEvaluator {
 		
 		addFunction(osmf);
 		
+		addBinaryOM(new OMGreaterThan(">", 9, false));
+		addBinaryOM(new OMGreaterThan(">=", 9, true));
+		
+		addBinaryOM(new OMLesserThan("<", 9, false));
+		addBinaryOM(new OMLesserThan("<=", 9, true));
+		
 		addBinaryOM(new OMEqualTo("==", 10));
 		addBinaryOM(new OMDifferent("!=", 10));
+		
+		addBinaryOM(new OMLogicalAnd("&&", 14));
+		
+		addBinaryOM(new OMLogicalOr("||", 15));
 		
 		addBinaryOM(new OMTernary("?", 16));
 	}
