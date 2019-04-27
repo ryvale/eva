@@ -9,6 +9,7 @@ public class TGlobalParams extends TObjectClass<GlobalParams, Object> {
 
 	public TGlobalParams() {
 		super(null, GlobalParams.class, "GlobalParams");
+		
 	}
 
 	@Override
