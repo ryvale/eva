@@ -26,11 +26,11 @@ import com.exa.expression.eval.operators.XPOprtStaticMemberAccess;
 public class StandardXPEvaluator extends XPEvaluator {
 
 	public StandardXPEvaluator() {
-		this(new MapVariableContext(), XPEvaluator.CR_DEFAULT);
+		this(new MapVariableContext()/*, XPEvaluator.CR_DEFAULT*/);
 	}
 
-	public StandardXPEvaluator(VariableContext variableContext, ContextResolver contextResolver) {
-		super(variableContext, contextResolver);
+	public StandardXPEvaluator(VariableContext variableContext/*, ContextResolver contextResolver*/) {
+		super(variableContext/*, contextResolver*/);
 		
 		OMBinary<XPOprtCummulableBinary<?>> ombc = new OMCumulableBinary("+", 6);
 		ombc.addOperator(new XPOprtConcatenation("+"));

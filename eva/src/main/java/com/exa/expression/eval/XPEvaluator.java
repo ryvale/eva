@@ -1,7 +1,6 @@
 package com.exa.expression.eval;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -60,55 +59,63 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	
 	protected Map<String, OMFunction<?>> osmsFunctions = new HashMap<>();
 	
-	private String defaultVariableContext = "_global";
+	//private String defaultVariableContext = "_global";
 	
-	private Map<String, VariableContext> variablesContexts = new LinkedHashMap<>();
+	//private Map<String, VariableContext> variablesContexts = new LinkedHashMap<>();
 	
-	private VariableContext currentVariableContext;
+	//private VariableContext currentVariableContext;
 
 	private int nbFreeOperand = 0;
 	
 	private XPEClassesMan classesMan;
 	
-	private ContextResolver contextResolver;
+	//private ContextResolver contextResolver;
+	
+	private Stack<VariableContext> vcStack = new Stack<>();
+	
+	private VariableContext rootVC;
 	
 	protected OMBinary<XPOprtCummulableBinary<?>> omBinaryMemberAcces = new OMCumulableBinary(".", 2);
 	
-	public XPEvaluator(VariableContext variableContext, ContextResolver contextResolver) {
+	
+	public XPEvaluator(VariableContext rootVC/*, ContextResolver contextResolver*/) {
 		super();
-		variablesContexts.put(defaultVariableContext, variableContext);
-		this.currentVariableContext = variableContext;
+		//variablesContexts.put(defaultVariableContext, variableContext);
+		
+		this.rootVC = rootVC;
+		
+		vcStack.push(rootVC);
+		//this.currentVariableContext = rootVC;
 		this.classesMan = new XPEClassesMan(this);
 		
-		this.contextResolver = contextResolver;
+		//this.contextResolver = contextResolver;
 		
 		addBinaryOM(omBinaryMemberAcces);
 	}
 	
 	public XPEvaluator() {
-		this(new MapVariableContext(), CR_DEFAULT);
+		this(new MapVariableContext()/*, CR_DEFAULT*/);
 	}
 	
 	public VariableContext getCurrentVariableContext() {
-		return currentVariableContext;
+		return vcStack.peek();
 	}
 	
 	public void pushVariableContext(VariableContext vc) {
-		vc.setParent(currentVariableContext);
-		currentVariableContext = vc;
+		vcStack.push(vc);
 	}
 	
-	public void popVariableContext() {
-		currentVariableContext = currentVariableContext.getParent();
+	public VariableContext popVariableContext() {
+		return vcStack.pop();
 	}
 
 	public ClassesMan classesMan() { return classesMan; }
 	
 	public int decNbFreeOperand() { return --nbFreeOperand; }
 	
-	public boolean contextExists(String name) {
+	/*public boolean contextExists(String name) {
 		return variablesContexts.containsKey(name);
-	}
+	}*/
 	
 	public void addPreUnaryOp(OM osm) {
 		osmsPreUnary.put(osm.symbol(), osm);
@@ -146,7 +153,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		return osmsFunctions.get(symbol);
 	}
 	
-	public void addVariableContext(VariableContext vc, String name, String bindTo) throws ManagedException {
+	/*public void addVariableContext(VariableContext vc, String name, String bindTo) throws ManagedException {
 		if(variablesContexts.containsKey(name)) throw new ManagedException(String.format("The variable context %s already exists", name));
 		 
 		VariableContext parent = variablesContexts.get(bindTo);
@@ -155,22 +162,24 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		vc.setParent(parent);
 		
 		variablesContexts.put(name, vc);
-	}
+	}*/
 	
-	public VariableContext getVariableContext(String name) {
+	/*public VariableContext getVariableContext(String name) {
 		return variablesContexts.get(name);
 	}
 	
 	public void assignVariable(String context, String name, Object value) throws ManagedException {
-		VariableContext vc = variablesContexts.get(context);
+		/*VariableContext vc = variablesContexts.get(context);
 		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
 		
 		vc.assignVariable(name, value);
-		//vc.addVariable(name, valueClass, defaultValue);
-	}
+		
+	}*/
 	
 	public void assignVariable(String name, Object value) throws ManagedException {
-		assignVariable(defaultVariableContext, name, value);
+		
+		vcStack.peek().assignVariable(name, value);
+		//assignVariable(defaultVariableContext, name, value);
 	}
 	
 	/*public void assignOrDeclareVariable(String context, String name, Class<?> valueClass, Object value) throws ManagedException {
@@ -183,22 +192,20 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	public void assignOrDeclareVariable(String name, Class<?> valueClass, Object value) throws ManagedException {
 		//assignOrDeclareVariable(defaultVariableContext, name, valueClass, value);
 		
-		currentVariableContext.assignOrDeclareVariable(name, valueClass, value);
+		vcStack.peek().assignOrDeclareVariable(name, valueClass, value);
 	}
 	
-	public void addVariable(String context, String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
+	/*public void addVariable(String context, String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
 		VariableContext vc = variablesContexts.get(context);
 		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
 		vc.addVariable(name, valueClass, defaultValue);
-	}
+	}*/
 	
 	public void addVariable(String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
-		addVariable(defaultVariableContext, name, valueClass, defaultValue);
+		vcStack.peek().addVariable(name, valueClass, defaultValue);
 	}
 	
-	
-	
-	public void clearVariables() {
+	/*public void clearVariables() {
 		
 	}
 	
@@ -220,10 +227,10 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		if(var == null) return null;
 		
 		return var;
-	}
+	}*/
 	
 	public Variable<?> getVariable(String name) throws ManagedException {
-		return getVariable(name, currentVariableContext);
+		return vcStack.peek().getVariable(name);
 	}
 
 	@Override
@@ -590,18 +597,20 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		return true;
 	}
 	
-	public String getDefaultVariableContext() {
+	/*public String getDefaultVariableContext() {
 		return defaultVariableContext;
 	}
 
 	public void setDefaultVariableContext(String defaultVariableContext) {
 		this.defaultVariableContext = defaultVariableContext;
-	}
+	}*/
 
 	public XPEClassesMan getClassesMan() {
 		return classesMan;
 	}
-	
-	
+
+	public VariableContext getRootVC() {
+		return rootVC;
+	}
 	
 }
