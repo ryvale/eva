@@ -93,7 +93,7 @@ public class MapVariableContext implements VariableContext {
 
 	@Override
 	public <T>void assignContextVariable(String name, T value) {
-		variables.put(name, new MemoryVariable<T>(name, value.getClass()));
+		variables.put(name, new MemoryVariable<T>(name, value.getClass(), value));
 	}
 
 	@Override
