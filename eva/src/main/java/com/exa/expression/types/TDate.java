@@ -18,7 +18,7 @@ public class TDate extends Type<Date> {
 
 	@Override
 	public String typeName() {
-		return "Date";
+		return "date";
 	}
 	
 }
