@@ -20,7 +20,7 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 		public V value(XPEvaluator evaluator) throws ManagedException {
 			
 			Variable<?> var = evaluator.getVariable(identifier.name());
-			if(var == null) throw new ManagedException(String.format("Unable to retreive % variable value", identifier.name()));
+			if(var == null) throw new ManagedException(String.format("Unable to retreive %s variable value", identifier.name()));
 			
 			
 			Object res = var.value();
@@ -74,7 +74,7 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 		
 		Variable<?> var = evaluator.getVariable(identifier.name());
 		
-		if(var == null) throw new ManagedException(String.format("Unable to retreive % variable value", identifier.name()));
+		if(var == null) throw new ManagedException(String.format("Unable to retreive %s variable value", identifier.name()));
 		
 		Object res = var.value();
 		
