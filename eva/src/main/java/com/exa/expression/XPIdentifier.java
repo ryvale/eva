@@ -74,6 +74,8 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 		
 		Variable<?> var = evaluator.getVariable(identifier.name());
 		
+		if(var == null) throw new ManagedException(String.format("Unable to retreive % variable value", identifier.name()));
+		
 		Object res = var.value();
 		
 		return (T)type().valueOrNull(res);
