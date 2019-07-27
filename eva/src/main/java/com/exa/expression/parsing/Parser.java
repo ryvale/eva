@@ -409,7 +409,7 @@ public class Parser {
 				if(oprt == null) throw new ManagedException(String.format("Unexpected error near %s", str));
 				
 				OMFunction<?> osmf = oprt.type().methodOSM(str);
-				if(osmf == null) throw new ManagedException(String.format("The method % is not defined.", str));
+				if(osmf == null) throw new ManagedException(String.format("The method %s is not defined.", str));
 				
 				if(cosm.nbOperands() < 2) 
 					evaluator.popOperator();

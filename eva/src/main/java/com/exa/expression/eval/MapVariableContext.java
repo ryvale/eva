@@ -131,10 +131,19 @@ public class MapVariableContext implements VariableContext {
 	public <T> Variable<T> addVariable(String name, Class<?> valueClass, XPOperand<T> xpValue, XPEvaluator evaluator, VariableContext vc)	throws ManagedException {
 		if(variables.containsKey(name)) throw new ManagedException(String.format("The variable %s alredy exists", name));
 		
-		XPressionVariable<T> res = new XPressionVariable(name, valueClass, xpValue, evaluator, vc); //MemoryVariable<T>(name, valueClass, defaultValue);
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		XPressionVariable<T> res = new XPressionVariable(name, valueClass, xpValue, evaluator, vc);
 		variables.put(name, res);
 		
 		return res;
+	}
+
+	@Override
+	public void visitAll(Visitor visitor) {
+		for(String name : variables.keySet()) {
+			visitor.visit(name, variables.get(name));
+		}
+		
 	}
 	
 	

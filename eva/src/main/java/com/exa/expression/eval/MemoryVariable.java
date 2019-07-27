@@ -48,7 +48,6 @@ public class MemoryVariable<T> implements Variable<T> {
 
 	@Override
 	public Class<?> valueClass() {
-		
 		return valueClass;
 	}
 
@@ -58,6 +57,16 @@ public class MemoryVariable<T> implements Variable<T> {
 		if(valueClass.isInstance(value)) this.value = (T)value;
 		
 		throw new ManagedException(String.format("The variable %s canot be assigned by %", name, value));
+	}
+
+	@Override
+	public MemoryVariable<T> asMemoryVariable() {
+		return this;
+	}
+
+	@Override
+	public XPressionVariable<T> asXPressionVariable() {
+		return null;
 	}
 	
 	

@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Vector;
 
 import com.exa.eva.ComputedItem;
-import com.exa.eva.ComputedOperator;
 import com.exa.expression.OM;
 import com.exa.expression.Type;
 import com.exa.expression.XPOperand;
 import com.exa.expression.XPOperandBase;
-import com.exa.expression.XPOperator;
 import com.exa.expression.XPression;
 import com.exa.expression.eval.ClassesMan;
 import com.exa.expression.eval.XPEvaluator;

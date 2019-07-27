@@ -1,5 +1,7 @@
 package com.exa.expression;
 
+import com.exa.expression.eval.MemoryVariable;
+import com.exa.expression.eval.XPressionVariable;
 import com.exa.utils.ManagedException;
 
 public interface Variable<T> {
@@ -13,5 +15,9 @@ public interface Variable<T> {
 	String name();
 	
 	Class<?> valueClass();
+	
+	MemoryVariable<T> asMemoryVariable();
+	
+	XPressionVariable<T> asXPressionVariable();
 
 }

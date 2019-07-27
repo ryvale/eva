@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Vector;
 
 import com.exa.eva.ComputedItem;
-import com.exa.eva.OperatorManager;
 import com.exa.eva.OperatorManager.OMOperandType;
 import com.exa.expression.OM;
 import com.exa.expression.OMMethod;

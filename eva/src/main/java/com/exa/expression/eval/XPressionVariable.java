@@ -59,4 +59,32 @@ public class XPressionVariable<T> implements Variable<T> {
 		return valueClass;
 	}
 
+	@Override
+	public MemoryVariable<T> asMemoryVariable() {
+		return null;
+	}
+
+	@Override
+	public XPressionVariable<T> asXPressionVariable() {
+		return this;
+	}
+
+	public XPEvaluator getEvaluator() {
+		return evaluator;
+	}
+
+	public void setEvaluator(XPEvaluator evaluator) {
+		this.evaluator = evaluator;
+	}
+
+	public VariableContext getVc() {
+		return vc;
+	}
+
+	public void setVc(VariableContext vc) {
+		this.vc = vc;
+	}
+	
+	
+
 }

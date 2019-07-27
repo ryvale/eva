@@ -5,6 +5,10 @@ import com.exa.utils.ManagedException;
 
 public interface VariableContext {
 	
+	public static interface Visitor {
+		void visit(String name, Variable<?> v);
+	}
+	
 	<T>Variable<T> addVariable(String name, Class<?> valueClass, T defaultValue) throws ManagedException;
 	
 	<T>Variable<T> addVariable(String name, Class<?> valueClass, XPOperand<T> xpValue, XPEvaluator evaluator, VariableContext vc) throws ManagedException;
@@ -28,5 +32,5 @@ public interface VariableContext {
 	
 	<T>void assignOrDeclareVariable(String name, Class<?> valueClass, T value);
 	
-	
+	void visitAll(Visitor visitor);
 }
