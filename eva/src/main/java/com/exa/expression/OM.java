@@ -52,6 +52,7 @@ public abstract class OM implements OperatorManager<XPression<?>, XPOperand<?>, 
 	
 	@Override
 	public boolean canCumulateOperands() {
+		
 		return false;
 	}
 	
