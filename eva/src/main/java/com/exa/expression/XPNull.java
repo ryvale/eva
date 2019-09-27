@@ -10,7 +10,7 @@ public class XPNull<T> extends XPDynamicTypeOperand<T> {
 	private Type<?> type;
 
 	public XPNull() {
-		this(ClassesMan.T_UNKNOWN);
+		this(ClassesMan.T_NULL);
 	}
 
 	public XPNull(Type<?> type) {
@@ -29,36 +29,32 @@ public class XPNull<T> extends XPDynamicTypeOperand<T> {
 
 	@Override
 	public XPOperand<String> asOPString() {
-		if(type == ClassesMan.T_UNKNOWN) return new  XPNull<>(ClassesMan.T_STRING);
+		if(type == ClassesMan.T_NULL) return new XPNull<>(ClassesMan.T_STRING);
 		return super.asOPString();
 	}
 
 	@Override
 	public XPOperand<Date> asOPDate() {
-		if(type == ClassesMan.T_UNKNOWN) return new  XPNull<>(ClassesMan.T_DATE);
+		if(type == ClassesMan.T_NULL) return new  XPNull<>(ClassesMan.T_DATE);
 		return super.asOPDate();
 	}
 
 	@Override
 	public XPOperand<Integer> asOPInteger() {
-		if(type == ClassesMan.T_UNKNOWN) return new  XPNull<>(ClassesMan.T_INTEGER);
+		if(type == ClassesMan.T_NULL) return new  XPNull<>(ClassesMan.T_INTEGER);
 		return super.asOPInteger();
 	}
 
 	@Override
 	public XPOperand<Boolean> asOPBoolean() {
-		if(type == ClassesMan.T_UNKNOWN) return new  XPNull<>(ClassesMan.T_BOOLEAN);
+		if(type == ClassesMan.T_NULL) return new  XPNull<>(ClassesMan.T_BOOLEAN);
 		return super.asOPBoolean();
 	}
 
 	@Override
 	public XPOperand<Double> asOPDouble() {
-		if(type == ClassesMan.T_UNKNOWN) return new  XPNull<>(ClassesMan.T_DOUBLE);
+		if(type == ClassesMan.T_NULL) return new  XPNull<>(ClassesMan.T_DOUBLE);
 		return super.asOPDouble();
 	}
-	
-	
-	
-	
 
 }

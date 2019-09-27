@@ -10,6 +10,7 @@ import com.exa.expression.types.TObjectClass;
 import com.exa.expression.types.TDate;
 import com.exa.expression.types.TDouble;
 import com.exa.expression.types.TInteger;
+import com.exa.expression.types.TNull;
 import com.exa.expression.types.TString;
 import com.exa.expression.types.TUnknown;
 
@@ -25,6 +26,8 @@ public class ClassesMan {
 	public final static Type<Boolean> T_BOOLEAN = new TBoolean();
 	
 	public final static Type<?> T_UNKNOWN = new TUnknown();
+	
+	public final static Type<?> T_NULL = new TNull();
 	
 	public final static Type<?> T_OBJECT = new TObjectClass<>(null, Object.class, "object");
 	

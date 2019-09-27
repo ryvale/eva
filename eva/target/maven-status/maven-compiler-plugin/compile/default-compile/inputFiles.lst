@@ -50,6 +50,7 @@ D:\p-project\eva\eva\src\main\java\com\exa\expression\eval\StandardClassesMan.ja
 D:\p-project\eva\eva\src\main\java\com\exa\expression\types\TInteger.java
 D:\p-project\eva\eva\src\main\java\com\exa\expression\eval\operators\XPOperatorWithResolver.java
 D:\p-project\eva\eva\src\main\java\com\exa\expression\OMFunction.java
+D:\p-project\eva\eva\src\main\java\com\exa\expression\types\TNull.java
 D:\p-project\eva\eva\src\main\java\com\exa\expression\XPNull.java
 D:\p-project\eva\eva\src\main\java\com\exa\expression\eval\XPressionVariable.java
 D:\p-project\eva\eva\src\main\java\com\exa\lexing\ParsingException.java
