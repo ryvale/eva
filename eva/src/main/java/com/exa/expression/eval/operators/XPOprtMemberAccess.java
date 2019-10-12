@@ -35,6 +35,16 @@ public class XPOprtMemberAccess<T> extends XPOprtCummulableBinary<T> {
 			return XPOprtMemberAccess.this.type;
 		}
 		
+		@Override
+		public String toString() {
+			StringBuilder res = new StringBuilder();
+			
+			for(XPOperand<?> oprd : params) {
+				res.append(".").append(oprd == null ? "null" : oprd.toString());
+			}
+			
+			return res.length() > 1 ? res.substring(3) : res.toString();
+		}
 	}
 	
 	private Type<T> type;

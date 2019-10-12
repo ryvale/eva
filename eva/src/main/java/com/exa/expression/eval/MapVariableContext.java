@@ -9,20 +9,33 @@ import com.exa.expression.XPOperand;
 import com.exa.utils.ManagedException;
 
 public class MapVariableContext implements VariableContext {
+	public static interface VarRealName {
+		String name(String varName);
+	}
+	
+	public static final VarRealName IDEM_VAR_NAME = vn -> vn;
 	
 	private Map<String, Variable<?>> variables = new HashMap<>();
 	
 	private VariableContext parent;
 	
-	public MapVariableContext(VariableContext parent) {
+	private VarRealName varRealName;
+	
+	public MapVariableContext(VariableContext parent, VarRealName varRealName) {
 		super();
 		this.parent = parent;
+		this.varRealName = varRealName;
 	}
 	
-	public MapVariableContext() { this(null); }
+	public MapVariableContext() { this(null, IDEM_VAR_NAME); }
+	
+	public MapVariableContext(VariableContext parent) { this(parent, IDEM_VAR_NAME); }
+	
+	//public MapVariableContext(VariableContext parent) { this(parent, IDEM_VAR_NAME); }
 
 	@Override
-	public <T>Variable<T> addVariable(String name, Class<?> valueClass, T defaultValue) throws ManagedException {
+	public <T>Variable<T> addVariable(String codeName, Class<?> valueClass, T defaultValue) throws ManagedException {
+		String name = varRealName.name(codeName);
 		if(variables.containsKey(name)) throw new ManagedException(String.format("The variable %s alredy exists", name));
 		
 		MemoryVariable<T> res = new MemoryVariable<T>(name, valueClass, defaultValue);
@@ -37,12 +50,14 @@ public class MapVariableContext implements VariableContext {
 	}
 
 	@Override
-	public Variable<?> getContextVariable(String name) {
+	public Variable<?> getContextVariable(String codeName) {
+		String name = varRealName.name(codeName);
 		return variables.get(name);
 	}
 
 	@Override
-	public Variable<?> getVariable(String name) {
+	public Variable<?> getVariable(String codeName) {
+		String name = varRealName.name(codeName);
 		VariableContext vc = this;
 		Variable<?> res = null;
 		do {
@@ -57,7 +72,8 @@ public class MapVariableContext implements VariableContext {
 	}
 
 	@Override
-	public void releaseVariable(String name) {
+	public void releaseVariable(String codeName) {
+		String name = varRealName.name(codeName);
 		variables.remove(name);
 		
 	}
@@ -74,7 +90,8 @@ public class MapVariableContext implements VariableContext {
 	}
 
 	@Override
-	public <T>void assignVariable(String name, T value) throws ManagedException {
+	public <T>void assignVariable(String codeName, T value) throws ManagedException {
+		String name = varRealName.name(codeName);
 		VariableContext vc = this;
 		Variable<?> res = null;
 		do {
@@ -92,12 +109,14 @@ public class MapVariableContext implements VariableContext {
 	}
 
 	@Override
-	public <T>void assignContextVariable(String name, T value) {
+	public <T>void assignContextVariable(String codeName, T value) {
+		String name = varRealName.name(codeName);
 		variables.put(name, new MemoryVariable<T>(name, value.getClass(), value));
 	}
 
 	@Override
-	public <T> void assignOrDeclareVariable(String name, Class<?> valueClass, T value) {
+	public <T> void assignOrDeclareVariable(String codeName, Class<?> valueClass, T value) {
+		String name = varRealName.name(codeName);
 		VariableContext vc = this;
 		Variable<?> res = null;
 		do {
@@ -121,14 +140,14 @@ public class MapVariableContext implements VariableContext {
 	}
 
 	@Override
-	public <T> void assignContextVariable(String name, T value, Class<?> valueClass) {
+	public <T> void assignContextVariable(String codeName, T value, Class<?> valueClass) {
+		String name = varRealName.name(codeName);
 		variables.put(name, new MemoryVariable<T>(name, valueClass, value));
-		
-		
 	}
 
 	@Override
-	public <T> Variable<T> addVariable(String name, Class<?> valueClass, XPOperand<T> xpValue, XPEvaluator evaluator, VariableContext vc)	throws ManagedException {
+	public <T> Variable<T> addVariable(String codeName, Class<?> valueClass, XPOperand<T> xpValue, XPEvaluator evaluator, VariableContext vc)	throws ManagedException {
+		String name = varRealName.name(codeName);
 		if(variables.containsKey(name)) throw new ManagedException(String.format("The variable %s alredy exists", name));
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })

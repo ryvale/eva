@@ -32,6 +32,8 @@ public class XPConvertToDouble extends XPOperandBase<Double>{
 		return this;
 	}
 	
-	
-
+	@Override
+	public String toString() {
+		return (oprd == null ? "null" : oprd.toString());
+	}
 }

@@ -33,6 +33,12 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 			return type;
 		}
 		
+		@Override
+		public String toString() {
+			return identifier == null ? "null" : identifier.name();
+		}
+
+		
 	}
 	
 	private Identifier identifier;
@@ -115,6 +121,11 @@ public class XPIdentifier<T> extends XPOperandBase<T> {
 	@Override
 	public XPOperand<Boolean> asOPBoolean() {
 		return ClassesMan.T_BOOLEAN.valueOrNull(getSpecific());
+	}
+
+	@Override
+	public String toString() {
+		return identifier == null ? "null" : identifier.name();
 	}
 
 	

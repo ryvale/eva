@@ -36,6 +36,17 @@ public class XPOprtConcatenation extends XPOprtCummulableBinary<String> {
 			return res.toString();
 		}
 		
+		@Override
+		public String toString() {
+			StringBuilder res = new StringBuilder();
+			
+			for(XPOperand<String> oprd : oprds) {
+				res.append(" + ").append(oprd == null ? "null" : oprd.toString());
+			}
+			
+			return res.length() > 3 ? res.substring(3) : res.toString();
+		}
+		
 	}
 
 	public XPOprtConcatenation(String symbol) {

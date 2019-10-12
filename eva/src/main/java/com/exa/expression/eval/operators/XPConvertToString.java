@@ -24,5 +24,10 @@ public class XPConvertToString extends XPOperandBase<String> {
 	public Type<?> type() {
 		return ClassesMan.T_STRING;
 	}
+	
+	@Override
+	public String toString() {
+		return (oprd == null ? "null" : oprd.toString());
+	}
 
 }

@@ -43,6 +43,13 @@ public class OMEqualTo extends OMBinary<XPOperator<?>> {
 		public XPOperand<Boolean> asOPBoolean() {
 			return this;
 		}
+
+		@Override
+		public String toString() {
+			return (xp1 == null ? "null" : xp1.toString()) + " = " + (xp2 == null ? "null" : xp2.toString());
+		}
+		
+		
 	}
 
 	public OMEqualTo(String symbol, Integer priority) {

@@ -57,4 +57,10 @@ public class XPNull<T> extends XPDynamicTypeOperand<T> {
 		return super.asOPDouble();
 	}
 
+	@Override
+	public String toString() {
+		return "null";
+	}
+
+	
 }

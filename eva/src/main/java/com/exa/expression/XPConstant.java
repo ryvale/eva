@@ -34,5 +34,12 @@ public class XPConstant<T> extends XPDynamicTypeOperand<T> {
 	public Type<?> type() {
 		return type;
 	}
+
+	@Override
+	public String toString() {
+		return v == null ? "null" : (type == ClassesMan.T_STRING ? '"' +  v.toString() + '"': v.toString());
+	}
+	
+	
 	
 }

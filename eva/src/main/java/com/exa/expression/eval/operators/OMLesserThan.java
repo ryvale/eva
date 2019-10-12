@@ -45,6 +45,11 @@ public class OMLesserThan extends OMBinary<XPOperator<?>> {
 		public XPOperand<Boolean> asOPBoolean() {
 			return this;
 		}
+		
+		@Override
+		public String toString() {
+			return (xp1 == null ? "null" : xp1.toString()) + (orEqual ?  " <= " : " < ") + (xp2 == null ? "null" : xp2.toString());
+		}
 	}
 
 	protected boolean orEqual;

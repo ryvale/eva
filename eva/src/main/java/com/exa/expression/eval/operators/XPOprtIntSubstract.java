@@ -51,6 +51,16 @@ public class XPOprtIntSubstract extends XPOprtCummulableBinary<Integer> {
 			oprds.add(oprd);
 		}
 		
+		@Override
+		public String toString() {
+			StringBuilder res = new StringBuilder();
+			
+			for(XPOperand<?> oprd : oprds) {
+				res.append(" - ").append(oprd == null ? "null" : oprd.toString());
+			}
+			
+			return res.length() > 3 ? "(" + res.substring(3) + ")" : res.toString();
+		}
 		
 	}
 

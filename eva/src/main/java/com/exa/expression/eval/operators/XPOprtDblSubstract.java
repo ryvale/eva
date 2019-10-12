@@ -49,6 +49,17 @@ public class XPOprtDblSubstract extends XPOprtCummulableBinary<Double> {
 		public XPOperand<Double> asOPDouble() {
 			return this;
 		}
+		
+		@Override
+		public String toString() {
+			StringBuilder res = new StringBuilder();
+			
+			for(XPOperand<?> oprd : oprds) {
+				res.append(" - ").append(oprd == null ? "null" : oprd.toString());
+			}
+			
+			return res.length() > 3 ? "(" + res.substring(3) + ")" : res.toString();
+		}
 	}
 
 	public XPOprtDblSubstract(String symbol) {

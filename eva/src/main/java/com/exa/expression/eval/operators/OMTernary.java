@@ -72,7 +72,10 @@ public class OMTernary extends OM {
 			return super.asOPDouble();
 		}
 		
-		
+		@Override
+		public String toString() {
+			return (xpCondition == null ? "null" : xpCondition.toString()) + " ? " + (xpThen == null ? "null" : xpThen.toString()) + " : " + (xpElse == null ? "null" : xpElse.toString());
+		}
 		
 	}
 

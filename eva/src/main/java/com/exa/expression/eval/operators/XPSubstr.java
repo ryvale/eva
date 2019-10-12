@@ -30,7 +30,10 @@ public class XPSubstr extends XPOprdString {
 		return str.substring(start, start+nb);
 	}
 
-	
+	@Override
+	public String toString() {
+		return (oprdStr == null ? "" : oprdStr.toString()) + ".substr(" + (oprdStart == null ? "null" : oprdStart.toString()) + ", " + (oprdNb == null ? "null" : oprdNb.toString()) + ")" ;
+	}
 	
 
 }

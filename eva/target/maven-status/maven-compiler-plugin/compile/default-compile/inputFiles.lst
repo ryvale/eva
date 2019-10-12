@@ -32,6 +32,7 @@ D:\p-project\eva\eva\src\main\java\com\exa\eva\OperatorManager.java
 D:\p-project\eva\eva\src\main\java\com\exa\lexing\WordWithOpenCloseDelimiter.java
 D:\p-project\eva\eva\src\main\java\com\exa\expression\eval\operators\OMLesserThan.java
 D:\p-project\eva\eva\src\main\java\com\exa\eva\Item.java
+D:\p-project\eva\eva\src\main\java\com\exa\expression\eval\CombinedVariableContext.java
 D:\p-project\eva\eva\src\main\java\com\exa\expression\OMParamSeparator.java
 D:\p-project\eva\eva\src\main\java\com\exa\expression\types\TUnknown.java
 D:\p-project\eva\eva\src\main\java\com\exa\expression\eval\operators\OMCumulableBinary.java

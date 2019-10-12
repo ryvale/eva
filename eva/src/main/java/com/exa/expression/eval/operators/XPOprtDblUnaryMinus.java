@@ -20,5 +20,10 @@ public class XPOprtDblUnaryMinus extends XPOprtUnary<Double> {
 		
 		return false;
 	}
+	
+	@Override
+	public String toString() {
+		return " - ";
+	}
 
 }

@@ -45,6 +45,15 @@ public class TString extends Type<String> {
 				}
 				return str.substring(start);
 			}
+
+			@Override
+			public String toString() {
+				XPOperand<?> start = null;
+				XPOperand<?> nb = null;
+				if(params.size() > 0) start = params.get(0);
+				if(params.size() > 1)  nb = params.get(1);
+				return (object == null ? "" : object.toString()) + ".substr(" + (start == null ? "null" : start.toString()) + ", " + (nb == null ? "null" : nb.toString()) + ")" ;
+			}
 			
 		}
 
@@ -127,6 +136,14 @@ public class TString extends Type<String> {
 				String seek = xpSeek.value(evaluator);
 				
 				return str.indexOf(seek);
+			}
+			
+			@Override
+			public String toString() {
+				XPOperand<?> seek = null;
+				if(params.size() > 0) seek = params.get(0);
+				
+				return (object == null ? "" : object.toString()) + ".indexOf(" + (seek == null ? "null" : seek.toString()) + ")" ;
 			}
 			
 		}
