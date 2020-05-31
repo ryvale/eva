@@ -119,7 +119,7 @@ public class XPOprtIntDiv extends XPOprtCummulableBinary<Integer>  {
 		for(int i=0; i<nb; i++) {
 			XPOperand<?> oprd = params.get(i);
 			XPOperand<Integer> opSpecific = oprd.asOPInteger();
-			if(opSpecific == null) throw new ManagedException(String.format("The % should operate only on integer.", symbol));
+			if(opSpecific == null) throw new ManagedException(String.format("The '%s' should operate only on integer.", symbol));
 			res.addOperand(opSpecific);
 		}
 		

@@ -17,7 +17,6 @@ public class XPOprtDblUnaryMinus extends XPOprtUnary<Double> {
 
 	@Override
 	public boolean canManage(XPEvaluator eval, int order, int nbOperands) {
-		
 		return false;
 	}
 	

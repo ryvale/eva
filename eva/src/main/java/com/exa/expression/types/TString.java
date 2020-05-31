@@ -94,20 +94,6 @@ public class TString extends Type<String> {
 			});
 			
 			if(tp.deref()  != ClassesMan.T_STRING) return false;
-			/*ComputedItem<XPression<?>, XPression<?>, OM> cxp = eval.stackOperand(nbOperands-1);
-			XPression<?> xp = cxp.item();
-			
-			if(xp.type() != ClassesMan.T_STRING) return false;
-			
-			cxp = eval.stackOperand(nbOperands-2);
-			
-			if(cxp.item().type() != ClassesMan.T_INTEGER) return false;
-			
-			if(nbOperands > 2) {
-				cxp = eval.stackOperand(nbOperands-3);
-				
-				if(cxp.item().type() != ClassesMan.T_INTEGER) return false;
-			}*/
 			
 			return true;
 		}

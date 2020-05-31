@@ -169,55 +169,15 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 	public void assignVariable(String name, Object value) throws ManagedException {
 		
 		vcStack.peek().assignVariable(name, value);
-		//assignVariable(defaultVariableContext, name, value);
 	}
 	
-	/*public void assignOrDeclareVariable(String context, String name, Class<?> valueClass, Object value) throws ManagedException {
-		VariableContext vc = variablesContexts.get(context);
-		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
-		
-		vc.assignOrDeclareVariable(name, valueClass, value);
-	}*/
-	
-	public void assignOrDeclareVariable(String name, Class<?> valueClass, Object value) throws ManagedException {
-		//assignOrDeclareVariable(defaultVariableContext, name, valueClass, value);
-		
+	public void assignOrDeclareVariable(String name, Class<?> valueClass, Object value) {
 		vcStack.peek().assignOrDeclareVariable(name, valueClass, value);
 	}
-	
-	/*public void addVariable(String context, String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
-		VariableContext vc = variablesContexts.get(context);
-		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
-		vc.addVariable(name, valueClass, defaultValue);
-	}*/
 	
 	public void addVariable(String name, Class<?> valueClass, Object defaultValue) throws ManagedException {
 		vcStack.peek().addVariable(name, valueClass, defaultValue);
 	}
-	
-	/*public void clearVariables() {
-		
-	}
-	
-	public Variable<?> getVariable(String name, String context) throws ManagedException {
-		VariableContext vc = contextResolver.resolve(variablesContexts, context);
-		if(vc == null) throw new ManagedException(String.format("The variable context %s is not defined", context));
-		Variable<?> var = vc.getVariable(name);
-		
-		if(var == null) return null;
-		
-		return var;
-	}
-	
-	public Variable<?> getVariable(String name, VariableContext vc) throws ManagedException {
-		//VariableContext vc = contextResolver.resolve(variablesContexts, context); //variablesContexts.get(context);
-		if(vc == null) throw new ManagedException("The variable context should not be null");
-		Variable<?> var = vc.getVariable(name);
-		
-		if(var == null) return null;
-		
-		return var;
-	}*/
 	
 	public Variable<?> getVariable(String name) throws ManagedException {
 		return vcStack.peek().getVariable(name);
@@ -270,134 +230,7 @@ public class XPEvaluator implements StackEvaluator<XPression<?>, XPOperand<?>, X
 		}
 		
 		opStack.push(new ComputedOperatorManager<>(osm, order++, 1));
-	}
-	
-	/*public boolean popOperatorToOutput() throws ManagedException {
-		XPComputedOSM cop = opStack.pop();
-		if(cop == null) return false;
-		
-		nbFreeOperand -= cop.nbExpectedNbOperands();
-		
-		XPOperator<?> op = cop.item().operatorOf(this, cop.order, cop.nbExpectedNbOperands());
-		
-		outputStack.push(new XPComputedOperator(op, cop.order(), cop.nbExpectedNbOperands()));
-		
-		nbFreeOperand += 1;
-		
-		if(opStack.size() == 0) return true;
-		
-		cop = opStack.peek();
-		
-		if(cop.item() == OP_OPEN_PARENTHESIS) {
-			if(opStack.size() == 1) return true;
-			
-			cop = opStack.get(opStack.size() - 2);
-			
-			if(!cop.item().type().equals(OSMType.FUNCTION)) return true;
-		}
-		//cop.incOperandNumber();
-		
-		return true;
-	}
-	*/
-	
-	/*public void push(OperatorSymbMan osm) throws ManagedException {
-
-		if(osm.type().equals(OSMType.REGULAR)) {
-			if(opStack.size() > 0) {
-				XPComputedOSM coprt = opStack.peek();
-				
-				OperatorSymbMan topOsm = coprt.item();
-				
-				if(topOsm == osm && osm.canCumulateOperands()) {
-					coprt.incExpectedOperandNumber();
-					return;
-				}
-				
-				while(opStack.size() > 0) {
-					XPComputedOSM cop = opStack.peek();
-					OperatorSymbMan osm2 = cop.item();
-					boolean ltr = osm.associativity().equals(OSMAssociativity.LEFT_TO_RIGHT) && (osm.priority() >= osm2.priority());
-					boolean rtl =osm.associativity().equals(OSMAssociativity.RIGHT_TO_LEFT) && (osm.priority() < osm2.priority());
-					
-					if(!ltr && !rtl) break;
-					
-					popOperatorToOutput();
-				} 
-			}
-			_push(osm);
-			return;
-		}
-		
-		if(osm.type().equals(OSMType.FUNCTION)) {
-			_push(osm);
-			return;
-		}
-		
-		if(osm.type().equals(OSMType.PARAMS_SEPARATOR)) {
-			
-			while(opStack.size() > 0) {
-				XPComputedOSM cop = opStack.peek();
-				if(cop.item().type().equals(OSMType.OPEN_PARENTHESIS)) break;
-				
-				popOperatorToOutput();
-			}
-			
-			return;
-		}
-		
-		if(osm.type().equals(OSMType.OPEN_PARENTHESIS)) {
-			_push(osm);
-			return;
-		}
-		
-		if(osm.type().equals(OSMType.CLOSED_PARENTHESIS)) {
-			while(opStack.size() > 0) {
-				XPComputedOSM cop = opStack.peek();
-				if(cop.item().type().equals(OSMType.OPEN_PARENTHESIS)) {
-					opStack.pop();
-					break;
-				}
-				
-				popOperatorToOutput();
-				
-			}
-			
-			XPComputedOSM cop = topOSM();
-			
-			if(cop == null) return;
-			
-			OperatorSymbMan osm2 = cop.item();
-			if(osm2.type().equals(OSMType.FUNCTION)) {
-				popOperatorToOutput();
-				return;
-			}
-			
-			//if(cop.expectOperand()) cop.incOperandNumber();
-			if(osm2.symbol().equals(".")) popOperatorToOutput();
-			 
-			
-			return;
-		}
-		
-	}
-	*/
-
-	/*
-	@Override
-	public ComputedItem<XPression<?>, XPEvaluator> getStackOperand(int indexFormTop) {
-		//return outputStack.get(outputStack.size() - 1 - indexFormTop);
-		
-		return null;
-	}
-	*/
-	
-	/*public XPComputedItem<XPression<?>> stackOperand(int indexFormTop) {
-		if(outputStack.size() == 0) return null;
-		return outputStack.get(outputStack.size() - 1 - indexFormTop);
-	}
-	*/
-	
+	}	
 	
 	public XPOperand<?> compute() throws ManagedException {
 		ComputedOperatorManager<OM, XPression<?>> cop;

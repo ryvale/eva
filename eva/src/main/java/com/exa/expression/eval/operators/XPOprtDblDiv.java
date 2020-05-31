@@ -118,7 +118,7 @@ public class XPOprtDblDiv  extends XPOprtCummulableBinary<Double> {
 			XPOperand<Double> opSpecific = oprd.asOPDouble();
 			if(opSpecific == null) {
 				XPOperand<Integer> opInt = oprd.asOPInteger();
-				if(opInt == null) throw new ManagedException(String.format("The % should operate only on integer or double.", symbol));
+				if(opInt == null) throw new ManagedException(String.format("The '%s' should operate only on integer or double.", symbol));
 				opSpecific = new XPConvertToDouble(opInt);
 			}
 			res.addOperand(opSpecific);
