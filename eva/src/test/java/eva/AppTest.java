@@ -49,6 +49,13 @@ public class AppTest extends TestCase {
 		System.out.println(strRes);
 		assertTrue("OK EVA".equals(strRes));
 		
+		parser.evaluator().addVariable("str2", String.class, "OK EVA ");
+		xp = parser.parseString("str2");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(xp);
+		System.out.println(strRes);
+		assertTrue("OK EVA ".equals(strRes));
+		
 		parser.evaluator().addVariable("this", String.class, "OK EVA");
 		xp = parser.parseString("length");
 		System.out.println(xp);
@@ -67,6 +74,12 @@ public class AppTest extends TestCase {
 		System.out.println(xp);
 		System.out.println(strRes);
 		assertTrue("O".equals(strRes));
+		
+		xp = parser.parseString("str2.trim()");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(xp);
+		System.out.println(strRes);
+		assertTrue("OK EVA".equals(strRes));
 		
 		xp = parser.parseString("str.indexOf('OK')");
 		intRes = xp.asOPInteger().value(evaluator);
@@ -228,11 +241,14 @@ public class AppTest extends TestCase {
 		assertTrue("EVA OK".equals(strRes));
 		
 		parser.evaluator().addVariable("str", String.class, "OK");
+		parser.evaluator().addVariable("str2", String.class, "EVA ");
 		xp = parser.parseString("str + ' EXA'");
 		strRes = xp.asOPString().value(evaluator);
 		System.out.println(xp);
 		System.out.println(strRes);
 		assertTrue("OK EXA".equals(strRes));
+		
+
 		
 		xp = parser.parseString("str + str");
 		strRes = xp.asOPString().value(evaluator);
@@ -276,8 +292,26 @@ public class AppTest extends TestCase {
 		System.out.println(strRes);
 		assertTrue("OK".equals(strRes));
 		
-		xp = parser.parseString("(3+4)*5");
+		xp = parser.parseString("str2.trim() + ' OK'");
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(xp);
+		System.out.println(strRes);
+		assertTrue("EVA OK".equals(strRes));
+		
+		xp = parser.parseString("str2.trim().length");
 		Integer intRes = xp.asOPInteger().value(evaluator);
+		System.out.println(xp);
+		System.out.println(intRes);
+		assertTrue(new Integer(3).equals(intRes));
+		
+		xp = parser.parseString("str.trim().length");
+		intRes = xp.asOPInteger().value(evaluator);
+		System.out.println(xp);
+		System.out.println(intRes);
+		assertTrue(new Integer(2).equals(intRes));
+		
+		xp = parser.parseString("(3+4)*5");
+		intRes = xp.asOPInteger().value(evaluator);
 		System.out.println(xp);
 		System.out.println(intRes);
 		assertTrue(new Integer(35).equals(intRes));

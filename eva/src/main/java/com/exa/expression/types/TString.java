@@ -168,6 +168,58 @@ public class TString extends Type<String> {
 	public TString() {
 		super(String.class);
 	}
+	
+	private class MethodTrim extends OMMethod.XPOrtMethod<String, String> {
+		
+		class ResultOperand extends XPMethodResult {
+
+			public ResultOperand(XPOperand<String> object, List<XPOperand<?>> params) {
+				super(object, params);
+			}
+
+			@Override
+			public String value(XPEvaluator evaluator) throws ManagedException {
+				
+				String str = object.value(evaluator);
+				
+				
+				return str.trim();
+			}
+			
+			@Override
+			public String toString() {
+				
+				return (object == null ? "" : object.toString()) + ".trim()" ;
+			}
+			
+		}
+		
+		public MethodTrim(String symbol) {
+			super(symbol, 1);
+		}
+		
+		@Override
+		public Type<?> type() {
+			return ClassesMan.T_STRING;
+		}
+		
+		@Override
+		public boolean canManage(XPEvaluator eval, int order, int nbOperands) throws ManagedException {
+			if(eval.numberOfOperands() < nbOperands) return false;
+			
+			ComputedItem<XPression<?>, XPression<?>, OM> cxp = eval.stackOperand(nbOperands-1);
+			XPression<?> xp = cxp.item();
+			
+			if(xp.type() != ClassesMan.T_STRING) return false;
+			
+			return true;
+		}
+		
+		@Override
+		protected XPMethodResult createResultOperand(XPOperand<String> object, Vector<XPOperand<?>> params) {
+			return new ResultOperand(object, params);
+		}
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -191,6 +243,10 @@ public class TString extends Type<String> {
 		OMMethod<Integer> osmInt = new OMMethod<>("indexOf", 2, OMOperandType.POST_OPERAND);
 		osmInt.addOperator(new MethodIndexOf("indexOf", 2));
 		methods.put("indexOf", new Method<>("indexOf", Integer.class, osmInt));
+		
+		OMMethod<String> osmTrim = new OMMethod<>("trim", 1, OMOperandType.POST_OPERAND);
+		osmTrim.addOperator(new MethodTrim("trim"));
+		methods.put("trim", new Method<>("trim", String.class, osmTrim));
 	}
 
 	@Override
