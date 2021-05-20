@@ -498,6 +498,34 @@ public class AppTest extends TestCase {
 		System.out.println(xp);
 		String strRes = xp.asOPString().value(evaluator);
 		assertTrue(" like 'M41%'".equals(strRes));
+		
+		
+		parser.evaluator().addVariable("str", String.class, "22-Egout Bouché");
+		parser.evaluator().addVariable("str2", String.class, "Egout Bouché");
+		
+		xp = parser.parseString("str.substr(str.indexOf('-') + 1, str.length-str.indexOf('-') - 1)");
+		System.out.println(xp);
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("Egout Bouché".equals(strRes));
+		
+		xp = parser.parseString("str.indexOf('-') > 0 ? str.substr(str.indexOf('-') + 1, str.length-str.indexOf('-') - 1) : str");
+		System.out.println(xp);
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("Egout Bouché".equals(strRes));
+		
+		xp = parser.parseString("str2.indexOf('-') > 0 ? str2.substr(str2.indexOf('-') + 1, str2.length - str2.indexOf('-') - 1) : str2");
+		System.out.println(xp);
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("Egout Bouché".equals(strRes));
+		
+		xp = parser.parseString("str2.indexOf('-') > 0 ? str2.substr(str2.indexOf('-') + 1, str2.length - str2.indexOf('-') - 1).trim() : str2");
+		System.out.println(xp);
+		strRes = xp.asOPString().value(evaluator);
+		System.out.println(strRes);
+		assertTrue("Egout Bouché".equals(strRes));
 	}
 	
 	public void testDeepOp() throws ManagedException {
