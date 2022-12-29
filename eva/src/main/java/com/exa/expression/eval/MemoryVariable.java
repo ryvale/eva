@@ -68,6 +68,11 @@ public class MemoryVariable<T> implements Variable<T> {
 	public XPressionVariable<T> asXPressionVariable() {
 		return null;
 	}
+
+	@Override
+	public String toString() {
+		return value == null ? (valueClass == null ? "null" : String.format("(%s)null", valueClass)) : value.toString();
+	}
 	
 	
 	
